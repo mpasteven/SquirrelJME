@@ -1,0 +1,63 @@
+# Contributing
+
+Before you contribute you should read and understand the [license](license.mkd)
+that SquirrelJME is under. You should abide by the
+[Code of Conduct](code-of-conduct.mkd), if you fail to keep the pledge your
+contribution will not be accepted since it can create a toxic and unwelcoming
+environment for developers and users.
+
+ * For instructions on building, see [this document](building.mkd).
+ * Please read the [developer guide](developer-guide.mkd)!
+
+Development can happen on any operating system, however most of the scripts are
+developed targeting Unix compatible systems, this means the following:
+
+ * Linux
+ * BSD
+ * Mac OS X
+ * Cygwin or MSYS2 (Windows)
+
+SquirrelJME uses the [Fossil](https://fossil-scm.org/) source control
+system and as such it generally is expected that it is to be used. There also
+are [GitHub Pull Requests](https://github.com/XerTheSquirrel/SquirrelJME/pulls)
+however since the Git is a mirror, when these are merged there will not be
+an indication that they were merged because any writes to the Git repository
+will be destroyed.
+
+## Contributor Agreement
+
+**ALL CONTRIBUTORS MUST ACCEPT THE FOLLOWING AGREEMENT BEFORE THEIR CODE WILL**
+**BE ACCEPTED IN THE PROJECT. IF THE DEVELOPER IS EMPLOYED AND DEVELOPS THE**
+**CODE "ON THE CLOCK" OR UNDER CONTRACT, THEN THAT DEVELOPER MUST SEEK THE**
+**PERMISSION OF THE EMPLOYER.**
+
+	You grant Multi-Phasic Applications and Stephanie Gawroriski an irrevocable
+	license that:
+	
+	 1. Grants a patent license, as per the GNU GPLv3.
+	 2. The license of the code you are contributing is one of:
+	    1. Public Domain
+	    2. GNU GPLv3, CC-BY-SA 4.0, or SIL OFL v1.1 appropriately.
+	    3. Granting Multi-Phasic Applications and Stephanie Gawroriski the
+	       ability to re-license the work without any conditions and without
+	       any approval or notice. Effectively gifting your own code to the
+	       project and giving full freedom for that code.
+	 2. Specified that you have not derived your contribution and/or knowledge
+	    from the specified virtual machine implementations via direct
+	    source code or reverse engineering (but not limited to):
+	    * Android (Google)
+	    * Apache Harmony (Apache Foundation)
+	    * CVM (Sun Microsystems/Oracle)
+	    * Excelsior JET (Excelsior LLC)
+	    * GNU Classpath (Free Software Foundation)
+	    * GNU GCJ/GIJ (Free Software Foundation)
+	    * JamVM (Robert Lougher)
+	    * Microsoft Java Virtual Machine (Microsoft)
+	    * Microsoft .NET (Microsoft)
+	    * Mono (Microsoft)
+	    * OpenJDK (Sun Microsystems/Oracle)
+	    * PhoneME (Sun Microsystems/Oracle)
+	 3. If employed by a company, you have a right by that company to provide
+	    contributions to this project.
+	 4. Have pledged to follow the Code of Conduct.
+
