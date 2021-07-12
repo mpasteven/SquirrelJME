@@ -44,6 +44,10 @@ public class SwingItemCanvas
 		this.panel = panel;
 		
 		panel.addComponentListener(new HandleComponentEvents(this));
+		panel.addKeyListener(new HandleKeyEvents(this));
+		
+		// Allow this to be focused so it can have key events within
+		panel.setFocusable(true);
 	}
 	
 	/**

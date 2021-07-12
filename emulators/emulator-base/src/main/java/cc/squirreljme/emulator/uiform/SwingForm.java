@@ -83,6 +83,9 @@ public final class SwingForm
 	/** The callback for the form. */
 	private UIFormCallback _callback;
 	
+	/** Does the canvas need to be focused automatically? */
+	private volatile boolean _focusBody;
+	
 	static
 	{
 		try
@@ -354,6 +357,9 @@ public final class SwingForm
 			// this is displayed on the form
 			__item.addedOnForm(this, __pos);
 			
+			// Request that the body be focused since the form changed on us
+			this._focusBody = true;
+			
 			// Refresh the form
 			this.refresh();
 		}
@@ -584,7 +590,16 @@ public final class SwingForm
 			SwingItem bodyItem = this.itemAtPosition(UIItemPosition.BODY);
 			if (bodyItem != null)
 			{
+				// Center on this
 				formPanel.add(bodyItem.component(), BorderLayout.CENTER);
+				
+				// Focus on the body if we should do so
+				if (this._focusBody)
+				{
+					this._focusBody = false;
+					bodyItem.component().requestFocus();
+				}
+				
 				return;
 			}
 			
@@ -664,6 +679,13 @@ public final class SwingForm
 			
 			// Add the final form
 			formPanel.add(adjacent, BorderLayout.CENTER);
+			
+			// Focus on the body if we should do so
+			if (this._focusBody)
+			{
+				this._focusBody = false;
+				adjacent.requestFocus();
+			}
 			
 			// Request everything be redrawn
 			formPanel.validate();
