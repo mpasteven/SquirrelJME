@@ -1,5 +1,7 @@
 import cc.squirreljme.plugin.swm.JavaMEMidletType
 import cc.squirreljme.plugin.swm.JavaMEStandard
+import java.nio.file.Files
+import org.apache.velocity.app.VelocityEngine
 
 description = "This contains the standard MIDP Limited Capability Device " +
  "User Interface which uses graphical text, widgets, and images to interact " +
@@ -27,4 +29,52 @@ dependencies
 	api project(":modules:gcf")
 	api project(":modules:io")
 	api project(":modules:collections")
+}
+
+// Input and output directories
+java.nio.file.Path velocityInDir = project.projectDir.toPath()
+	.resolve("src").resolve("main").resolve("velocity")
+java.nio.file.Path velocityOutDir = project.buildDir.toPath()
+	.resolve("generated").resolve("graphics")
+	
+// Output directory where generated files go
+sourceSets.main.java.srcDirs += velocityOutDir.toFile()
+
+// Generate source code for the graphics operations
+task generateGraphicsSources {
+	group "squirreljme"
+	description "Generates native Graphics sources."
+	
+	inputs.dir(velocityInDir.toFile())
+	outputs.dir(velocityOutDir.toFile())
+	
+	// Performs code generation
+	doLast {
+		// Make sure this exists
+		Files.createDirectories(velocityOutDir)
+		
+		// Process all files in the path
+		Files.walk(velocityInDir).forEach({path ->
+			String fileName = path.getFileName()
+			if (!fileName.endsWith(".vsl") || !fileName.startsWith("Format"))
+				return;
+			
+			System.err.printf("Generate from: %s%n", path)
+		})
+		
+		throw new Error("TODO")
+	}
+}
+
+// We need to have the generated sources be available first before we can
+// compile anything.
+classes {
+	dependsOn generateGraphicsSources
+	mustRunAfter generateGraphicsSources
+}
+
+// This also depends on the generated sources existing
+compileJava {
+	dependsOn generateGraphicsSources
+	mustRunAfter generateGraphicsSources
 }

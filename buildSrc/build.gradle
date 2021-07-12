@@ -15,4 +15,7 @@ dependencies
 
 	// Jasmin Sable (Java byte code assembler)
 	implementation "ca.mcgill.sable:jasmin:3.0.2"
+	
+	// Apache Velocity (Template Code Generation)
+	implementation "org.apache.velocity:velocity-engine-core:2.2"
 }
