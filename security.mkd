@@ -1,0 +1,19 @@
+# Security within SquirrelJME
+
+This is a general overview of the security and other considerations
+within SquirrelJME.
+
+## Access Control via Java Security Policies (a.k.a Java Sandbox)
+
+ * Brief: Java Security Policies are _insecure_ and _should not_ be used
+   in secure applications, these exist for compatibility purposes only. Instead
+   use operating-system and hardware level security.
+
+The Java based security policies within SquirrelJME only exist for
+compatibility purposes. Although the policies may deny permissions to programs
+that are running, they are not reliable in terms of truly limiting what a
+software can do. They run within the current process user-space and the access
+controls are performed within the running program. Well behaved programs may
+accept the policies, however when going against insecure software and
+malicious software it will not provide an adequate layer to secure the
+environment.

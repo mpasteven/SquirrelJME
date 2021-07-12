@@ -11,6 +11,7 @@ package cc.squirreljme.jvm.mle;
 
 import cc.squirreljme.jvm.mle.brackets.TypeBracket;
 import cc.squirreljme.jvm.mle.constants.MonitorResultType;
+import cc.squirreljme.jvm.mle.exceptions.MLECallError;
 
 /**
  * This shelf supports object anything that has to do with objects.
@@ -181,7 +182,10 @@ public final class ObjectShelf
 	public static native int identityHashCode(Object __o);
 	
 	/**
-	 * Creates a new instance of the given type.
+	 * Creates a new instance of the given type, this has the same effect
+	 * as calling
+	 * {@link ObjectShelf#newInstance(TypeBracket, TypeBracket[], Object...)}
+	 * with {@code newInstance(__type, new TypeBracket[0], new Object[0])};
 	 *
 	 * @param __type The type to instantiate.
 	 * @return The newly created object or {@code null} if there was no
@@ -189,6 +193,25 @@ public final class ObjectShelf
 	 * @since 2020/06/17
 	 */
 	public static native Object newInstance(TypeBracket __type);
+	
+	/**
+	 * Creates a new instance of the given object, calling the specific
+	 * constructor.
+	 * 
+	 * @param __type The type to make a new instance of.
+	 * @param __argTypes The types that the arguments make up 
+	 * @param __args The arguments to the constructor.
+	 * @return The newly created object or {@code null} if there was no
+	 * memory left.
+	 * @throws MLECallError If any argument is null (except for values within
+	 * {@code __args} as a null argument may be valid, if an argument type
+	 * is null, if a passed argument is not null and not an instance of the
+	 * type, if the constructor does not exist, or if the argument count does
+	 * not match the argument types count.
+	 * @since 2020/07/14
+	 */
+	public static native Object newInstance(TypeBracket __type,
+		TypeBracket[] __argTypes, Object... __args);
 	
 	/**
 	 * Notifies the monitors holding onto this object.

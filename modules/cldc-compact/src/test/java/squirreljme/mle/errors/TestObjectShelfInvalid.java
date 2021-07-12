@@ -11,6 +11,7 @@ package squirreljme.mle.errors;
 
 import cc.squirreljme.jvm.mle.ObjectShelf;
 import cc.squirreljme.jvm.mle.TypeShelf;
+import cc.squirreljme.jvm.mle.brackets.TypeBracket;
 import cc.squirreljme.jvm.mle.exceptions.MLECallError;
 
 /**
@@ -79,6 +80,39 @@ public class TestObjectShelfInvalid
 			
 			case 11:
 				ObjectShelf.wait(null, -1, -1);
+				break;
+			
+			case 12:
+				ObjectShelf.newInstance(null, null, 
+					(Object[])null);
+				break;
+			
+			case 13:
+				ObjectShelf.newInstance(TypeShelf.classToType(Integer.class),
+					null, (Object[])null);
+				break;
+			
+			case 14:
+				ObjectShelf.newInstance(TypeShelf.classToType(Integer.class),
+					new TypeBracket[]{null}, (Object[])null);
+				break;
+			
+			case 15:
+				ObjectShelf.newInstance(TypeShelf.classToType(Integer.class),
+					new TypeBracket[]{TypeShelf.typeOfInteger()},
+					(Object[])null);
+				break;
+			
+			case 16:
+				ObjectShelf.newInstance(TypeShelf.classToType(Integer.class),
+					new TypeBracket[]{TypeShelf.typeOfInteger()},
+					10, 12);
+				break;
+			
+			case 17:
+				ObjectShelf.newInstance(TypeShelf.classToType(Integer.class),
+					new TypeBracket[]{TypeShelf.typeOfInteger()},
+					"Wrong argument");
 				break;
 			
 			default:
