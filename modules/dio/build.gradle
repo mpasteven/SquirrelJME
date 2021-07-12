@@ -13,6 +13,7 @@ squirreljme
 	swmVendor = "Stephanie Gawroriski"
 	definedStandards += new JavaMEStandard("dio", null, "1.0.1")
 	tags += "embedded"
+	isCompletionCounted = true
 }
 
 dependencies

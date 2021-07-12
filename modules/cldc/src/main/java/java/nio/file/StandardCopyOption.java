@@ -10,13 +10,21 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public enum StandardCopyOption
 	implements CopyOption
 {
+	@Completion(CompletionState.NOTHING)
 	ATOMIC_MOVE,
 	
+	@Completion(CompletionState.NOTHING)
 	COPY_ATTRIBUTES,
 	
+	@Completion(CompletionState.NOTHING)
 	REPLACE_EXISTING,
 	
 	/** End. */

@@ -10,27 +10,42 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public enum StandardOpenOption
 	implements OpenOption
 {
+	@Completion(CompletionState.NOTHING)
 	APPEND(),
 	
+	@Completion(CompletionState.NOTHING)
 	CREATE(),
 	
+	@Completion(CompletionState.NOTHING)
 	CREATE_NEW(),
 	
+	@Completion(CompletionState.NOTHING)
 	DELETE_ON_CLOSE(),
 	
+	@Completion(CompletionState.NOTHING)
 	DSYNC(),
 	
+	@Completion(CompletionState.NOTHING)
 	READ(),
 	
+	@Completion(CompletionState.NOTHING)
 	SPARSE(),
 	
+	@Completion(CompletionState.NOTHING)
 	SYNC(),
 	
+	@Completion(CompletionState.NOTHING)
 	TRUNCATE_EXISTING(),
 	
+	@Completion(CompletionState.NOTHING)
 	WRITE(),
 	
 	/** End. */

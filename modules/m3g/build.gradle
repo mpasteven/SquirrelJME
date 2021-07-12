@@ -13,6 +13,7 @@ squirreljme
 	swmVendor = "Stephanie Gawroriski"
 	tags += "3d"
 	tags += "graphics"
+	isCompletionCounted = true
 }
 
 dependencies

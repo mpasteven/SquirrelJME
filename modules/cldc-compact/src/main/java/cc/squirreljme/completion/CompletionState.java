@@ -2,36 +2,35 @@
 // ---------------------------------------------------------------------------
 // Multi-Phasic Applications: SquirrelJME
 //     Copyright (C) Stephanie Gawroriski <xer@multiphasicapps.net>
-//     Copyright (C) Multi-Phasic Applications <multiphasicapps.net>
 // ---------------------------------------------------------------------------
 // SquirrelJME is under the GNU General Public License v3+, or later.
 // See license.mkd for licensing and copyright information.
 // ---------------------------------------------------------------------------
 
-package jdk.dio;
+package cc.squirreljme.completion;
 
-import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
-import java.io.IOException;
-import java.io.OutputStream;
-
-public interface DeviceConfig<P extends Device<? super P>>
+/**
+ * This represents the state of completion.
+ *
+ * @since 2020/12/25
+ */
+public enum CompletionState
 {
-	@ApiDefinedDeprecated
-	int DEFAULT =
-		-1;
+	/** No work or otherwise has been performed. */
+	NOTHING,
 	
-	int UNASSIGNED =
-		-1;
+	/** Has been started but not enough to be partially complete. */
+	STARTED,
 	
-	int serialize(OutputStream __a)
-		throws IOException;
+	/** Partially completed. */
+	PARTIAL,
 	
-	interface HardwareAddressing
-	{
-		String getControllerName();
-		
-		int getControllerNumber();
-	}
+	/** Mostly completed. */
+	MOSTLY,
+	
+	/** Complete. */
+	COMPLETE,
+	
+	/* End. */
+	;
 }
-
-

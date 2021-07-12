@@ -16,6 +16,7 @@ squirreljme
 	swmVendor = "Stephanie Gawroriski"
 	definedStandards += new JavaMEStandard("microedition.provisioning;;")
 	tags += "meep"
+	isCompletionCounted = true
 }
 
 dependencies

@@ -11,6 +11,7 @@ squirreljme
 	swmName = "Media API"
 	swmVendor = "Stephanie Gawroriski"
 	tags += "j2me"
+	isCompletionCounted = true
 }
 
 dependencies

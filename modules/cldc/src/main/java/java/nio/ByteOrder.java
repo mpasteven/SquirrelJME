@@ -10,18 +10,25 @@
 
 package java.nio;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
 /**
  * This represents the byte order that data may be in.
  *
  * @since 2016/02/27
  */
+@Standard
 public final class ByteOrder
 {
 	/** Big endian byte order. */
+	@Completion(CompletionState.COMPLETE)
 	public static final ByteOrder BIG_ENDIAN =
 		new ByteOrder("BIG_ENDIAN");
 	
 	/** Little endian byte order. */
+	@Completion(CompletionState.COMPLETE)
 	public static final ByteOrder LITTLE_ENDIAN =
 		new ByteOrder("LITTLE_ENDIAN");
 	
@@ -54,11 +61,13 @@ public final class ByteOrder
 	 * @since 2016/02/27
 	 */
 	@Override
+	@Completion(CompletionState.COMPLETE)
 	public String toString()
 	{
 		return this._string;
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public static ByteOrder nativeOrder()
 	{
 		throw new todo.TODO();

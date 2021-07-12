@@ -10,6 +10,7 @@
 
 package jdk.dio.spibus;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,28 +28,28 @@ public final class SPIDeviceConfig
 	public static final int CS_NOT_CONTROLLED =
 		2;
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public SPIDeviceConfig(int __a, int __b, int __c, int __d, int __e, int 
 		__f)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public SPIDeviceConfig(int __a, int __b, int __c, int __d, int __e, int 
 		__f, int __g)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public SPIDeviceConfig(String __a, int __b, int __c, int __d, int __e, 
 		int __f)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public SPIDeviceConfig(String __a, int __b, int __c, int __d, int __e, 
 		int __f, int __g)
 	{

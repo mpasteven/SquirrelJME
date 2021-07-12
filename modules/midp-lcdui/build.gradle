@@ -17,6 +17,7 @@ squirreljme
 	tags += "graphics"
 	tags += "j2me"
 	tags += "nokia"
+	isCompletionCounted = true
 }
 
 dependencies

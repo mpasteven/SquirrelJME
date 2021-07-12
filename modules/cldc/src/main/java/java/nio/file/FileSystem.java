@@ -10,10 +10,14 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Set;
 
+@Standard
 public abstract class FileSystem
 	implements Closeable
 {
@@ -26,18 +30,25 @@ public abstract class FileSystem
 	{
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract Iterable<FileStore> getFileStores();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract Path getPath(String __a, String... __b);
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract Iterable<Path> getRootDirectories();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract String getSeparator();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract boolean isOpen();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract boolean isReadOnly();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract Set<String> supportedFileAttributeViews();
 }
 

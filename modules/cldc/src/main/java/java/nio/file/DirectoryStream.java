@@ -10,15 +10,21 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 
+@Standard
 public interface DirectoryStream<T>
 	extends Closeable, Iterable<T>
 {
+	@Standard
 	interface Filter<T>
 	{
+		@Completion(CompletionState.NOTHING)
 		boolean accept(T __a)
 			throws IOException;
 	}

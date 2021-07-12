@@ -10,11 +10,16 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
 /**
  * This indicates that the given path is not valid.
  *
  * @since 2019/12/22
  */
+@Standard
 public class InvalidPathException
 	extends IllegalArgumentException
 {
@@ -37,6 +42,7 @@ public class InvalidPathException
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/12/22
 	 */
+	@Completion(CompletionState.COMPLETE)
 	public InvalidPathException(String __in, String __reason, int __index)
 		throws IllegalArgumentException, NullPointerException
 	{
@@ -61,6 +67,7 @@ public class InvalidPathException
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/12/22
 	 */
+	@Completion(CompletionState.COMPLETE)
 	public InvalidPathException(String __in, String __reason)
 		throws NullPointerException
 	{
@@ -74,6 +81,7 @@ public class InvalidPathException
 	 * known.
 	 * @since 2019/12/22
 	 */
+	@Completion(CompletionState.COMPLETE)
 	public int getIndex()
 	{
 		return this._index;
@@ -85,6 +93,7 @@ public class InvalidPathException
 	 * @return The input path.
 	 * @since 2019/12/22
 	 */
+	@Completion(CompletionState.COMPLETE)
 	public String getInput()
 	{
 		return this._input;
@@ -95,6 +104,7 @@ public class InvalidPathException
 	 * @since 2019/12/22
 	 */
 	@Override
+	@Completion(CompletionState.COMPLETE)
 	public String getMessage()
 	{
 		// This is specifically specified by the documentation
@@ -109,6 +119,7 @@ public class InvalidPathException
 	 * @return The reason the path is not valid.
 	 * @since 2019/12/22
 	 */
+	@Completion(CompletionState.COMPLETE)
 	public String getReason()
 	{
 		return this._reason;

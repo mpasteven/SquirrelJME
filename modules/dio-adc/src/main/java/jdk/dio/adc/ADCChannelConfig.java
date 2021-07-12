@@ -10,6 +10,7 @@
 
 package jdk.dio.adc;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,13 +19,13 @@ import jdk.dio.DeviceConfig;
 public final class ADCChannelConfig
 	implements DeviceConfig<ADCChannel>, DeviceConfig.HardwareAddressing
 {
-	@Deprecated
+	@ApiDefinedDeprecated
 	public ADCChannelConfig(int __a, int __b, int __c, int __d, int __e)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public ADCChannelConfig(String __a, int __b, int __c, int __d, int __e)
 	{
 		throw new todo.TODO();

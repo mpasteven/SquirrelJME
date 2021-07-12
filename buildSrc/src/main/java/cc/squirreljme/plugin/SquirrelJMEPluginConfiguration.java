@@ -77,6 +77,9 @@ public class SquirrelJMEPluginConfiguration
 	/** Is this a bootloader? */
 	public boolean isBootLoader;
 	
+	/** Does this project count against total project completion? */
+	public boolean isCompletionCounted;
+	
 	/**
 	 * Initializes the configuration with the contained project.
 	 *

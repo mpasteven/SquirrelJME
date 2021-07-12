@@ -10,15 +10,22 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public class FileAlreadyExistsException
 	extends FileSystemException
 {
+	@Completion(CompletionState.NOTHING)
 	public FileAlreadyExistsException(String __a)
 	{
 		super((String)null);
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public FileAlreadyExistsException(String __a, String __b, String __c)
 	{
 		super((String)null);

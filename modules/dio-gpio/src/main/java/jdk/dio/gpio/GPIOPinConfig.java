@@ -10,6 +10,7 @@
 
 package jdk.dio.gpio;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -63,14 +64,14 @@ public final class GPIOPinConfig
 	public static final int TRIGGER_RISING_EDGE =
 		2;
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GPIOPinConfig(int __a, int __b, int __c, int __d, int __e, boolean
 		__f)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GPIOPinConfig(String __a, int __b, int __c, int __d, int __e, 
 		boolean __f)
 	{

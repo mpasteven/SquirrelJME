@@ -10,6 +10,7 @@
 
 package jdk.dio.generic;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,13 +19,13 @@ import jdk.dio.DeviceConfig;
 public final class GenericDeviceConfig
 	implements DeviceConfig<GenericDevice>, DeviceConfig.HardwareAddressing
 {
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GenericDeviceConfig(int __a, int __b)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GenericDeviceConfig(String __a, int __b)
 	{
 		throw new todo.TODO();

@@ -10,9 +10,13 @@
 
 package java.nio.channels;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Standard
 public final class Channels
 {
 	private Channels()
@@ -20,21 +24,25 @@ public final class Channels
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public static ReadableByteChannel newChannel(InputStream __a)
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public static WritableByteChannel newChannel(OutputStream __a)
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public static InputStream newInputStream(ReadableByteChannel __a)
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public static OutputStream newOutputStream(WritableByteChannel __a)
 	{
 		throw new todo.TODO();

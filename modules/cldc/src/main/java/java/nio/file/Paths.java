@@ -10,12 +10,17 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
 /**
  * This class provides a single static method which is used to create instances
  * of {@link Path} which represent native filesystem paths.
  *
  * @since 2017/06/12
  */
+@Standard
 public final class Paths
 {
 	/**
@@ -39,6 +44,7 @@ public final class Paths
 	 * on the native system.
 	 * @since 2017/06/12
 	 */
+	@Completion(CompletionState.COMPLETE)
 	public static Path get(String __a, String... __b)
 		throws InvalidPathException
 	{

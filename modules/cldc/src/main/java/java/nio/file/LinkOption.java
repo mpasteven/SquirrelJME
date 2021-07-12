@@ -10,9 +10,15 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public enum LinkOption
 	implements OpenOption, CopyOption
 {
+	@Completion(CompletionState.NOTHING)
 	NOFOLLOW_LINKS(),
 	
 	/** End. */

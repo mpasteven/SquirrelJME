@@ -10,12 +10,17 @@
 
 package java.nio.channels;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+@Standard
 public interface ReadableByteChannel
 	extends Channel
 {
+	@Completion(CompletionState.NOTHING)
 	int read(ByteBuffer __a)
 		throws IOException;
 }

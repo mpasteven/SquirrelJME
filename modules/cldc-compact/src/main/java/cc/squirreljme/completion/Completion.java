@@ -2,13 +2,12 @@
 // ---------------------------------------------------------------------------
 // Multi-Phasic Applications: SquirrelJME
 //     Copyright (C) Stephanie Gawroriski <xer@multiphasicapps.net>
-//     Copyright (C) Multi-Phasic Applications <multiphasicapps.net>
 // ---------------------------------------------------------------------------
 // SquirrelJME is under the GNU General Public License v3+, or later.
 // See license.mkd for licensing and copyright information.
 // ---------------------------------------------------------------------------
 
-package cc.squirreljme.runtime.cldc.annotation;
+package cc.squirreljme.completion;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -17,19 +16,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates the API level of the native call.
+ * This annotation is used to mark the completion state of methods and
+ * otherwise.
  *
- * @since 2018/12/05
+ * @since 2020/12/25
  */
 @Documented
-@Retention(value=RetentionPolicy.SOURCE)
-@Target(value={ElementType.CONSTRUCTOR, ElementType.FIELD,
-	ElementType.LOCAL_VARIABLE, ElementType.METHOD, ElementType.PACKAGE,
-	ElementType.PARAMETER, ElementType.TYPE})
-@Deprecated
-public @interface Api
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD,
+	ElementType.TYPE, ElementType.CONSTRUCTOR})
+@SuppressWarnings("unused")
+public @interface Completion
 {
-	/** @return The API level. */
-	int value();
+	/** How complete this is. */
+	CompletionState value();
+	
+	/** Any notes regarding this. */
+	String notes() default "";
 }
-

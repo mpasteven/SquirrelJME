@@ -10,6 +10,7 @@
 
 package jdk.dio.gpio;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,7 +57,7 @@ public final class GPIOPortConfig
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GPIOPin[] getPins()
 	{
 		throw new todo.TODO();

@@ -10,22 +10,35 @@
 
 package java.nio.file.attribute;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public interface BasicFileAttributes
 {
+	@Completion(CompletionState.NOTHING)
 	FileTime creationTime();
 	
+	@Completion(CompletionState.NOTHING)
 	boolean isDirectory();
 	
+	@Completion(CompletionState.NOTHING)
 	boolean isOther();
 	
+	@Completion(CompletionState.NOTHING)
 	boolean isRegularFile();
 	
+	@Completion(CompletionState.NOTHING)
 	boolean isSymbolicLink();
 	
+	@Completion(CompletionState.NOTHING)
 	FileTime lastAccessTime();
 	
+	@Completion(CompletionState.NOTHING)
 	FileTime lastModifiedTime();
 	
+	@Completion(CompletionState.NOTHING)
 	long size();
 }
 

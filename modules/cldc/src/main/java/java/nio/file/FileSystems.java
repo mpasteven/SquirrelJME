@@ -10,6 +10,9 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import cc.squirreljme.runtime.cldc.full.NullFileSystem;
 
 /**
@@ -18,6 +21,7 @@ import cc.squirreljme.runtime.cldc.full.NullFileSystem;
  *
  * @since 2017/06/12
  */
+@Standard
 public final class FileSystems
 {
 	/**
@@ -36,6 +40,7 @@ public final class FileSystems
 	 * @return The system's default filesystem.
 	 * @since 2017/06/12
 	 */
+	@Completion(CompletionState.NOTHING)
 	public static FileSystem getDefault()
 	{
 		todo.DEBUG.note("Implement FileSystem support!");

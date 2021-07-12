@@ -10,15 +10,22 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public class NoSuchFileException
 	extends FileSystemException
 {
+	@Completion(CompletionState.NOTHING)
 	public NoSuchFileException(String __a)
 	{
 		super((String)null);
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public NoSuchFileException(String __a, String __b, String __c)
 	{
 		super((String)null);

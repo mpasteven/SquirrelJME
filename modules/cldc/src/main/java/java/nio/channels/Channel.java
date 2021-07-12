@@ -10,13 +10,16 @@
 
 package java.nio.channels;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.Closeable;
-import java.io.IOException;
 
+@Standard
 public interface Channel
 	extends Closeable
 {
-	
+	@Completion(CompletionState.NOTHING)
 	boolean isOpen();
 }
 

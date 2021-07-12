@@ -10,10 +10,17 @@
 
 package java.nio.file.attribute;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public interface FileAttribute<T>
 {
+	@Completion(CompletionState.NOTHING)
 	String name();
 	
+	@Completion(CompletionState.NOTHING)
 	T value();
 }
 

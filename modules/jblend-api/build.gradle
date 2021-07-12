@@ -10,6 +10,7 @@ squirreljme
 	swmName = "Aplix JBlend API"
 	swmVendor = "Stephanie Gawroriski"
 	tags += "jblend"
+	isCompletionCounted = true
 }
 
 dependencies

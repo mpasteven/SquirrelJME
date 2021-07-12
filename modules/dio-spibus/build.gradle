@@ -12,6 +12,7 @@ squirreljme
 	swmVendor = "Stephanie Gawroriski"
 	definedStandards += new JavaMEStandard("dio.spibus;;1.0.1")
 	tags += "embedded"
+	isCompletionCounted = true
 }
 
 dependencies

@@ -10,6 +10,7 @@
 
 package jdk.dio.pwm;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,26 +36,26 @@ public final class PWMChannelConfig
 	public static final int IDLE_STATE_LOW =
 		1;
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PWMChannelConfig(int __a, int __b, int __c, int __d, int __e)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PWMChannelConfig(int __a, int __b, int __c, int __d, int __e, 
 		GPIOPinConfig __f)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PWMChannelConfig(String __a, int __b, int __c, int __d, int __e)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PWMChannelConfig(String __a, int __b, int __c, int __d, int __e, 
 		GPIOPinConfig __f)
 	{
@@ -89,7 +90,7 @@ public final class PWMChannelConfig
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GPIOPin getOutput()
 	{
 		throw new todo.TODO();

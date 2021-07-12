@@ -13,6 +13,7 @@ squirreljme
 	swmName = "Connection Limited Device Configuration"
 	swmVendor = "Stephanie Gawroriski"
 	definedConfigurations += new JavaMEConfiguration("CLDC-1.8")
+	isCompletionCounted = true
 	tags += "full"
 }
 

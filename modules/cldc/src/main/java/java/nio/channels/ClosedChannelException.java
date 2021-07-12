@@ -10,11 +10,16 @@
 
 package java.nio.channels;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.IOException;
 
+@Standard
 public class ClosedChannelException
 	extends IOException
 {
+	@Completion(CompletionState.NOTHING)
 	public ClosedChannelException()
 	{
 		throw new todo.TODO();

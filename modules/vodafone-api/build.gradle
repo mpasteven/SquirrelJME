@@ -11,6 +11,7 @@ squirreljme
 	swmVendor = "Stephanie Gawroriski"
 	tags += "j2me"
 	tags += "vodafone"
+	isCompletionCounted = true
 }
 
 dependencies

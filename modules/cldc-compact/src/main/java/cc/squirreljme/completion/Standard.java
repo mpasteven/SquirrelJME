@@ -2,36 +2,29 @@
 // ---------------------------------------------------------------------------
 // Multi-Phasic Applications: SquirrelJME
 //     Copyright (C) Stephanie Gawroriski <xer@multiphasicapps.net>
-//     Copyright (C) Multi-Phasic Applications <multiphasicapps.net>
 // ---------------------------------------------------------------------------
 // SquirrelJME is under the GNU General Public License v3+, or later.
 // See license.mkd for licensing and copyright information.
 // ---------------------------------------------------------------------------
 
-package jdk.dio;
+package cc.squirreljme.completion;
 
-import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface DeviceConfig<P extends Device<? super P>>
+/**
+ * Represents a standard API class.
+ *
+ * @since 2020/12/25
+ */
+@Documented
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
+public @interface Standard
 {
-	@ApiDefinedDeprecated
-	int DEFAULT =
-		-1;
-	
-	int UNASSIGNED =
-		-1;
-	
-	int serialize(OutputStream __a)
-		throws IOException;
-	
-	interface HardwareAddressing
-	{
-		String getControllerName();
-		
-		int getControllerNumber();
-	}
+	/** Possible note. */
+	String value() default "";
 }
-
-

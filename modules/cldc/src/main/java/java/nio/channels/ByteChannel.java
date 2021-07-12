@@ -10,6 +10,9 @@
 
 package java.nio.channels;
 
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public interface ByteChannel
 	extends ReadableByteChannel, WritableByteChannel
 {

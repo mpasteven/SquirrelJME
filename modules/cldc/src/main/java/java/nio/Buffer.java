@@ -10,6 +10,11 @@
 
 package java.nio;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
+
+@Standard
 public abstract class Buffer
 {
 	Buffer()
@@ -17,51 +22,61 @@ public abstract class Buffer
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final int capacity()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final Buffer clear()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final Buffer flip()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final boolean hasRemaining()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final int limit()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final Buffer limit(int __a)
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final int position()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final Buffer position(int __a)
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final int remaining()
 	{
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public final Buffer rewind()
 	{
 		throw new todo.TODO();

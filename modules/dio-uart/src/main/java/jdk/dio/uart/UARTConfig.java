@@ -10,6 +10,7 @@
 
 package jdk.dio.uart;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -72,28 +73,28 @@ public final class UARTConfig
 	public static final int STOPBITS_2 =
 		3;
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public UARTConfig(int __a, int __b, int __c, int __d, int __e, int __f, 
 		int __g)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public UARTConfig(int __a, int __b, int __c, int __d, int __e, int __f, 
 		int __g, int __h, int __i)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public UARTConfig(String __a, int __b, int __c, int __d, int __e, int __f
 		, int __g)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public UARTConfig(String __a, int __b, int __c, int __d, int __e, int __f
 		, int __g, int __h, int __i)
 	{

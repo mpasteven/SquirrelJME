@@ -10,8 +10,12 @@
 
 package java.nio.file;
 
+import cc.squirreljme.completion.Completion;
+import cc.squirreljme.completion.CompletionState;
+import cc.squirreljme.completion.Standard;
 import java.io.IOException;
 
+@Standard
 public abstract class FileStore
 {
 	protected FileStore()
@@ -19,24 +23,32 @@ public abstract class FileStore
 		throw new todo.TODO();
 	}
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract Object getAttribute(String __a)
 		throws IOException;
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract long getTotalSpace()
 		throws IOException;
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract long getUnallocatedSpace()
 		throws IOException;
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract long getUsableSpace()
 		throws IOException;
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract boolean isReadOnly();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract String name();
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract boolean supportsFileAttributeView(String __a);
 	
+	@Completion(CompletionState.NOTHING)
 	public abstract String type();
 }
 

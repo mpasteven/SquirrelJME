@@ -12,6 +12,7 @@ squirreljme
 	swmName = "Common Virtual Machine Classes"
 	swmVendor = "Stephanie Gawroriski"
 	tags += "compiler"
+	isCompletionCounted = true
 }
 
 dependencies

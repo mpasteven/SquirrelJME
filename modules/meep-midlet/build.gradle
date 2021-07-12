@@ -14,6 +14,7 @@ squirreljme
 	definedStandards += new JavaMEStandard("microedition.midlet;;")
 	tags += "meep"
 	tags += "required"
+	isCompletionCounted = true
 }
 
 dependencies

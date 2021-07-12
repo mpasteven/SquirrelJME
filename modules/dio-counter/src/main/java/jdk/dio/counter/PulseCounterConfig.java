@@ -10,6 +10,7 @@
 
 package jdk.dio.counter;
 
+import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,25 +33,25 @@ public final class PulseCounterConfig
 	public static final int TYPE_RISING_EDGE_ONLY =
 		1;
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PulseCounterConfig(int __a, int __b, int __c)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PulseCounterConfig(int __a, int __b, int __c, GPIOPinConfig __d)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PulseCounterConfig(String __a, int __b, int __c)
 	{
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public PulseCounterConfig(String __a, int __b, int __c, GPIOPinConfig __d
 		)
 	{
@@ -80,7 +81,7 @@ public final class PulseCounterConfig
 		throw new todo.TODO();
 	}
 	
-	@Deprecated
+	@ApiDefinedDeprecated
 	public GPIOPin getSource()
 	{
 		throw new todo.TODO();
