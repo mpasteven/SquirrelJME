@@ -15,6 +15,8 @@
       <module name="squirreljme.modules.common-vm-stubs.main" target="1.7" />
       <module name="squirreljme.modules.common-vm-stubs.test" target="1.7" />
       <module name="squirreljme.modules.common-vm.testFixtures" target="1.7" />
+      <module name="squirreljme.modules.debug-jdwp.main" target="1.7" />
+      <module name="squirreljme.modules.debug-jdwp.test" target="1.7" />
       <module name="squirreljme.modules.demo-hello.testFixtures" target="1.7" />
       <module name="squirreljme.modules.dio-adc.testFixtures" target="1.7" />
       <module name="squirreljme.modules.dio-atcmd.testFixtures" target="1.7" />

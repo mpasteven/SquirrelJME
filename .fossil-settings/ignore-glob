@@ -58,6 +58,8 @@ ratufacoat/out
 *.o
 *.dll
 *.exe
+bvm/cmake-build-debug
+bvm/cmake-build-release
 
 # Fossil files
 _FOSSIL_
