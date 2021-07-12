@@ -24,13 +24,6 @@ compileJava
 // try to use them during compilation.
 dependencies
 {
-	// SquirrelJME just uses TestNG here since it is flexible enough to
-	// support how SquirrelJME needs to be (testing more as if it were running
-	// on the target device). Due to the flexibility it allows easier switching
-	// from Java SE, SpringCoat, and SummerCoat
-	compileClasspath "org.testng:testng:7.1.0"
-	runtimeClasspath "org.testng:testng:7.1.0"
-
 	// We need these two modules to obtain the SquirrelJME specific classes
 	compileClasspath project(":modules:cldc-compact")
 	compileClasspath project(":modules:common-vm")

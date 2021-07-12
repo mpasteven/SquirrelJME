@@ -10,7 +10,7 @@
 
 package dev.shadowtail.classfile.mini;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
 import dev.shadowtail.classfile.pool.DualClassRuntimePool;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -100,37 +100,37 @@ public final class MinimizedClassFile
 	/**
 	 * Searches for a field by the given name and type.
 	 *
-	 * @param __is Search for static field?
+	 * @param __static Search for static field?
 	 * @param __n The name.
 	 * @param __t The type.
 	 * @return The field or {@code null} if not found.
 	 * @since 2019/04/22
 	 */
-	public final MinimizedField field(boolean __is, FieldName __n,
+	public final MinimizedField field(boolean __static, FieldName __n,
 		FieldDescriptor __t)
 		throws NullPointerException
 	{
 		if (__n == null || __t == null)
 			throw new NullPointerException("NARG");
 		
-		return this.field(__is, new FieldNameAndType(__n, __t));
+		return this.field(__static, new FieldNameAndType(__n, __t));
 	}
 	
 	/**
 	 * Searches for a field by the given name and type.
 	 *
-	 * @param __is Search for static field?
+	 * @param __static Search for static field?
 	 * @param __nat The name and type.
 	 * @return The field or {@code null} if not found.
 	 * @since 2019/04/22
 	 */
-	public final MinimizedField field(boolean __is, FieldNameAndType __nat)
+	public final MinimizedField field(boolean __static, FieldNameAndType __nat)
 		throws NullPointerException
 	{
 		if (__nat == null)
 			throw new NullPointerException("NARG");
 		
-		for (MinimizedField mf : (__is ? this._sfields : this._ifields))
+		for (MinimizedField mf : (__static ? this._sfields : this._ifields))
 			if (mf.name.equals(__nat.name()) && mf.type.equals(__nat.type()))
 				return mf;
 		
@@ -140,13 +140,13 @@ public final class MinimizedClassFile
 	/**
 	 * Returns the fields in the class.
 	 *
-	 * @param __is If true then static fields are returned.
+	 * @param __static If true then static fields are returned.
 	 * @return The fields.
 	 * @since 2019/04/17
 	 */
-	public final MinimizedField[] fields(boolean __is)
+	public final MinimizedField[] fields(boolean __static)
 	{
-		return (__is ? this._sfields.clone() : this._ifields.clone());
+		return (__static ? this._sfields.clone() : this._ifields.clone());
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public final class MinimizedClassFile
 		
 		if (ref == null || null == (rv = ref.get()))
 			this._flags = new WeakReference<>((rv =
-				new ClassFlags(this.header.classflags)));
+				new ClassFlags(this.header.getClassflags())));
 		
 		return rv;
 	}
@@ -175,7 +175,7 @@ public final class MinimizedClassFile
 	 */
 	public final ClassNames interfaceNames()
 	{
-		int idx = this.header.classints;
+		int idx = this.header.getClassints();
 		if (idx == 0)
 			return new ClassNames();
 		return this.pool.getByIndex(false, idx).
@@ -204,20 +204,20 @@ public final class MinimizedClassFile
 	/**
 	 * Searches for a method by the given name and type.
 	 *
-	 * @param __is Search for static method?
+	 * @param __static Search for static method?
 	 * @param __n The name.
 	 * @param __t The type, if {@code null} the type is ignored.
 	 * @return The method or {@code null} if not found.
 	 * @since 2019/04/22
 	 */
-	public final MinimizedMethod method(boolean __is, MethodName __n,
+	public final MinimizedMethod method(boolean __static, MethodName __n,
 		MethodDescriptor __t)
 		throws NullPointerException
 	{
 		if (__n == null)
 			throw new NullPointerException("NARG");
 		
-		for (MinimizedMethod mm : (__is ? this._smethods : this._imethods))
+		for (MinimizedMethod mm : (__static ? this._smethods : this._imethods))
 			if (mm.name.equals(__n) && (__t == null || mm.type.equals(__t)))
 				return mm;
 		
@@ -228,18 +228,19 @@ public final class MinimizedClassFile
 	/**
 	 * Searches for a method by the given name and type.
 	 *
-	 * @param __is Search for static method?
+	 * @param __static Search for static method?
 	 * @param __nat The name and type.
 	 * @return The method or {@code null} if not found.
 	 * @since 2019/04/22
 	 */
-	public final MinimizedMethod method(boolean __is, MethodNameAndType __nat)
+	public final MinimizedMethod method(boolean __static,
+		MethodNameAndType __nat)
 		throws NullPointerException
 	{
 		if (__nat == null)
 			throw new NullPointerException("NARG");
 		
-		for (MinimizedMethod mm : (__is ? this._smethods : this._imethods))
+		for (MinimizedMethod mm : (__static ? this._smethods : this._imethods))
 			if (mm.name.equals(__nat.name()) && mm.type.equals(__nat.type()))
 				return mm;
 		
@@ -249,13 +250,13 @@ public final class MinimizedClassFile
 	/**
 	 * Returns the methods in the class.
 	 *
-	 * @param __is If true then static methods are returned.
+	 * @param __static If true then static methods are returned.
 	 * @return The methods.
 	 * @since 2019/04/17
 	 */
-	public final MinimizedMethod[] methods(boolean __is)
+	public final MinimizedMethod[] methods(boolean __static)
 	{
-		return (__is ? this._smethods.clone() : this._imethods.clone());
+		return (__static ? this._smethods.clone() : this._imethods.clone());
 	}
 	
 	/**
@@ -277,7 +278,7 @@ public final class MinimizedClassFile
 	 */
 	public final ClassName superName()
 	{
-		int sdx = this.header.classsuper;
+		int sdx = this.header.getClasssuper();
 		if (sdx == 0)
 			return null;
 		return this.pool.getByIndex(false, sdx).
@@ -292,7 +293,7 @@ public final class MinimizedClassFile
 	 */
 	public final ClassName thisName()
 	{
-		return this.pool.getByIndex(false, this.header.classname).
+		return this.pool.getByIndex(false, this.header.getClassname()).
 			<ClassName>value(ClassName.class);
 	}
 	
@@ -317,7 +318,7 @@ public final class MinimizedClassFile
 	 * Decodes and returns the minimized representation of the class file.
 	 *
 	 * @param __is The stream to decode from.
-	 * @param __ppool The parent pool, may be {@code null}.
+	 * @param __dPool The parent pool, may be {@code null}.
 	 * @return The resulting minimized class.
 	 * @throws InvalidClassFormatException If the class is not formatted
 	 * correctly.
@@ -326,49 +327,32 @@ public final class MinimizedClassFile
 	 * @since 2019/03/10
 	 */
 	public static MinimizedClassFile decode(InputStream __is,
-		DualClassRuntimePool __ppool)
+		DualClassRuntimePool __dPool)
 		throws InvalidClassFormatException, IOException, NullPointerException
 	{
 		if (__is == null)
 			throw new NullPointerException("NARG");
 		
 		// Initialize byte array with guess to how many bytes can be read
-		byte[] mcdata;
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(
 			Math.min(1048576, __is.available())))
 		{
-			// Read the entire header for the class
-			for (int i = 0; i < MinimizedClassHeader.HEADER_SIZE_WITH_MAGIC;
-				i++)
-				baos.write(__is.read());
-			
-			// Read the data size to determine how much to read
-			byte[] xhead = baos.toByteArray();
-			int datasize = ((xhead[92] & 0xFF) << 24) |
-				((xhead[93] & 0xFF) << 16) |
-				((xhead[94] & 0xFF) << 8) |
-				((xhead[95] & 0xFF));
-			
 			// Read all the data size bytes
-			byte[] buf = new byte[512];
-			for (int left = datasize; left > 0;)
+			byte[] buf = new byte[8192];
+			for (;;)
 			{
-				int rc = __is.read(buf, 0, (Math.min(512, left)));
+				int rc = __is.read(buf);
 				
 				// EOF?
 				if (rc < 0)
 					break;
 				
 				baos.write(buf, 0, rc);
-				left -= rc;
 			}
 			
 			// Finish off
-			mcdata = baos.toByteArray();
+			return MinimizedClassFile.decode(baos.toByteArray(), __dPool);
 		}
-		
-		// Decode now
-		return MinimizedClassFile.decode(mcdata, __ppool);
 	}
 	
 	/**
@@ -416,52 +400,59 @@ public final class MinimizedClassFile
 			
 			// {@squirreljme.error JC01 Length of class file does not match
 			// length of array. (The file length; The array length)}
-			int fsz = header.filesize;
+			int fsz = header.getFilesize();
 			if (fsz != __is.length)
 				throw new InvalidClassFormatException("JC01 " + fsz +
 					" " + __is.length);
 			
 			// {@squirreljme.error JC02 End of file magic number is invalid.
-			// (The read magic number)}
+			// (The read magic number; The expected value; The file size)}
 			int endmagic;
-			if (MinimizedClassHeader.END_MAGIC_NUMBER !=
+			if (ClassInfoConstants.CLASS_END_MAGIC_NUMBER !=
 				(endmagic = (((__is[fsz - 4] & 0xFF) << 24) |
 				((__is[fsz - 3] & 0xFF) << 16) |
 				((__is[fsz - 2] & 0xFF) << 8) |
 				(__is[fsz - 1] & 0xFF))))
 				throw new InvalidClassFormatException(
-					String.format("JC02 %08x", endmagic));
+					String.format("JC02 %08x %08x %d", endmagic,
+						ClassInfoConstants.CLASS_END_MAGIC_NUMBER, fsz));
 			
 			// Virtual constant pool which relies on a parent one
 			DualClassRuntimePool pool;
-			if (header.staticpoolsize < 0 || header.runtimepoolsize < 0)
+			if (header.getStaticpoolsize() < 0 ||
+				header.getRuntimepoolsize() < 0)
 			{
 				// {@squirreljme.error JC4h No parent pool was specified.}
 				if (__ppool == null)
 					throw new NullPointerException("JC4h");
-				
-				throw Debugging.todo();
+					
+				pool = DualPoolEncoder.decodeLayered(__is,
+					header.getStaticpooloff(), -header.getStaticpoolsize(),
+					header.getRuntimepooloff(), -header.getRuntimepoolsize(),
+					__ppool);
 			}
 			
 			// Decode physical pool within the class
 			else
 			{
-				pool = DualPoolEncoder.decode(__is,
-					header.staticpooloff, header.staticpoolsize,
-					header.runtimepooloff, header.runtimepoolsize);
+				pool = DualPoolEncoder.decode(__is, header.getStaticpooloff(),
+					header.getStaticpoolsize(), header.getRuntimepooloff(),
+					header.getRuntimepoolsize());
 			}
 			
 			// Read static and instance fields
 			MinimizedField[] sfields = MinimizedField.decodeFields(
-					header.sfcount, pool, __is, header.sfoff, header.sfsize),
-				ifields = MinimizedField.decodeFields(
-					header.ifcount, pool, __is, header.ifoff, header.ifsize);
+				header.getSfcount(), pool, __is, header.getSfoff(),
+				header.getSfsize()),
+				ifields = MinimizedField.decodeFields(header.getIfcount(), pool, __is,
+					header.getIfoff(), header.getIfsize());
 			
 			// Read static and instance methods
 			MinimizedMethod[] smethods = MinimizedMethod.decodeMethods(
-					header.smcount, pool, __is, header.smoff, header.smsize),
-				imethods = MinimizedMethod.decodeMethods(
-					header.imcount, pool, __is, header.imoff, header.imsize);
+				header.getSmcount(), pool, __is, header.getSmoff(),
+				header.getSmsize()),
+				imethods = MinimizedMethod.decodeMethods(header.getImcount(), pool, __is,
+					header.getImoff(), header.getImsize());
 			
 			// Build final class
 			return new MinimizedClassFile(header, pool,

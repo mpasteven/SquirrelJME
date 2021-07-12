@@ -278,75 +278,17 @@ public final class ClassFile
 		
 		// Use the names of the types in the language
 		ClassName name;
-		boolean isprimitive;
-		if ((isprimitive = __d.isPrimitive()))
+		boolean isPrimitive = __d.isPrimitive();
+		if (isPrimitive)
 			name = ClassName.fromPrimitiveType(__d.primitiveType());
 		
-		// Treat array as normal class name
+		// Something else
 		else
-		{
 			name = __d.className();
-			
-			// Create fake constant pool
-			Pool fakepool = new Pool(
-					null,
-					new MethodReference(
-						new ClassName("java/lang/Object"),
-						new MethodName("clone"),
-						new MethodDescriptor("()Ljava/lang/Object;"), false));
-			
-			// Faked Code attribute for the clone method
-			byte[] fakeattr;
-			try (ByteArrayOutputStream baos = new ByteArrayOutputStream(128);
-				DataOutputStream dos = new DataOutputStream(baos))
-			{
-				// Max stack
-				dos.writeShort(1);
-				
-				// Max locals
-				dos.writeShort(1);
-				
-				// Code length
-				dos.writeInt(5);
-				
-				// ALOAD_0
-				dos.writeByte(0x2A);
-				
-				// INVOKESPECIAL : Object.clone()
-				dos.writeByte(0xB7);
-				dos.writeShort(1);
-				
-				// ARETURN
-				dos.writeByte(0xB0);
-				
-				// No exceptions
-				dos.writeShort(0);
-				
-				// No attributes
-				dos.writeShort(0);
-				
-				// Build
-				fakeattr = baos.toByteArray();
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException(e);
-			}
-			
-			// Need to make virtual method called clone
-			methods = new Method[]
-				{
-					new Method(ClassVersion.CLDC_8, cflags, __d.className(),
-						fakepool, new MethodFlags(0x1001),
-						new MethodName("clone"),
-						new MethodDescriptor("()Ljava/lang/Object;"),
-						fakeattr, new AnnotationTable()),
-				};
-		}
 		
 		// Build
 		return new ClassFile(ClassVersion.MAX_VERSION, cflags, name,
-			(isprimitive ? null : new ClassName("java/lang/Object")),
+			(isPrimitive ? null : new ClassName("java/lang/Object")),
 			new ClassName[0], new Field[0], methods, new InnerClasses(),
 			new AnnotationTable(), "<special>");
 	}

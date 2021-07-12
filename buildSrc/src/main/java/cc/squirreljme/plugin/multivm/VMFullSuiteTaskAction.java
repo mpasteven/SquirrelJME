@@ -38,23 +38,28 @@ public class VMFullSuiteTaskAction
 	public static final String LIBRARIES_PROPERTY =
 		"full.libraries";
 	
+	/** The source set used. */
+	public final String sourceSet;
+	
 	/** The virtual machine creating for. */
 	protected final VMSpecifier vmType;
 	
 	/**
 	 * Initializes the task.
 	 * 
+	 * @param __sourceSet The source set.
 	 * @param __vmType The VM to make a ROM for.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/10/17
 	 */
-	public VMFullSuiteTaskAction(VMSpecifier __vmType)
+	public VMFullSuiteTaskAction(String __sourceSet, VMSpecifier __vmType)
 		throws NullPointerException
 	{
-		if (__vmType == null)
+		if (__vmType == null || __sourceSet == null)
 			throw new NullPointerException("NARG");
 		
 		this.vmType = __vmType;
+		this.sourceSet = __sourceSet;
 	}
 	
 	/**
@@ -118,7 +123,7 @@ public class VMFullSuiteTaskAction
 		ExecResult exitResult = __task.getProject().javaexec(__spec ->
 			{
 				// Use filled JVM arguments
-				this.vmType.spawnJvmArguments(__task,
+				this.vmType.spawnJvmArguments(__task, false,
 					new GradleJavaExecSpecFiller(__spec),
 					"javax.microedition.midlet.__MainHandler__",
 					new LinkedHashMap<String, String>(),

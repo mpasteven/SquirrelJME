@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20210304-1501-Experimental"
+	Name="(empty)"
+	Generator="ctest-3.17.5"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="Windows"
+	Hostname="cedartree"
+	OSRelease=" Professional"
+	OSVersion=" (Build 19042)"
+	OSPlatform="AMD64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="14"
+	ProcessorCacheSize="-1"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="4"
+	TotalVirtualMemory="25539"
+	TotalPhysicalMemory="16218"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="2112"
+	>
+	<Testing>
+		<StartDateTime>Mar 04 18:48 Eastern Standard Time</StartDateTime>
+		<StartTestTime>1614901724</StartTestTime>
+		<TestList>
+			<Test>./tests/testJvmInit</Test>
+			<Test>./tests/testMemHandleCycle</Test>
+			<Test>./tests/testMemHandleInit</Test>
+			<Test>./tests/testMemHandleInvalid</Test>
+			<Test>./tests/testNothing</Test>
+			<Test>./tests/testOpCodes</Test>
+			<Test>./tests/testSkipped</Test>
+		</TestList>
+		<Test Status="failed">
+			<Name>testJvmInit</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testJvmInit</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testJvmInit"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="text/string" name="Exit Code">
+					<Value>SEGFAULT</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Exit Value">
+					<Value>3221225477</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0072055</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testJvmInit"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value></Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="failed">
+			<Name>testMemHandleCycle</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testMemHandleCycle</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testMemHandleCycle"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="text/string" name="Exit Code">
+					<Value>Failed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Exit Value">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0065521</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testMemHandleCycle"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>Running test testMemHandleCycle...
+TD: TODO Hit: sjme_memHandlesInit(000000000198FB88, 0000000001A51250)
+</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="failed">
+			<Name>testMemHandleInit</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testMemHandleInit</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testMemHandleInit"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="text/string" name="Exit Code">
+					<Value>Failed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Exit Value">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0054147</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testMemHandleInit"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>Running test testMemHandleInit...
+TD: TODO Hit: sjme_memHandlesInit(000000000198FB88, 0000000001DF1250)
+</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="failed">
+			<Name>testMemHandleInvalid</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testMemHandleInvalid</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testMemHandleInvalid"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="text/string" name="Exit Code">
+					<Value>Failed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Exit Value">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0064361</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testMemHandleInvalid"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>Running test testMemHandleInvalid...
+TD: TODO Hit: sjme_memHandlesInit(000000000198FB88, 0000000001F41250)
+</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="passed">
+			<Name>testNothing</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testNothing</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testNothing"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.0053742</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testNothing"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>Running test testNothing...
+Test testNothing result: PASS 0 (0)
+</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="failed">
+			<Name>testOpCodes</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testOpCodes</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testOpCodes"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="text/string" name="Exit Code">
+					<Value>Failed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Exit Value">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.006482</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testOpCodes"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>Running test testOpCodes...
+Test testOpCodes result: FAIL -1 (0xffffffff)
+</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<Test Status="notrun">
+			<Name>testSkipped</Name>
+			<Path>./tests</Path>
+			<FullName>./tests/testSkipped</FullName>
+			<FullCommandLine>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testSkipped"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>SKIP_RETURN_CODE=42</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>C:\Users\xer\squirreljme\ratufacoat\cmake-build-debug\tests\SquirrelJMETests.exe "testSkipped"</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>Running test testSkipped...
+Test testSkipped result: SKIP -65535 (0xffff0001)
+</Value>
+				</Measurement>
+			</Results>
+		</Test>
+		<EndDateTime>Mar 04 18:48 Eastern Standard Time</EndDateTime>
+		<EndTestTime>1614901724</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

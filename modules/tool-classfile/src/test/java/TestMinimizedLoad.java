@@ -32,11 +32,9 @@ public class TestMinimizedLoad
 		throws Throwable
 	{
 		if (true)
-			throw new UntestableException("Not a good test, minimized " +
-				"classes can change resulting in this test breaking."); 
+			throw new UntestableException("Already tested by another."); 
 		
-		for (String x : new String[]{"ByteDeque.data",
-			"InflaterInputStream.data"})
+		for (String x : TestClassLoad.CLASS_LIST)
 			try (InputStream in = TestClassLoad.class.getResourceAsStream(x))
 			{
 				Minimizer.minimize(ClassFile.decode(in));

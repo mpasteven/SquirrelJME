@@ -17,8 +17,11 @@ import cc.squirreljme.jdwp.trips.JDWPTripVmState;
 import cc.squirreljme.jvm.mle.ThreadShelf;
 import cc.squirreljme.jvm.mle.brackets.TracePointBracket;
 import cc.squirreljme.jvm.mle.brackets.VMThreadBracket;
+import cc.squirreljme.jvm.mle.constants.ThreadModelType;
 import cc.squirreljme.jvm.mle.constants.ThreadStatusType;
 import cc.squirreljme.runtime.cldc.debug.CallTraceElement;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.vm.springcoat.brackets.TaskObject;
 import cc.squirreljme.vm.springcoat.brackets.VMThreadObject;
 import cc.squirreljme.vm.springcoat.exceptions.SpringMLECallError;
 import net.multiphasicapps.classfile.ClassName;
@@ -187,6 +190,37 @@ public enum MLEThread
 		}
 	},
 	
+	/** {@link ThreadShelf#currentVMThread()}. */
+	CURRENT_VM_THREAD("currentVMThread:" +
+		"()Lcc/squirreljme/jvm/mle/brackets/VMThreadBracket;")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/05/08
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			return new VMThreadObject(__thread.machine, __thread.thread);
+		}
+	},
+	
+	/** {@link ThreadShelf#equals(VMThreadBracket, VMThreadBracket)}. */
+	EQUALS("equals:(Lcc/squirreljme/jvm/mle/brackets/VMThreadBracket;" +
+		"Lcc/squirreljme/jvm/mle/brackets/VMThreadBracket;)Z")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/05/08
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			return MLEThread.__vmThread(__args[0]).getThread() ==
+				MLEThread.__vmThread(__args[1]).getThread();
+		}
+	}, 
+	
 	/** {@link ThreadShelf#javaThreadClearInterrupt(Thread)}. */
 	JAVA_THREAD_CLEAR_INTERRUPT("javaThreadClearInterrupt:" +
 		"(Ljava/lang/Thread;)Z")
@@ -304,6 +338,21 @@ public enum MLEThread
 			
 			// No value is returned
 			return null;
+		}
+	},
+	
+	/** {@link ThreadShelf#model()}. */ 
+	MODEL("model:()I")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/05/07
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			// SpringCoat is always multi-threaded
+			return ThreadModelType.SIMULTANEOUS_MULTI_THREAD;
 		}
 	},
 	
@@ -611,6 +660,22 @@ public enum MLEThread
 			}
 		}
 	},
+	
+	/** {@link ThreadShelf#vmThreadTask(VMThreadBracket)}. */
+	VM_THREAD_TASK("vmThreadTask:(Lcc/squirreljme/jvm/mle/brackets/" +
+		"VMThreadBracket;)Lcc/squirreljme/jvm/mle/brackets/TaskBracket;")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/05/08
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			return new TaskObject(MLEThread.__vmThread(__args[0]).getThread()
+				.machine());
+		}
+	}, 
 	
 	/** {@link ThreadShelf#waitForUpdate(int)}. */
 	WAIT_FOR_UPDATE("waitForUpdate:(I)Z")

@@ -10,16 +10,17 @@
 
 package javax.microedition.midlet;
 
+import cc.squirreljme.jvm.manifest.JavaManifest;
+import cc.squirreljme.jvm.manifest.JavaManifestKey;
+import cc.squirreljme.jvm.mle.JarPackageShelf;
+import cc.squirreljme.jvm.mle.brackets.JarPackageBracket;
+import cc.squirreljme.runtime.cldc.Poking;
 import cc.squirreljme.runtime.cldc.annotation.ApiDefinedDeprecated;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.runtime.midlet.ActiveMidlet;
 import cc.squirreljme.runtime.midlet.CleanupHandler;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import net.multiphasicapps.tool.manifest.JavaManifest;
-import net.multiphasicapps.tool.manifest.JavaManifestKey;
 
 public abstract class MIDlet
 {
@@ -28,10 +29,10 @@ public abstract class MIDlet
 		"cc.squirreljme.runtime.midlet.override.";
 	
 	/** The cached manifest for obtaining properties. */
-	private Reference<JavaManifest> _manifest;
+	private JavaManifest _manifest;
 	
 	/** Is there no manifest? */
-	private boolean _nomanifest;
+	private boolean _noManifest;
 	
 	/**
 	 * Initialize the MIDlet.
@@ -40,6 +41,10 @@ public abstract class MIDlet
 	 */
 	protected MIDlet()
 	{
+		// We might be on an emulator, so do some poking to make sure
+		// everything is working okay
+		Poking.poke();
+		
 		// Set the active midlet to this one
 		ActiveMidlet.set(this);
 	}
@@ -132,6 +137,9 @@ public abstract class MIDlet
 		if (__p == null)
 			throw new NullPointerException("NARG");
 		
+		// Debug
+		Debugging.debugNote("getAppProperty(%s)", __p);
+		
 		// Overridden property?
 		JavaManifestKey key = new JavaManifestKey(__p);
 		String val = System.getProperty(MIDlet._APP_PROPERTY_OVERRIDE + key);
@@ -139,20 +147,21 @@ public abstract class MIDlet
 			return val.trim();
 		
 		// If there is not manifest, ignore this step
-		if (!this._nomanifest)
+		if (!this._noManifest)
 		{
 			// Lookup JAR manifest
-			Reference<JavaManifest> ref = this._manifest;
-			JavaManifest manifest;
-		
-			// Cache it?
-			if (ref == null || (null == (manifest = ref.get())))
+			JavaManifest manifest = this._manifest;
+			if (manifest == null)
 			{
+				// Determine what our JAR is
+				JarPackageBracket[] classPath =
+					JarPackageShelf.classPath();
+				JarPackageBracket ourJar = classPath[classPath.length - 1];
+				
 				// Some application properties are inside of the manifest so
 				// check that
-				InputStream is = this.getClass().getResourceAsStream(
-					"/META-INF/MANIFEST.MF");
-				try
+				try (InputStream is = JarPackageShelf.openResource(
+					ourJar, "META-INF/MANIFEST.MF"))
 				{
 					// Not found, force failure
 					if (is == null)
@@ -160,15 +169,15 @@ public abstract class MIDlet
 					
 					// Load it
 					manifest = new JavaManifest(is);
+					this._manifest = manifest;
 					
-					// Store it
-					this._manifest = new WeakReference<>(manifest);
+					Debugging.debugNote("Attr: %s", manifest.getMainAttributes());
 				}
 				
 				// Does not exist or failed to read
 				catch (IOException e)
 				{
-					this._nomanifest = true;
+					this._noManifest = true;
 					manifest = null;
 				}
 			}
@@ -176,7 +185,7 @@ public abstract class MIDlet
 			// Try to get key value
 			if (manifest != null)
 			{
-				String rv = manifest.getMainAttributes().get(
+				String rv = manifest.getMainAttributes().getValue(
 					new JavaManifestKey(__p));
 				if (rv != null)
 					return rv.trim();

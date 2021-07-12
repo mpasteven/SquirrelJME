@@ -10,15 +10,16 @@
 
 package cc.squirreljme.vm.springcoat;
 
-import cc.squirreljme.jdwp.JDWPFactory;
-import cc.squirreljme.jvm.mle.constants.TaskPipeRedirectType;
-import cc.squirreljme.vm.VMClassLibrary;
+import cc.squirreljme.emulator.profiler.ProfilerSnapshot;
 import cc.squirreljme.emulator.vm.VMException;
 import cc.squirreljme.emulator.vm.VMFactory;
 import cc.squirreljme.emulator.vm.VMSuiteManager;
+import cc.squirreljme.emulator.vm.VMThreadModel;
 import cc.squirreljme.emulator.vm.VirtualMachine;
+import cc.squirreljme.jdwp.JDWPFactory;
+import cc.squirreljme.jvm.mle.constants.TaskPipeRedirectType;
+import cc.squirreljme.vm.VMClassLibrary;
 import java.util.Map;
-import cc.squirreljme.emulator.profiler.ProfilerSnapshot;
 
 /**
  * Factory which creates instances of the SpringCoat virtual machine.
@@ -44,7 +45,7 @@ public class SpringCoatFactory
 	 */
 	@Override
 	protected VirtualMachine createVM(ProfilerSnapshot __ps,
-		JDWPFactory __jdwp, VMSuiteManager __sm,
+		JDWPFactory __jdwp, VMThreadModel __threadModel, VMSuiteManager __sm,
 		VMClassLibrary[] __cp, String __maincl, Map<String, String> __sprops,
 		String[] __args)
 		throws IllegalArgumentException, NullPointerException, VMException

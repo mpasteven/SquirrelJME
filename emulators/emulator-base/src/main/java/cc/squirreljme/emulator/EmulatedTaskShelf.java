@@ -183,6 +183,9 @@ public final class EmulatedTaskShelf
 		// Use these arguments
 		builder.command(args);
 		
+		// Debug
+		Debugging.debugNote("Forked CmdLine: %s", args);
+		
 		// Alternative piping for standard output
 		switch (__stdOut)
 		{

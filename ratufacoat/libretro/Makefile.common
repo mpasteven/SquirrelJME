@@ -6,18 +6,64 @@
 # See license.mkd for licensing and copyright information.
 # ---------------------------------------------------------------------------
 # DESCRIPTION: Makefile specifically for SquirrelJME RatufaCoat on RetroArch.
+# This is the only file that should be edited
 
 ###### CORE DEFINED OPTIONS ######
 NOTHING :=
 
-TARGET_NAME ?= squirreljme
-COREDEFINES :=
-INCFLAGS := -I$(CORE_DIR)/include $(INCFLAGS)
+# If we are on Emscripten, it in no way will support a built in ROM so it
+# must be downloaded.
+ifeq ($(platform),emscripten)
+	undefine SQUIRRELJME_HAS_BUILTIN
+endif
 
-SOURCES_C   := $(CORE_DIR)/src/sjmerc.c \
-	$(CORE_DIR)/src/sjmercnm.c \
-	$(CORE_DIR)/src/sjmercvm.c \
-	$(CORE_DIR)/src/sys_libr.c
+# Including Built-In ROM?
+ifdef SQUIRRELJME_HAS_BUILTIN
+SQUIRRELJME_EXTRA_C_SOURCES = $(CORE_DIR)/build/builtin.c
+SQUIRRELJME_EXTRA_CFLAGS = -DSQUIRRELJME_HAS_BUILTIN
+endif
+
+TARGET_NAME ?= squirreljme
+COREDEFINES := $(SQUIRRELJME_EXTRA_CFLAGS)
+INCFLAGS := -I$(CORE_DIR)/include -I$(CORE_DIR)/libretro $(INCFLAGS) \
+	$(SQUIRRELJME_EXTRA_CFLAGS)
+
+SOURCES_C   := \
+	$(CORE_DIR)/src/accelgfx.c \
+	$(CORE_DIR)/src/atomic.c \
+	$(CORE_DIR)/src/audio.c \
+	$(CORE_DIR)/src/bootrom.c \
+	$(CORE_DIR)/src/btooth.c \
+	$(CORE_DIR)/src/cellfunc.c \
+	$(CORE_DIR)/src/corefont.c \
+	$(CORE_DIR)/src/cpu.c \
+	$(CORE_DIR)/src/datatype.c \
+	$(CORE_DIR)/src/debug.c \
+	$(CORE_DIR)/src/error.c \
+	$(CORE_DIR)/src/gpio.c \
+	$(CORE_DIR)/src/handles.c \
+	$(CORE_DIR)/src/ipnet.c \
+	$(CORE_DIR)/src/jdwp.c \
+	$(CORE_DIR)/src/jvm.c \
+	$(CORE_DIR)/src/memory.c \
+	$(CORE_DIR)/src/oldstuff.c \
+	$(CORE_DIR)/src/opcode.c \
+	$(CORE_DIR)/src/random.c \
+	$(CORE_DIR)/src/sjmerc.c \
+	$(CORE_DIR)/src/softmath.c \
+	$(CORE_DIR)/src/stringies.c \
+	$(CORE_DIR)/src/syscall.c \
+	$(CORE_DIR)/src/video.c \
+	$(CORE_DIR)/src/xbuiltin.c \
+	$(CORE_DIR)/src/libretro/lraudio.c \
+	$(CORE_DIR)/src/libretro/lrcheat.c \
+	$(CORE_DIR)/src/libretro/lrfreeze.c \
+	$(CORE_DIR)/src/libretro/lrinfo.c \
+	$(CORE_DIR)/src/libretro/lrjoypad.c \
+	$(CORE_DIR)/src/libretro/lrnet.c \
+	$(CORE_DIR)/src/libretro/lrvfs.c \
+	$(CORE_DIR)/src/libretro/sys_libr.c \
+	$(SQUIRRELJME_EXTRA_C_SOURCES)
 
 SOURCES_CXX := $(NOTHING)
 

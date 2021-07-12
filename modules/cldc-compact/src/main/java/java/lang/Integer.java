@@ -10,7 +10,9 @@
 
 package java.lang;
 
+import cc.squirreljme.jvm.mle.RuntimeShelf;
 import cc.squirreljme.jvm.mle.TypeShelf;
+import cc.squirreljme.jvm.mle.constants.MemoryProfileType;
 import cc.squirreljme.runtime.cldc.annotation.ImplementationNote;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -186,6 +188,11 @@ public final class Integer
 	@Override
 	public String toString()
 	{
+		// Normal memory profile?
+		if (RuntimeShelf.memoryProfile() >= MemoryProfileType.NORMAL)
+			return Integer.toString(this._value, 10);
+		
+		// Try to reduce memory by caching this
 		Reference<String> ref = this._string;
 		String rv;
 		
@@ -538,9 +545,20 @@ public final class Integer
 		return ((__i >>> 16) | (__i << 16));
 	}
 	
+	/**
+	 * Reverses the given bytes.
+	 * 
+	 * @param __i The integer to reverse.
+	 * @return The reversed bytes.
+	 * @since 2021/02/03
+	 */
 	public static int reverseBytes(int __i)
 	{
-		throw new todo.TODO();
+		// 0xAABBCCDD -> 0xBBAADDCC
+		__i = (((__i & 0xFF00FF00) >>> 8) | ((__i & 0x00FF00FF) << 8));
+		
+		// 0xBBAADDCC -> 0xDDCCBBAA
+		return (__i >>> 16) | (__i << 16);
 	}
 	
 	public static int rotateLeft(int __i, int __d)

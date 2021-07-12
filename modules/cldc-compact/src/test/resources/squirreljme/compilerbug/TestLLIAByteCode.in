@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+result: NoResult
+thrown: NoExceptionThrown
+secondary-atmod: int:1
+secondary-vdx: int:1
+secondary-next: int:3

@@ -48,6 +48,9 @@ public final class MinimizedMethod
 	/** The code offset. */
 	public final int codeoffset;
 	
+	/** Internal method index. */
+	public final int methodIndex;
+	
 	/** Translated method code. */
 	final byte[] _code;
 	
@@ -68,30 +71,14 @@ public final class MinimizedMethod
 	 * @param __n The method name.
 	 * @param __t The method type.
 	 * @param __tc Transcoded instructions.
-	 * @throws NullPointerException On null arguments.
-	 * @since 2019/04/21
-	 */
-	public MinimizedMethod(int __f, int __o,
-		MethodName __n, MethodDescriptor __t, byte[] __tc)
-		throws NullPointerException
-	{
-		this(__f, __o, __n, __t, __tc, 0);
-	}
-	
-	/**
-	 * Initializes the minimized method.
-	 *
-	 * @param __f The method flags.
-	 * @param __o Index in the method table for instances.
-	 * @param __n The method name.
-	 * @param __t The method type.
-	 * @param __tc Transcoded instructions.
 	 * @param __co The code offset.
+	 * @param __methodIndex The method index.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/03/14
 	 */
-	public MinimizedMethod(int __f, int __o,
-		MethodName __n, MethodDescriptor __t, byte[] __tc, int __co)
+	public MinimizedMethod(int __f, int __o, MethodName __n,
+		MethodDescriptor __t, byte[] __tc, int __co,
+		int __methodIndex)
 		throws NullPointerException
 	{
 		if (__n == null || __t == null)
@@ -103,6 +90,7 @@ public final class MinimizedMethod
 		this.type = __t;
 		this._code = (__tc == null ? new byte[0] : __tc.clone());
 		this.codeoffset = __co;
+		this.methodIndex = __methodIndex;
 	}
 	
 	/**
@@ -214,30 +202,31 @@ public final class MinimizedMethod
 				MethodDescriptor type =
 					__p.getByIndex(false, dis.readUnsignedShort()).
 						<MethodDescriptor>value(MethodDescriptor.class);
-				int offcode = dis.readInt(), 
-					lencode = dis.readInt();
-				
-				// Unused padding
-				dis.readShort();
+				int offcode = dis.readInt();
+				int lencode = dis.readInt();
+				int methodIndex = dis.readUnsignedShort();
 				
 				// Read code?
 				byte[] code = null;
 				if (offcode > 0)
 				{
 					code = new byte[lencode];
-					System.arraycopy(__b, __o + offcode, code, 0, lencode);
+					System.arraycopy(__b, __o + offcode,
+						code, 0, lencode);
 				}
 				
 				// Build method
 				rv[i] = new MinimizedMethod(flags, offset, name, type,
-					code, offcode);
+					code, offcode, methodIndex);
 			}
 		}
 		
-		// {@squirreljme.error JC06 Could not read method data.}
+		// {@squirreljme.error JC06 Could not read method data.
+		// (Count; Method data size)}
 		catch (ClassCastException|IOException|IndexOutOfBoundsException e)
 		{
-			throw new InvalidClassFormatException("JC06");
+			throw new InvalidClassFormatException(String.format(
+				"JC06 %d %d", __n, __l), e);
 		}
 		
 		return rv;

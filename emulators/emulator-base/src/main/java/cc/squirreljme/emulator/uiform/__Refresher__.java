@@ -9,8 +9,6 @@
 
 package cc.squirreljme.emulator.uiform;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
-
 /**
  * This is used to delay the refresh of the form within the event loop.
  *

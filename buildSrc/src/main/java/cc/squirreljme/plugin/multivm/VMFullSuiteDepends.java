@@ -10,9 +10,11 @@
 package cc.squirreljme.plugin.multivm;
 
 import cc.squirreljme.plugin.SquirrelJMEPluginConfiguration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.concurrent.Callable;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -29,6 +31,9 @@ public class VMFullSuiteDepends
 	/** The task to execute for. */
 	protected final Task task;
 	
+	/** The source set used. */
+	protected final String sourceSet;
+	
 	/** The virtual machine creating for. */
 	protected final VMSpecifier vmType;
 	
@@ -40,13 +45,15 @@ public class VMFullSuiteDepends
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/10/17
 	 */
-	public VMFullSuiteDepends(Task __task, VMSpecifier __vmType)
+	public VMFullSuiteDepends(Task __task, String __sourceSet,
+		VMSpecifier __vmType)
 		throws NullPointerException
 	{
-		if (__task == null || __vmType == null)
+		if (__task == null || __sourceSet == null || __vmType == null)
 			throw new NullPointerException("NARG");
 		
 		this.task = __task;
+		this.sourceSet = __sourceSet;
 		this.vmType = __vmType;
 	}
 	
@@ -56,7 +63,6 @@ public class VMFullSuiteDepends
 	 */
 	@Override
 	public Iterable<Task> call()
-		throws Exception
 	{
 		Project root = this.task.getProject().getRootProject();
 		Collection<Task> tasks = new LinkedHashSet<>();
@@ -68,6 +74,14 @@ public class VMFullSuiteDepends
 		if (emulJar != null)
 			tasks.add(emulJar);
 		
+		// Which source sets should be used
+		List<String> sourceSets;
+		if (!this.sourceSet.equals(SourceSet.MAIN_SOURCE_SET_NAME))
+			sourceSets = Arrays.asList(SourceSet.MAIN_SOURCE_SET_NAME,
+				this.sourceSet);
+		else
+			sourceSets = Collections.singletonList(this.sourceSet);
+		
 		// Go through every single project, and try to use it as a dependency
 		for (Project project : root.getAllprojects())
 		{
@@ -77,18 +91,22 @@ public class VMFullSuiteDepends
 			if (config == null)
 				continue;
 			
-			// Find the associated library task
-			Task libTask = project.getTasks().findByName(TaskInitialization
-				.task("lib", SourceSet.MAIN_SOURCE_SET_NAME,
-					this.vmType));
-			if (libTask == null)
-				continue;
-			
-			// Use all of their dependencies, if not yet added
-			for (VMLibraryTask subDep : new VMRunDependencies(
-				(VMExecutableTask)libTask, SourceSet.MAIN_SOURCE_SET_NAME,
-				this.vmType).call())
-				tasks.add(subDep);
+			// Include whatever libraries are needed for the source set
+			for (String sourceSet : sourceSets)
+			{
+				// Find the associated library task
+				Task libTask = project.getTasks().findByName(TaskInitialization
+					.task("lib", sourceSet,
+						this.vmType));
+				if (libTask == null)
+					continue;
+				
+				// Use all of their dependencies, if not yet added
+				for (VMLibraryTask subDep : new VMRunDependencies(
+					(VMExecutableTask)libTask, sourceSet,
+					this.vmType).call())
+					tasks.add(subDep);
+			}
 		}
 		
 		return Collections.unmodifiableCollection(tasks);

@@ -1,22 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/CMakeLists.txt" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/CMakeLists.txt" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/accelgfx.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/audio.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/bootrom.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/btooth.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/builtin.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/cellfunc.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/corefont.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/cpu.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/debug.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/error.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/gpio.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/handles.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/ipnet.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/jvm.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/memory.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/native.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/oldstuff.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/opcode.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/sjmecon.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/sjmerc.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/sjmevdef.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/softmath.h" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/include/stringies.h" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/include/syscall.h" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/CMakeLists.txt" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/syscall.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/include/syscall2.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/test.cpp" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/todo.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/vfs.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/include/video.h" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/libretro/libretro.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/CMakeLists.txt" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/accelgfx.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/audio.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/bootrom.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/btooth.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/cellfunc.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/corefont.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/cpu.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/debug.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/error.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/gpio.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/handles.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/handles.cpp" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/ipnet.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/jvm.c" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/libretro/CMakeLists.txt" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lraudio.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrcheat.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrfreeze.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrinfo.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrjoypad.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrlocal.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrnet.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrtcp.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/lrvfs.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/libretro/sys_libr.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/memory.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/oldstuff.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/opcode.c" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/src/sdl2/CMakeLists.txt" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/sjmerc.c" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/stringies.c" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/sys_libr.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/sdl2/sys_stdc.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/sjmerc.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/softmath.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/stringies.c" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/syscall.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/vfs.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/video.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/xbuiltin.c" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/tests/CMakeLists.txt" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/tests/libcheck.c" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/tests/mainentry.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/mainEntry.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tests/shim.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/shim.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/testBoop.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/testJvmInit.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tests/testMemHandleCycle.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tests/testMemHandleInit.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/testMemHandleInvalid.c" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tests/testNothing.c" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/tests/testOpCodes.c" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/testSkipped.c" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/tests/testing.h" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/tests/tests.h" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/tests/tests.h" charset="UTF-8" />
   </component>
 </project>

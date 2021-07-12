@@ -54,5 +54,16 @@ final class __EData__
 		this.jop = __jop;
 		this.jpc = __jpc;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/01/19
+	 */
+	@Override
+	public final String toString()
+	{
+		return String.format("%s (@%d L#%d, J%d@%d)",
+			this.label, this.addr, this.line, this.jop, this.jpc);
+	}
 }
 

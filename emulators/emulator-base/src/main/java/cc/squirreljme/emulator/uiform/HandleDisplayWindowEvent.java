@@ -10,7 +10,6 @@
 package cc.squirreljme.emulator.uiform;
 
 import cc.squirreljme.jvm.mle.callbacks.UIFormCallback;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 

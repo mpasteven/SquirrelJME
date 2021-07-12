@@ -91,7 +91,7 @@ public class SwingItemButton
 	 * @since 2020/07/18
 	 */
 	@Override
-	public void property(int __id, int __sub, int __newValue)
+	public void property(int __intProp, int __sub, int __newValue)
 		throws MLECallError
 	{
 		throw Debugging.todo();
@@ -102,16 +102,16 @@ public class SwingItemButton
 	 * @since 2020/07/18
 	 */
 	@Override
-	public void property(int __id, int __sub, String __newValue)
+	public void property(int __strProp, int __sub, String __newValue)
 	{
-		switch (__id)
+		switch (__strProp)
 		{
 			case UIWidgetProperty.STRING_LABEL:
 				this.button.setText(__newValue);
 				break;
 			
 			default:
-				throw new MLECallError("Unknown property: " + __id);
+				throw new MLECallError("Unknown property: " + __strProp);
 		}
 	}
 }

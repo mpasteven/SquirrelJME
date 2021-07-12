@@ -39,15 +39,15 @@ public enum CommandSetVirtualMachine
 				__packet.id(), ErrorType.NO_ERROR);
 			
 			// VM Description
-			rv.writeString(__controller.bind.vmDescription());
+			rv.writeString(__controller.bind().vmDescription());
 			
 			// JDWP version (assuming Java 7?)
 			rv.writeInt(1);
 			rv.writeInt(7);
 			
 			// VM Information
-			rv.writeString(__controller.bind.vmVersion());
-			rv.writeString(__controller.bind.vmName());
+			rv.writeString(__controller.bind().vmVersion());
+			rv.writeString(__controller.bind().vmName());
 			
 			return rv;
 		}
@@ -324,7 +324,7 @@ public enum CommandSetVirtualMachine
 			rv.writeInt(0);
 			
 			// However the boot class path is used to refer to everything
-			String[] classPaths = __controller.bind.debuggerLibraries();
+			String[] classPaths = __controller.bind().debuggerLibraries();
 			rv.writeInt(classPaths.length);
 			for (String p : classPaths)
 				rv.writeString(p);

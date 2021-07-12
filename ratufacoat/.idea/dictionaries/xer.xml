@@ -1,14 +1,35 @@
 <component name="ProjectDictionaryState">
   <dictionary name="xer">
     <words>
+      <w>abgr</w>
+      <w>boop</w>
+      <w>bootrom</w>
+      <w>cflags</w>
+      <w>classname</w>
+      <w>datatypes</w>
+      <w>endianess</w>
       <w>gawroriski</w>
+      <w>jboolean</w>
+      <w>jlong</w>
+      <w>memhandle</w>
+      <w>multiphasicapps</w>
+      <w>notrun</w>
       <w>phasic</w>
       <w>ratufa</w>
+      <w>realloc</w>
       <w>sjme</w>
       <w>sjmerc</w>
       <w>sjmercnm</w>
       <w>sjmercvm</w>
+      <w>softmath</w>
       <w>squirreljme</w>
+      <w>stdin</w>
+      <w>stringies</w>
+      <w>syscall</w>
+      <w>tcpip</w>
+      <w>ushr</w>
+      <w>wikipedia</w>
+      <w>xtable</w>
     </words>
   </dictionary>
 </component>

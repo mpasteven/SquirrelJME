@@ -39,11 +39,11 @@ public interface NativeInstructionType
 		0x20;
 	
 	/**
-	 * Memory access to big endian Java format, offset is in register.
+	 * Memory access to a memory handle (register).
 	 * {@code iiiiLddd, L=T load r1 = *(r2 + r3), L=F set *(r2 + r3) = r1}.
 	 */
-	short MEMORY_OFF_REG_JAVA =
-		0x30;
+	short MEM_HANDLE_OFF_REG =
+		0x40;
 	
 	/**
 	 * Math, R=RC, Integer.
@@ -60,11 +60,11 @@ public interface NativeInstructionType
 		0xA0;
 	
 	/**
-	 * Memory access to big endian Java format, offset is a constant.
+	 * Memory access to a memory handle (constant value).
 	 * {@code iiiiLddd, L=T load r1 = *(r2 + r3), L=F set *(r2 + r3) = r1}.
 	 */
-	short MEMORY_OFF_ICONST_JAVA =
-		0xB0;
+	short MEM_HANDLE_OFF_ICONST =
+		0xC0;
 	
 	/**
 	 * Special.
@@ -95,22 +95,32 @@ public interface NativeInstructionType
 	/** Debug single point in method. */
 	short DEBUG_POINT =
 		0xEA;
+		
+	/**
+	 * Breakpoint that is marked.
+	 */
+	short BREAKPOINT_MARKED =
+		0xEB;
+	
+	/** Ping. */
+	short PING =
+		0xEC;
+	
+	/** Count memory handle down. */
+	short MEM_HANDLE_COUNT_DOWN =
+		0xED;
+	
+	/** Count memory handle up. */
+	short MEM_HANDLE_COUNT_UP =
+		0xEE;
 	
 	/** Invoke only a given pointer. */
 	short INVOKE_POINTER_ONLY =
 		0xEF;
 	
 	/** Invoke for pool and pointer. */
-	short INVOKE_POOL_AND_POINTER =
+	short INVOKE_POINTER_AND_POOL =
 		0xF0;
-	
-	/** Load execp/poolp from interface VTable. */
-	short INTERFACE_VT_LOAD =
-		0xF1;
-	
-	/** Lookup VTable Index for Interface. */
-	short INTERFACE_VT_DX_LOOKUP =
-		0xF2;
 	
 	/**
 	 * Return. 
@@ -120,28 +130,13 @@ public interface NativeInstructionType
 		0xF3;
 	
 	/**
-	 * Store to pool, note that at code gen time this is aliased.
-	 * {@code iiiixxxx}.
-	 */
-	short STORE_POOL =
-		0xF4;
-	
-	/** Store to integer array. */
-	short STORE_TO_INTARRAY =
-		0xF5;
-	
-	/** Get interface I for object. */
-	short INTERFACE_I_FOR_OBJECT =
-		0xF6;
-	
-	/**
 	 * Invoke. 
 	 * {@code iiiixxxx}.
 	 * 
 	 * @deprecated This instruction will use the deprecated
 	 * {@link NativeCode#NEXT_POOL_REGISTER} and copy it to the pool register
 	 * accordingly, use {@link NativeInstructionType#INVOKE_POINTER_ONLY} or
-	 * {@link NativeInstructionType#INVOKE_POOL_AND_POINTER} instead.
+	 * {@link NativeInstructionType#INVOKE_POINTER_AND_POOL} instead.
 	 */
 	@Deprecated
 	short INVOKE =
@@ -151,7 +146,7 @@ public interface NativeInstructionType
 	short COPY =
 		0xF8;
 	
-	/** Atomically decrements a memory addres and gets the value. */
+	/** Atomically decrements a memory address and gets the value. */
 	short ATOMIC_INT_DECREMENT_AND_GET =
 		0xF9;
 	
@@ -159,7 +154,7 @@ public interface NativeInstructionType
 	short ATOMIC_INT_INCREMENT =
 		0xFA;
 	
-	/** System call. */
+	/** System call, used for extra functionality. */
 	short SYSTEM_CALL =
 		0xFB;
 	
@@ -170,19 +165,22 @@ public interface NativeInstructionType
 	/**
 	 * Load from pool, note that at code gen time this is aliased.
 	 * {@code iiiixxxx}.
+	 * 
+	 * @deprecated This will eventually become a special Object-esque that
+	 * is completely code dependent.
 	 */
+	@Deprecated
 	short LOAD_POOL =
 		0xFD;
 	
-	/** Load from integer array. */
-	short LOAD_FROM_INTARRAY =
-		0xFE;
-	
 	/**
-	 * Compare and exchange. 
-	 * {@code iiiixxxx}.
+	 * Breakpoint.
 	 */
 	short BREAKPOINT =
 		0xFF;
+	
+	/** Maximum instructions. */
+	short MAX_INSTRUCTIONS =
+		256;
 }
 

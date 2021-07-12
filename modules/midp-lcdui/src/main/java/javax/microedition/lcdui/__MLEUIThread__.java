@@ -9,11 +9,15 @@
 
 package javax.microedition.lcdui;
 
+import cc.squirreljme.jvm.mle.UIFormShelf;
 import cc.squirreljme.jvm.mle.brackets.UIFormBracket;
 import cc.squirreljme.jvm.mle.brackets.UIItemBracket;
 import cc.squirreljme.jvm.mle.callbacks.UIDisplayCallback;
 import cc.squirreljme.jvm.mle.callbacks.UIFormCallback;
+import cc.squirreljme.jvm.mle.constants.NonStandardKey;
+import cc.squirreljme.jvm.mle.constants.UIItemPosition;
 import cc.squirreljme.jvm.mle.constants.UIKeyEventType;
+import cc.squirreljme.jvm.mle.constants.UIKeyModifier;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.runtime.lcdui.mle.DisplayWidget;
 import cc.squirreljme.runtime.lcdui.mle.PencilGraphics;
@@ -21,6 +25,7 @@ import cc.squirreljme.runtime.lcdui.mle.StaticDisplayState;
 import cc.squirreljme.runtime.lcdui.mle.UIBackend;
 import cc.squirreljme.runtime.lcdui.mle.UIBackendFactory;
 import cc.squirreljme.runtime.midlet.ActiveMidlet;
+import com.nokia.mid.ui.FullCanvas;
 import java.util.Map;
 import javax.microedition.midlet.MIDlet;
 
@@ -54,6 +59,92 @@ final class __MLEUIThread__
 		
 		DisplayWidget widget = StaticDisplayState.locate(__item);
 		
+		// Get J2ME specific modifiers since we have extra ones undefined by
+		// J2ME
+		int javaMods = __modifiers & UIKeyModifier.J2ME_MASK;
+		
+		// If both modifier keys are held down, treat it as the center key
+		// This is kind of a shortcut way since SquirrelJME only knows about
+		// the Left/Right and there are just not enough buttons available.
+		// Note that the F keys count as special menu keys!
+		// So this way F1/Soft1 + F2/Soft2 == F3/Soft3!
+		if (((__modifiers & UIKeyModifier.MODIFIER_LEFT_RIGHT_COMMANDS) ==
+			UIKeyModifier.MODIFIER_LEFT_RIGHT_COMMANDS) &&
+			((__keyCode == NonStandardKey.F1 ||
+				__keyCode == NonStandardKey.VGAME_COMMAND_LEFT) ||
+			(__keyCode == NonStandardKey.F2 ||
+				__keyCode == NonStandardKey.VGAME_COMMAND_RIGHT)))
+			__keyCode = NonStandardKey.VGAME_COMMAND_CENTER;
+		
+		// Is this a special activation of command keys? 
+		if ((__keyCode >= NonStandardKey.F1 &&
+			__keyCode <= NonStandardKey.F24) ||
+			__keyCode == NonStandardKey.VGAME_COMMAND_LEFT ||
+			__keyCode == NonStandardKey.VGAME_COMMAND_CENTER ||
+			__keyCode == NonStandardKey.VGAME_COMMAND_RIGHT)
+		{
+			// Do not multiply activate these just in case
+			if (__event != UIKeyEventType.KEY_PRESSED)
+				return;
+			
+			// Which position will be looked at?
+			int pos = UIItemPosition.NOT_ON_FORM;
+			switch (__keyCode)
+			{
+				case NonStandardKey.F1:
+				case NonStandardKey.VGAME_COMMAND_LEFT:
+					pos = UIItemPosition.LEFT_COMMAND;
+					break;
+				
+				case NonStandardKey.F2:
+				case NonStandardKey.VGAME_COMMAND_RIGHT:
+					pos = UIItemPosition.RIGHT_COMMAND;
+					break;
+				
+				default:
+					break;
+			}
+			
+			// Provided the position is valid, try to find an item to activate
+			if (pos != UIItemPosition.NOT_ON_FORM)
+			{
+				// Locate the item and try to execute the command if it is one
+				UIItemBracket item = UIFormShelf.formItemAtPosition(
+					__form, pos);
+				if (item != null)
+				{
+					// If this is mapped to a command then activate it
+					DisplayWidget attempt = StaticDisplayState.locate(__item);
+					if (attempt instanceof __CommandWidget__)
+						((__CommandWidget__)attempt).__activate();
+					
+					// Stop here
+					return;
+				}
+			}
+			
+			// Nokia exposes these as physical Key IDs, so do the same here
+			// Since most software is made for Nokia we pretty much the
+			// standard and as such have to support doing it this way.
+			switch (__keyCode)
+			{
+				case NonStandardKey.F1:
+				case NonStandardKey.VGAME_COMMAND_LEFT:
+					__keyCode = FullCanvas.KEY_SOFTKEY1;
+					break;
+					
+				case NonStandardKey.F2:
+				case NonStandardKey.VGAME_COMMAND_RIGHT:
+					__keyCode = FullCanvas.KEY_SOFTKEY2;
+					break;
+					
+				case NonStandardKey.F3:
+				case NonStandardKey.VGAME_COMMAND_CENTER:
+					__keyCode = FullCanvas.KEY_SOFTKEY3;
+					break;
+			}
+		}
+		
 		// Commands are special key events
 		if (__event == UIKeyEventType.COMMAND_ACTIVATED)
 		{
@@ -66,13 +157,13 @@ final class __MLEUIThread__
 				((List)widget).__selectCommand(__keyCode);
 		}
 		
-		// Displayables which have standard key access
+		// Any Displayable which have standard key access
 		else if (widget instanceof Canvas)
 			this.__eventKey((Canvas)widget, null,
-				__event, __keyCode, __modifiers);
+				__event, __keyCode, javaMods);
 		else if (widget instanceof CustomItem)
 			this.__eventKey(null, (CustomItem)widget,
-				__event, __keyCode, __modifiers);
+				__event, __keyCode, javaMods);
 	}
 	
 	/**

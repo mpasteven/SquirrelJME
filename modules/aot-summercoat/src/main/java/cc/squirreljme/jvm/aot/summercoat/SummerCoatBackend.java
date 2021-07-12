@@ -13,12 +13,24 @@ import cc.squirreljme.jvm.aot.Backend;
 import cc.squirreljme.jvm.aot.CompileSettings;
 import cc.squirreljme.jvm.aot.LinkGlob;
 import cc.squirreljme.jvm.aot.RomSettings;
+import cc.squirreljme.jvm.summercoat.constants.JarProperty;
+import cc.squirreljme.jvm.summercoat.ld.mem.ByteArrayMemory;
+import cc.squirreljme.jvm.summercoat.ld.pack.HeaderStruct;
+import cc.squirreljme.jvm.summercoat.ld.pack.JarRom;
+import cc.squirreljme.runtime.cldc.io.HexDumpOutputStream;
 import cc.squirreljme.vm.SummerCoatJarLibrary;
 import cc.squirreljme.vm.VMClassLibrary;
+import dev.shadowtail.classfile.mini.DualPoolEncoder;
+import dev.shadowtail.classfile.mini.MinimizedClassFile;
+import dev.shadowtail.classfile.mini.MinimizedClassHeader;
+import dev.shadowtail.classfile.mini.MinimizedField;
+import dev.shadowtail.classfile.mini.MinimizedMethod;
+import dev.shadowtail.classfile.pool.DualClassRuntimePool;
 import dev.shadowtail.packfile.PackMinimizer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 /**
@@ -53,6 +65,23 @@ public class SummerCoatBackend
 			
 			__out.write(buf, 0, rc);
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/05/16
+	 */
+	@Override
+	public void dumpGlob(byte[] __inGlob, String __name, PrintStream __out)
+		throws IOException, NullPointerException
+	{
+		// Load JAR
+		ClassDumper dumper = new ClassDumper(new JarRom(0, __name,
+			new ByteArrayMemory(0, __inGlob, false)),
+			__name, __out);
+		
+		// Perform the dumping
+		dumper.dump(__inGlob);
 	}
 	
 	/**
@@ -123,8 +152,6 @@ public class SummerCoatBackend
 		// boot since it does not matter as the bootstrap should find the
 		// launcher or the correct program to load rather than having it
 		// baked into the ROM
-		PackMinimizer.minimize(__out, bootLib, new String[]{bootLib},
-			"cc.squirreljme.jvm.summercoat.Bootstrap",
-			false, __libs);
+		PackMinimizer.minimize(__out, bootLib, __libs);
 	}
 }

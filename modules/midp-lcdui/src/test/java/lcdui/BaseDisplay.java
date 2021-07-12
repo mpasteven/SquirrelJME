@@ -13,7 +13,6 @@ import cc.squirreljme.jvm.mle.UIFormShelf;
 import cc.squirreljme.jvm.mle.constants.UIMetricType;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import javax.microedition.lcdui.Display;
-import net.multiphasicapps.tac.OptionalFirstParameter;
 import net.multiphasicapps.tac.TestConsumer;
 import net.multiphasicapps.tac.UntestableException;
 

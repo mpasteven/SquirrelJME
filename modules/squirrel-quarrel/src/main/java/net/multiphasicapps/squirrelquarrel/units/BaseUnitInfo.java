@@ -10,12 +10,12 @@
 
 package net.multiphasicapps.squirrelquarrel.units;
 
+import cc.squirreljme.jvm.manifest.JavaManifest;
+import cc.squirreljme.jvm.manifest.JavaManifestAttributes;
 import net.multiphasicapps.squirrelquarrel.util.ConstantFixedPoint;
 import net.multiphasicapps.squirrelquarrel.util.Dimension;
 import net.multiphasicapps.squirrelquarrel.util.Point;
 import net.multiphasicapps.squirrelquarrel.world.Tile;
-import net.multiphasicapps.tool.manifest.JavaManifest;
-import net.multiphasicapps.tool.manifest.JavaManifestAttributes;
 
 /**
  * This contains the base information about a unit which is fixed and never

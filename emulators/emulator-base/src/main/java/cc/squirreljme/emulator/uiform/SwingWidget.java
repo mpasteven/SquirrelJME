@@ -51,25 +51,25 @@ public interface SwingWidget
 	/**
 	 * Sets the given property.
 	 * 
-	 * @param __id The {@link UIWidgetProperty} to set.
+	 * @param __intProp The {@link UIWidgetProperty} to set.
 	 * @param __sub The sub-index.
 	 * @param __newValue The new value to set.
 	 * @throws MLECallError If the property is not valid.
 	 * @since 2020/09/13
 	 */
-	void property(int __id, int __sub, int __newValue)
+	void property(int __intProp, int __sub, int __newValue)
 		throws MLECallError;
 	
 	/**
 	 * Sets the given property.
 	 * 
-	 * @param __id The {@link UIWidgetProperty} to set.
+	 * @param __strProp The {@link UIWidgetProperty} to set.
 	 * @param __sub The sub-value.
 	 * @param __newValue The new value to set.
 	 * @throws MLECallError If the property is not valid.
 	 * @since 2020/09/13
 	 */
-	void property(int __id, int __sub, String __newValue);
+	void property(int __strProp, int __sub, String __newValue);
 	
 	/**
 	 * Returns the given property.

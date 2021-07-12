@@ -10,7 +10,6 @@
 package cc.squirreljme.runtime.lcdui.mle;
 
 import cc.squirreljme.jvm.mle.constants.UIPixelFormat;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.runtime.lcdui.gfx.AdvancedGraphics;
 import javax.microedition.lcdui.Graphics;
 
@@ -46,6 +45,7 @@ public final class SoftwareGraphicsFactory
 	 * @param __sy Starting surface Y coordinate.
 	 * @param __sw Surface width.
 	 * @param __sh Surface height.
+	 * @return A software graphics implementation.
 	 * @throws IllegalArgumentException If the pixel format is not valid.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/09/25

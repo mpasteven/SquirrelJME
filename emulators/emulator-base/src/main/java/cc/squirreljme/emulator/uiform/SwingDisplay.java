@@ -10,7 +10,6 @@
 package cc.squirreljme.emulator.uiform;
 
 import cc.squirreljme.jvm.mle.brackets.UIDisplayBracket;
-import cc.squirreljme.jvm.mle.brackets.UIItemBracket;
 import cc.squirreljme.jvm.mle.exceptions.MLECallError;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
@@ -34,6 +33,18 @@ public final class SwingDisplay
 	
 	/** The current frame visible on the form. */
 	private SwingForm _current;
+	
+	static
+	{
+		try
+		{
+			// Greatly optimizes speed
+			JFrame.setDefaultLookAndFeelDecorated(true);
+		}
+		catch (Throwable ignored)
+		{
+		}
+	}
 	
 	/**
 	 * Initializes the display.
@@ -126,6 +137,10 @@ public final class SwingDisplay
 				// only one
 				frame.setLayout(new BorderLayout());
 				frame.add(__form.formPanel, BorderLayout.CENTER);
+				
+				// Set an appropriate title
+				if (__form._nextTitle != null)
+					frame.setTitle(__form._nextTitle);
 				
 				// Minimize space used
 				frame.pack();

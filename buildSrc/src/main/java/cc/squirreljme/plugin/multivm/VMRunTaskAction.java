@@ -98,7 +98,7 @@ public class VMRunTaskAction
 		ExecResult exitResult = __task.getProject().javaexec(__spec ->
 			{
 				// Use filled JVM arguments
-				vmType.spawnJvmArguments(__task,
+				vmType.spawnJvmArguments(__task, true,
 					new GradleJavaExecSpecFiller(__spec), mainClass,
 					Collections.<String, String>emptyMap(),
 					classPath, classPath,

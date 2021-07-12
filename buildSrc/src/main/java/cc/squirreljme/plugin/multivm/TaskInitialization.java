@@ -119,6 +119,12 @@ public final class TaskInitialization
 			TaskInitialization.task("lib", __sourceSet, __vmType),
 			VMLibraryTask.class, __sourceSet, __vmType);
 		
+		// Is dumping available?
+		if (__vmType.hasDumping())
+			tasks.create(
+				TaskInitialization.task("dump", __sourceSet, __vmType),
+				VMDumpLibraryTask.class, __sourceSet, __vmType, libTask);
+		
 		// Running the target
 		if (__sourceSet.equals(SourceSet.MAIN_SOURCE_SET_NAME))
 			tasks.create(
@@ -148,7 +154,9 @@ public final class TaskInitialization
 			throw new NullPointerException("NARG");
 		
 		for (VMType vmType : VMType.values())
-			TaskInitialization.initializeFullSuiteTask(__project, vmType);
+			for (String sourceSet : TaskInitialization._SOURCE_SETS)
+				TaskInitialization.initializeFullSuiteTask(__project,
+					sourceSet, vmType);
 	}
 	
 	/**
@@ -157,20 +165,22 @@ public final class TaskInitialization
 	 * launching.
 	 * 
 	 * @param __project The root project.
+	 * @param __sourceSet Source set used.
 	 * @param __vmType The virtual machine type.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/10/17
 	 */
 	private static void initializeFullSuiteTask(Project __project,
-		VMType __vmType)
+		String __sourceSet, VMType __vmType)
 		throws NullPointerException
 	{
-		if (__project == null || __vmType == null)
+		if (__project == null || __sourceSet == null || __vmType == null)
 			throw new NullPointerException("NARG");
 		
+		// Standard ROM
 		__project.getTasks().create(
-			TaskInitialization.task("full", "", __vmType),
-			VMFullSuite.class, __vmType);
+			TaskInitialization.task("full", __sourceSet, __vmType),
+			VMFullSuite.class, __sourceSet, __vmType);
 	}
 	
 	/**
@@ -213,9 +223,16 @@ public final class TaskInitialization
 		
 		// Does the VM utilize ROMs?
 		if (__vmType.hasRom())
-			tasks.create(
-				TaskInitialization.task("rom", __sourceSet, __vmType),
+		{
+			String baseName = TaskInitialization.task("rom",
+				__sourceSet, __vmType);
+			VMRomTask rom = tasks.create(baseName,
 				VMRomTask.class, __sourceSet, __vmType);
+			
+			// Full RatufaCoat Built-In
+			__project.getTasks().create(baseName + "RatufaCoat",
+				RatufaCoatBuiltInTask.class,  __sourceSet, __vmType, rom);
+		}
 	}
 	
 	/**

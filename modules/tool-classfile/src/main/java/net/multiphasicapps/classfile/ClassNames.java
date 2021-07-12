@@ -12,6 +12,8 @@ package net.multiphasicapps.classfile;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.RandomAccess;
 
 /**
@@ -48,6 +50,29 @@ public final class ClassNames
 				throw new NullPointerException("NARG");
 			
 		this._names = __n;
+	}
+	
+	/**
+	 * Initializes the class names from the iterable.
+	 * 
+	 * @param __n The names.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/01/13
+	 */
+	public ClassNames(Iterable<ClassName> __n)
+		throws NullPointerException
+	{
+		if (__n == null)
+			throw new NullPointerException("NARG");
+		
+		List<ClassName> names = new ArrayList<>();
+		for (ClassName name : __n)
+			if (name == null)
+				throw new NullPointerException("NARG");
+			else
+				names.add(name);
+		
+		this._names = names.<ClassName>toArray(new ClassName[names.size()]);
 	}
 	
 	/**

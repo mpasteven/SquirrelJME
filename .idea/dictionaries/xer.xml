@@ -1,28 +1,45 @@
 <component name="ProjectDictionaryState">
   <dictionary name="xer">
     <words>
+      <w>acache</w>
       <w>accel</w>
+      <w>aload</w>
       <w>anycoat</w>
+      <w>astore</w>
       <w>backlight</w>
       <w>baos</w>
+      <w>bipush</w>
       <w>bitfield</w>
       <w>bootram</w>
       <w>cldc</w>
+      <w>clinit</w>
       <w>codebeat</w>
       <w>compactified</w>
       <w>cpibm</w>
       <w>csascii</w>
       <w>csibm</w>
       <w>csisolatin</w>
+      <w>deques</w>
       <w>dlet</w>
       <w>dlets</w>
+      <w>dsysprop</w>
       <w>ebcdic</w>
       <w>endianess</w>
       <w>fileselectors</w>
       <w>fprintf</w>
+      <w>framebuffer</w>
+      <w>funcptr</w>
       <w>gawroriski</w>
+      <w>icache</w>
       <w>idleitem</w>
+      <w>ineg</w>
+      <w>invokeinterface</w>
+      <w>invokenonvirtual</w>
+      <w>invokespecial</w>
+      <w>invokevirtual</w>
       <w>ioob</w>
+      <w>ireturn</w>
+      <w>itable</w>
       <w>jarray</w>
       <w>javase</w>
       <w>jboolean</w>
@@ -46,16 +63,23 @@
       <w>jweak</w>
       <w>lcdui</w>
       <w>ljava</w>
+      <w>memhandle</w>
       <w>messg</w>
+      <w>methodptr</w>
       <w>microedition</w>
       <w>midlet</w>
       <w>midlets</w>
       <w>multiphasicapps</w>
       <w>narg</w>
       <w>nase</w>
+      <w>negv</w>
       <w>noassert</w>
+      <w>nokia</w>
       <w>nsee</w>
+      <w>offsetof</w>
       <w>phasic</w>
+      <w>ratufa</w>
+      <w>ratufacoat</w>
       <w>roro</w>
       <w>siii</w>
       <w>siiii</w>
@@ -63,25 +87,35 @@
       <w>siiiiii</w>
       <w>siiiiiii</w>
       <w>siiiiiiii</w>
+      <w>softfloat</w>
       <w>softkey</w>
       <w>springcoat</w>
       <w>squirreljme</w>
       <w>stdint</w>
+      <w>subdeques</w>
       <w>summercoat</w>
       <w>sysprop</w>
       <w>tabbedpanes</w>
       <w>targetting</w>
       <w>textboxes</w>
+      <w>typebracket</w>
       <w>uiform</w>
       <w>uiitem</w>
       <w>uiwidget</w>
+      <w>uncount</w>
       <w>ushort</w>
+      <w>vgame</w>
       <w>vmtypes</w>
       <w>vtable</w>
+      <w>wikipedia</w>
+      <w>xcompiler</w>
       <w>xemulator</w>
       <w>xjdwp</w>
       <w>xlibraries</w>
+      <w>xname</w>
       <w>xsnapshot</w>
+      <w>xtable</w>
+      <w>xthread</w>
     </words>
   </dictionary>
 </component>

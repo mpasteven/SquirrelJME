@@ -10,8 +10,7 @@
 
 package java.lang;
 
-import cc.squirreljme.jvm.Assembly;
-import cc.squirreljme.jvm.JVMFunction;
+import cc.squirreljme.jvm.SoftFloat;
 import cc.squirreljme.jvm.mle.MathShelf;
 import cc.squirreljme.jvm.mle.TypeShelf;
 import cc.squirreljme.runtime.cldc.annotation.ProgrammerTip;
@@ -47,10 +46,6 @@ public final class Float
 	/** The number of bits float requires for storage. */
 	public static final int SIZE =
 		32;
-	
-	/** The mask for NaN values. */
-	private static final int _NAN_MASK =
-		0b0111_1111_1000_0000_0000_0000_0000_0000;
 	
 	/** The class representing the primitive type. */
 	public static final Class<Float> TYPE =
@@ -211,8 +206,8 @@ public final class Float
 		int raw = Float.floatToRawIntBits(__v);
 		
 		// Collapse all NaN values to a single form
-		if ((raw & Float._NAN_MASK) == (Float._NAN_MASK))
-			return Float._NAN_MASK;
+		if (SoftFloat.isNaN(raw))
+			return SoftFloat.NAN_MASK;
 		
 		return raw;
 	}
@@ -259,8 +254,7 @@ public final class Float
 	 */
 	public static boolean isNaN(float __v)
 	{
-		return Float._NAN_MASK ==
-			(Float.floatToRawIntBits(__v) & Float._NAN_MASK);
+		return SoftFloat.isNaN(Float.floatToRawIntBits(__v));
 	}
 	
 	public static float parseFloat(String __a)

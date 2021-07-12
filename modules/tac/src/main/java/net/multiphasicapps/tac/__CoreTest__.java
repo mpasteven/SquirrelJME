@@ -10,6 +10,8 @@
 
 package net.multiphasicapps.tac;
 
+import cc.squirreljme.jvm.manifest.JavaManifest;
+import cc.squirreljme.jvm.manifest.JavaManifestAttributes;
 import cc.squirreljme.jvm.mle.RuntimeShelf;
 import cc.squirreljme.jvm.mle.constants.VMType;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
@@ -19,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.multiphasicapps.tool.manifest.JavaManifest;
-import net.multiphasicapps.tool.manifest.JavaManifestAttributes;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 
@@ -232,6 +232,126 @@ abstract class __CoreTest__
 		throws NullPointerException
 	{
 		this._runResult.putSecondaryValue(__key, __v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/16
+	 */
+	public final void secondary(String __key, boolean __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/17
+	 */
+	public final void secondary(String __key, byte __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/17
+	 */
+	public final void secondary(String __key, short __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/17
+	 */
+	public final void secondary(String __key, char __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/16
+	 */
+	public final void secondary(String __key, int __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/16
+	 */
+	public final void secondary(String __key, long __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/16
+	 */
+	public final void secondary(String __key, float __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
+	}
+	
+	/**
+	 * Stores a secondary value which can be additionally used as test
+	 * comparison.
+	 *
+	 * @param __key The key to check.
+	 * @param __v The value to check.
+	 * @throws NullPointerException If no key was specified.
+	 * @since 2021/06/16
+	 */
+	public final void secondary(String __key, double __v)
+		throws NullPointerException
+	{
+		this.secondary(__key, (Object)__v);
 	}
 	
 	/**

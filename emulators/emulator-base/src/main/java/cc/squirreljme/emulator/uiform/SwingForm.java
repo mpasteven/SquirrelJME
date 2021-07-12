@@ -83,6 +83,12 @@ public final class SwingForm
 	/** The callback for the form. */
 	private UIFormCallback _callback;
 	
+	/** Does the canvas need to be focused automatically? */
+	private volatile boolean _focusBody;
+	
+	/** The next title to choose. */
+	volatile String _nextTitle; 
+	
 	static
 	{
 		try
@@ -354,6 +360,9 @@ public final class SwingForm
 			// this is displayed on the form
 			__item.addedOnForm(this, __pos);
 			
+			// Request that the body be focused since the form changed on us
+			this._focusBody = true;
+			
 			// Refresh the form
 			this.refresh();
 		}
@@ -497,10 +506,10 @@ public final class SwingForm
 	 * @since 2020/09/21
 	 */
 	@Override
-	public final void property(int __id, int __sub, int __newValue)
+	public final void property(int __intProp, int __sub, int __newValue)
 		throws MLECallError
 	{
-		throw Debugging.todo();
+		throw new MLECallError("Unknown property: " + __intProp);
 	}
 	
 	/**
@@ -508,10 +517,21 @@ public final class SwingForm
 	 * @since 2020/09/21
 	 */
 	@Override
-	public final void property(int __id, int __sub, String __newValue)
+	public final void property(int __strProp, int __sub, String __newValue)
 		throws MLECallError
 	{
-		throw Debugging.todo();
+		SwingDisplay display = this._display;
+		switch (__strProp)
+		{
+			case UIWidgetProperty.STRING_FORM_TITLE:
+				this._nextTitle = __newValue;
+				if (display != null)
+					display.frame.setTitle(__newValue);
+				break;
+			
+			default:
+				throw new MLECallError("Unknown property: " + __strProp);
+		}
 	}
 	
 	/**
@@ -554,8 +574,14 @@ public final class SwingForm
 	public String propertyStr(int __strProp, int __sub)
 		throws MLECallError
 	{
+		SwingDisplay display = this._display;
 		switch (__strProp)
 		{
+			case UIWidgetProperty.STRING_FORM_TITLE:
+				if (display != null)
+					return display.frame.getTitle();
+				return this._nextTitle;
+			
 			default:
 				throw new MLECallError("Unknown property: " + __strProp);
 		}
@@ -584,7 +610,16 @@ public final class SwingForm
 			SwingItem bodyItem = this.itemAtPosition(UIItemPosition.BODY);
 			if (bodyItem != null)
 			{
+				// Center on this
 				formPanel.add(bodyItem.component(), BorderLayout.CENTER);
+				
+				// Focus on the body if we should do so
+				if (this._focusBody)
+				{
+					this._focusBody = false;
+					bodyItem.component().requestFocus();
+				}
+				
 				return;
 			}
 			
@@ -664,6 +699,13 @@ public final class SwingForm
 			
 			// Add the final form
 			formPanel.add(adjacent, BorderLayout.CENTER);
+			
+			// Focus on the body if we should do so
+			if (this._focusBody)
+			{
+				this._focusBody = false;
+				adjacent.requestFocus();
+			}
 			
 			// Request everything be redrawn
 			formPanel.validate();

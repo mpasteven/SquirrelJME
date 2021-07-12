@@ -1,7 +1,7 @@
 package squirreljme.summercoat;
 
-import cc.squirreljme.jvm.Assembly;
 import cc.squirreljme.jvm.SystemCallIndex;
+import cc.squirreljme.jvm.summercoat.SystemCall;
 import net.multiphasicapps.tac.TestRunnable;
 
 /**
@@ -23,16 +23,14 @@ public class TestErrorGetSet
 	@Override
 	public void test() throws Throwable
 	{
-		int orig = Assembly.sysCallV(SystemCallIndex.ERROR_GET,
-			SystemCallIndex.GARBAGE_COLLECT);
+		int orig = SystemCall.errorGet(SystemCallIndex.GARBAGE_COLLECT);
 		
-		int fset = Assembly.sysCallV(SystemCallIndex.ERROR_SET,
-			SystemCallIndex.GARBAGE_COLLECT, _ERROR_CODE);
+		int fset = SystemCall.errorSet(SystemCallIndex.GARBAGE_COLLECT,
+			TestErrorGetSet._ERROR_CODE);
 		
 		this.secondary("sameasorig", (orig == fset));
 		
-		int fnow = Assembly.sysCallV(SystemCallIndex.ERROR_GET,
-			SystemCallIndex.GARBAGE_COLLECT);
+		int fnow = SystemCall.errorGet(SystemCallIndex.GARBAGE_COLLECT);
 		
 		this.secondary("isset", (fnow == _ERROR_CODE));
 	}

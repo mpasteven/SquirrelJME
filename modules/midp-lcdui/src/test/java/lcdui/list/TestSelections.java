@@ -9,7 +9,6 @@
 
 package lcdui.list;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.List;
 

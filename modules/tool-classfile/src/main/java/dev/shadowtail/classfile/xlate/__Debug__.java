@@ -30,7 +30,7 @@ final class __Debug__
 		boolean en = false;
 		try
 		{
-			// {@squirreljme.property dev.shadowtail.classfile.xlate.debug=pool
+			// {@squirreljme.property dev.shadowtail.classfile.xlate.debug=bool
 			// Sets whether the massive amounts of debug test should be
 			// printed in all the translation codes.}
 			en = Boolean.getBoolean("dev.shadowtail.classfile.xlate.debug");

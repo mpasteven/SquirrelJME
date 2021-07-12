@@ -11,7 +11,6 @@
 package javax.microedition.media.protocol;
 
 import java.io.IOException;
-import javax.microedition.media.Control;
 import javax.microedition.media.Controllable;
 
 public abstract class DataSource

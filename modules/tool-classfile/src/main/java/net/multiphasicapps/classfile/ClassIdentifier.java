@@ -49,5 +49,15 @@ public final class ClassIdentifier
 	{
 		return (__o instanceof ClassIdentifier) && super.equals(__o);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/01/19
+	 */
+	@Override
+	public int hashCode()
+	{
+		return this.string.hashCode();
+	}
 }
 

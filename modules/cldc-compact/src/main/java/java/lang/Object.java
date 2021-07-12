@@ -52,7 +52,8 @@ public class Object
 				TypeShelf.objectType(this), len);
 			
 			// Copy everything over
-			System.arraycopy(this, 0, dest, 0, len);
+			System.arraycopy(this, 0,
+				dest, 0, len);
 			
 			// This array was cloned
 			return dest;

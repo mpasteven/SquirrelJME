@@ -9,10 +9,12 @@
 
 package dev.shadowtail.classfile.mini;
 
-import dev.shadowtail.classfile.xlate.DataType;
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
+import cc.squirreljme.jvm.summercoat.constants.StaticClassProperty;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import net.multiphasicapps.classfile.InvalidClassFormatException;
 
 /**
@@ -22,207 +24,226 @@ import net.multiphasicapps.classfile.InvalidClassFormatException;
  */
 public final class MinimizedClassHeader
 {
-	/** The magic number for the header. */
-	public static final int MAGIC_NUMBER =
-		0x00586572;
+	/** The format version of the class. */
+	protected final short formatVersion;
 	
-	/** Magic number for the end of file. */
-	public static final int END_MAGIC_NUMBER =
-		0x42796521;
-	
-	/** The size of the header without the magic number. */
-	public static final int HEADER_SIZE_WITHOUT_MAGIC =
-		108;
-	
-	/** The size of the header with the magic number. */
-	public static final int HEADER_SIZE_WITH_MAGIC =
-		MinimizedClassHeader.HEADER_SIZE_WITHOUT_MAGIC + 4;
-	
-	/** Unused A. */
-	public final int unuseda;
-	
-	/** The index of the method which is __start. */
-	public final int startmethodindex;
-	
-	/** The data type of the class. */
-	public final DataType datatype;
-	
-	/** Not used. */
-	public final int unusedb;
-	
-	/** Class flags. */
-	public final int classflags;
-	
-	/** Name of class. */
-	public final int classname;
-	
-	/** Super class name. */
-	public final int classsuper;
-	
-	/** Interfaces in class. */
-	public final int classints;
-	
-	/** Class type. */
-	public final int classtype;
-	
-	/** Class version. */
-	public final int classvers;
-	
-	/** Class source filename. */
-	public final int classsfn;
-	
-	/** Static field count. */
-	public final int sfcount;
-	
-	/** Static field bytes. */
-	public final int sfbytes;
-	
-	/** Static field objects. */
-	public final int sfobjs;
-	
-	/** Instance field count. */
-	public final int ifcount;
-	
-	/** Instance field bytes. */
-	public final int ifbytes;
-	
-	/** Instance field objects. */
-	public final int ifobjs;
-	
-	/** Static method count. */
-	public final int smcount;
-	
-	/** Instance method count. */
-	public final int imcount;
-	
-	/** Not used. */
-	public final int unusedc;
-	
-	/** Not used. */
-	public final int unusedd;
-	
-	/** Static field data offset. */
-	public final int sfoff;
-	
-	/** Static field data size. */
-	public final int sfsize;
-	
-	/** Instance field data offset. */
-	public final int ifoff;
-	
-	/** Instance field data size. */
-	public final int ifsize;
-	
-	/** Static method data offset. */
-	public final int smoff;
-	
-	/** Static method data size. */
-	public final int smsize;
-	
-	/** Instance method data offset. */
-	public final int imoff;
-	
-	/** Instance method data size. */
-	public final int imsize;
-	
-	/** High bits for UUID. */
-	public final int uuidhi;
-	
-	/** Low bits for UUID. */
-	public final int uuidlo;
-	
-	/** File size. */
-	public final int filesize;
-	
-	/** Not used. */
-	public final int unusede;
-	
-	/** Static constant pool offset. */
-	public final int staticpooloff;
-	
-	/** Static constant pool size. */
-	public final int staticpoolsize;
-	
-	/** Runtime constant pool offset. */
-	public final int runtimepooloff;
-	
-	/** Runtime constant pool size. */
-	public final int runtimepoolsize;
+	/** The properties of the class. */
+	private final int[] _properties;
 	
 	/**
 	 * Initializes the class header.
 	 *
-	 * @param __vx The raw values.
+	 * @param __fVer The format version of the class.
+	 * @param __props The property values.
+	 * @throws IllegalArgumentException If there are too many properties.
+	 * @throws NullPointerException On null arguments.
 	 * @since 2019/04/16
 	 */
-	public MinimizedClassHeader(int... __vx)
+	public MinimizedClassHeader(short __fVer, int... __props)
+		throws IllegalArgumentException, NullPointerException
 	{
-		int at = 0;
+		if (__props == null)
+			throw new NullPointerException("NARG");
 		
-		// Unused
-		this.unuseda = __vx[at++];
+		// {@squirreljme.error JC4t Too many properties were passed to the
+		// class file.}
+		if (__props.length > StaticClassProperty.NUM_STATIC_PROPERTIES)
+			throw new IllegalArgumentException("JC4t " + __props.length);
 		
-		// Start method index
-		this.startmethodindex = __vx[at++];
+		this.formatVersion = __fVer;
+		this._properties = Arrays.copyOf(__props,
+			StaticClassProperty.NUM_STATIC_PROPERTIES);
+	}
+	
+	/**
+	 * Gets the specified class information property.
+	 * 
+	 * @param __property The {@link StaticClassProperty} to get.
+	 * @return The property value.
+	 * @throws IllegalArgumentException If the property is not valid.
+	 * @since 2020/11/29
+	 */
+	public final int get(int __property)
+		throws IllegalArgumentException
+	{
+		// {@squirreljme.error JC4s Invalid class property. (The property)}
+		if (__property < 0 ||
+			__property >= StaticClassProperty.NUM_STATIC_PROPERTIES)
+			throw new IllegalArgumentException("JC4s " + __property);
 		
-		// Data Type
-		this.datatype = DataType.of(__vx[at++]);
-		
-		// Constant pool
-		this.unusedb = __vx[at++];
-		
-		// Class information
-		this.classflags = __vx[at++];
-		this.classname = __vx[at++];
-		this.classsuper = __vx[at++];
-		this.classints = __vx[at++];
-		this.classtype = __vx[at++];
-		this.classvers = __vx[at++];
-		this.classsfn = __vx[at++];
-
-		// Static and instance fields
-		this.sfcount = __vx[at++];
-		this.sfbytes = __vx[at++];
-		this.sfobjs = __vx[at++];
-		this.ifcount = __vx[at++];
-		this.ifbytes = __vx[at++];
-		this.ifobjs = __vx[at++];
-
-		// Static and instance methods
-		this.smcount = __vx[at++];
-		this.imcount = __vx[at++];
-
-		// Not used
-		this.unusedc = __vx[at++];
-		this.unusedd = __vx[at++];
-		
-		// Static and instance field data
-		this.sfoff = __vx[at++];
-		this.sfsize = __vx[at++];
-		this.ifoff = __vx[at++];
-		this.ifsize = __vx[at++];
-			
-		// Static and instance method data
-		this.smoff = __vx[at++];
-		this.smsize = __vx[at++];
-		this.imoff = __vx[at++];
-		this.imsize = __vx[at++];
-		
-		// UUID
-		this.uuidhi = __vx[at++];
-		this.uuidlo = __vx[at++];
-			
-		// File size
-		this.filesize = __vx[at++];
-		
-		// Not used
-		this.unusede = __vx[at++];
-		
-		// Static and run-time constant pool
-		this.staticpooloff = __vx[at++];
-		this.staticpoolsize = __vx[at++];
-		this.runtimepooloff = __vx[at++];
-		this.runtimepoolsize = __vx[at++];
+		return this._properties[__property];
+	}
+	
+	/** Class flags. */
+	@Deprecated
+	public int getClassflags()
+	{
+		return this.get(StaticClassProperty.INT_CLASS_FLAGS);
+	}
+	
+	/** Interfaces in class. */
+	@Deprecated
+	public int getClassints()
+	{
+		return this.get(StaticClassProperty.SPOOL_INTERFACES);
+	}
+	
+	/** Name of class. */
+	@Deprecated
+	public int getClassname()
+	{
+		return this.get(StaticClassProperty.SPOOL_THIS_CLASS_NAME);
+	}
+	
+	/** Super class name. */
+	@Deprecated
+	public int getClasssuper()
+	{
+		return this.get(StaticClassProperty.SPOOL_SUPER_CLASS_NAME);
+	}
+	
+	/** File size. */
+	@Deprecated
+	public int getFilesize()
+	{
+		return this.get(StaticClassProperty.INT_FILE_SIZE);
+	}
+	
+	/** Instance field bytes. */
+	@Deprecated
+	public int getIfbytes()
+	{
+		return this.get(StaticClassProperty.INT_INSTANCE_FIELD_BYTES);
+	}
+	
+	/** Instance field count. */
+	@Deprecated
+	public int getIfcount()
+	{
+		return this.get(StaticClassProperty.INT_INSTANCE_FIELD_COUNT);
+	}
+	
+	/** Instance field objects. */
+	@Deprecated
+	public int getIfobjs()
+	{
+		return this.get(StaticClassProperty.INT_INSTANCE_FIELD_OBJECTS);
+	}
+	
+	/** Instance field data offset. */
+	@Deprecated
+	public int getIfoff()
+	{
+		return this.get(StaticClassProperty.OFFSET_INSTANCE_FIELD_DATA);
+	}
+	
+	/** Instance field data size. */
+	@Deprecated
+	public int getIfsize()
+	{
+		return this.get(StaticClassProperty.SIZE_INSTANCE_FIELD_DATA);
+	}
+	
+	/** Instance method count. */
+	@Deprecated
+	public int getImcount()
+	{
+		return this.get(StaticClassProperty.INT_INSTANCE_METHOD_COUNT);
+	}
+	
+	/** Instance method data offset. */
+	@Deprecated
+	public int getImoff()
+	{
+		return this.get(StaticClassProperty.OFFSET_INSTANCE_METHOD_DATA);
+	}
+	
+	/** Instance method data size. */
+	@Deprecated
+	public int getImsize()
+	{
+		return this.get(StaticClassProperty.SIZE_INSTANCE_METHOD_DATA);
+	}
+	
+	/** Runtime constant pool offset. */
+	@Deprecated
+	public int getRuntimepooloff()
+	{
+		return this.get(StaticClassProperty.OFFSET_RUNTIME_POOL);
+	}
+	
+	/** Runtime constant pool size. */
+	@Deprecated
+	public int getRuntimepoolsize()
+	{
+		return this.get(StaticClassProperty.SIZE_RUNTIME_POOL);
+	}
+	
+	/** Static field count. */
+	@Deprecated
+	public int getSfcount()
+	{
+		return this.get(StaticClassProperty.INT_STATIC_FIELD_COUNT);
+	}
+	
+	/** Static field data offset. */
+	@Deprecated
+	public int getSfoff()
+	{
+		return this.get(StaticClassProperty.OFFSET_STATIC_FIELD_DATA);
+	}
+	
+	/** Static field data size. */
+	@Deprecated
+	public int getSfsize()
+	{
+		return this.get(StaticClassProperty.SIZE_STATIC_FIELD_DATA);
+	}
+	
+	/** Static method count. */
+	@Deprecated
+	public int getSmcount()
+	{
+		return this.get(StaticClassProperty.INT_STATIC_METHOD_COUNT);
+	}
+	
+	/** Static method data offset. */
+	@Deprecated
+	public int getSmoff()
+	{
+		return this.get(StaticClassProperty.OFFSET_STATIC_METHOD_DATA);
+	}
+	
+	/** Static method data size. */
+	@Deprecated
+	public int getSmsize()
+	{
+		return this.get(StaticClassProperty.SIZE_STATIC_METHOD_DATA);
+	}
+	
+	/** Static constant pool offset. */
+	@Deprecated
+	public int getStaticpooloff()
+	{
+		return this.get(StaticClassProperty.OFFSET_STATIC_POOL);
+	}
+	
+	/** Static constant pool size. */
+	@Deprecated
+	public int getStaticpoolsize()
+	{
+		return this.get(StaticClassProperty.SIZE_STATIC_POOL);
+	}
+	
+	/**
+	 * Returns the number of properties.
+	 * 
+	 * @return The number of properties.
+	 * @since 2021/05/16
+	 */
+	public final int numProperties()
+	{
+		return this._properties.length;
 	}
 	
 	/**
@@ -245,78 +266,27 @@ public final class MinimizedClassHeader
 		DataInputStream dis = new DataInputStream(__is);
 		
 		// {@squirreljme.error JC04 Invalid minimized class magic number.
-		// (The magic number)}
-		int readmagic;
-		if (MinimizedClassHeader.MAGIC_NUMBER != (readmagic = dis.readInt()))
-			throw new InvalidClassFormatException(String.format("JC04 %08x",
-				readmagic));
+		// (The magic number; The expected magic)}
+		int magic;
+		if (ClassInfoConstants.CLASS_MAGIC_NUMBER != (magic = dis.readInt()))
+			throw new InvalidClassFormatException(String.format(
+				"JC04 %08x %08x",
+				magic, ClassInfoConstants.CLASS_MAGIC_NUMBER));
+		
+		// {@squirreljme.error JC4u Cannot decode class because the version
+		// identifier is not known. (The format version of the class)}
+		int formatVersion = dis.readUnsignedShort();
+		if (formatVersion != ClassInfoConstants.CLASS_VERSION_20201129)
+			throw new RuntimeException("JC4u " + formatVersion);
 		
 		// Read in all the data
-		return new MinimizedClassHeader(
-			// Unused
-			/* unuseda */ dis.readUnsignedShort(),
-			
-			// Start method index
-			/* startmethodindex */ dis.readUnsignedByte(),
-			
-			// Data Type
-			/* datatype */ dis.readUnsignedByte(),
-			
-			// Not used
-			/* NOT USED */ dis.readUnsignedShort(),
-			
-			// Class header
-			/* classflags */ dis.readInt(),
-			/* classname */ dis.readUnsignedShort(),
-			/* classsuper */ dis.readUnsignedShort(),
-			/* classints */ dis.readUnsignedShort(),
-			/* classtype */ dis.readUnsignedByte(),
-			/* classvers */ dis.readUnsignedByte(),
-			/* classsfn */ dis.readUnsignedShort(),
-	
-			// Static and instance fields
-			/* sfcount */ dis.readUnsignedShort(),
-			/* sfbytes */ dis.readUnsignedShort(),
-			/* sfobjs */ dis.readUnsignedShort(),
-			/* ifcount */ dis.readUnsignedShort(),
-			/* ifbytes */ dis.readUnsignedShort(),
-			/* ifobjs */ dis.readUnsignedShort(),
-	
-			// Static and instance methods
-			/* smcount */ dis.readUnsignedShort(),
-			/* imcount */ dis.readUnsignedShort(),
-	
-			// Not used
-			/* NOT USED */ dis.readInt(),
-			/* NOT USED */ dis.readInt(),
+		int numProperties = dis.readUnsignedShort();
+		int[] properties = new int[numProperties];
+		for (int i = 0; i < numProperties; i++)
+			properties[i] = dis.readInt();
 		
-			// Static and instance field data
-			/* sfoff */ dis.readInt(),
-			/* sfbytes */ dis.readInt(),
-			/* ifoff */ dis.readInt(),
-			/* ifbytes */ dis.readInt(),
-			
-			// Static and instance method data
-			/* smoff */ dis.readInt(),
-			/* smbytes */ dis.readInt(),
-			/* imoff */ dis.readInt(),
-			/* imbytes */ dis.readInt(),
-			
-			// UUID
-			/* uuidhi */ dis.readInt(),
-			/* uuidlo */ dis.readInt(),
-			
-			// File size
-			/* filesize */ dis.readInt(),
-			
-			// Not used
-			/* NOT USED */ dis.readInt(),
-			
-			// Static and runtime pool
-			/* staticpooloff */ dis.readInt(),
-			/* staticpoolsize */ dis.readInt(),
-			/* runtimepooloff */ dis.readInt(),
-			/* runtimepoolsize */ dis.readInt());
+		// Setup finalized class
+		return new MinimizedClassHeader((short)formatVersion, properties);
 	}	
 }
 

@@ -9,9 +9,12 @@
 
 package dev.shadowtail.classfile.pool;
 
+import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.runtime.cldc.util.UnmodifiableIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,7 @@ import java.util.Map;
  * @since 2019/07/17
  */
 public final class BasicPool
+	implements Iterable<BasicPoolEntry>
 {
 	/** Entries which exist in the constant pool. */
 	private final Map<Object, BasicPoolEntry> _entries;
@@ -129,6 +133,17 @@ public final class BasicPool
 		throws IndexOutOfBoundsException
 	{
 		return this._entries.get(__v);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/05/30
+	 */
+	@Override
+	public Iterator<BasicPoolEntry> iterator()
+	{
+		return UnmodifiableIterator.<BasicPoolEntry>of(
+			this._linear.iterator());
 	}
 	
 	/**

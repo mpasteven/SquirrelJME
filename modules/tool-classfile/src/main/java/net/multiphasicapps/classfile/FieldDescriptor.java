@@ -11,6 +11,7 @@
 package net.multiphasicapps.classfile;
 
 import cc.squirreljme.runtime.cldc.debug.Debugging;
+import dev.shadowtail.classfile.xlate.DataType;
 
 /**
  * This represents the type descriptor of a field.
@@ -198,6 +199,17 @@ public final class FieldDescriptor
 	}
 	
 	/**
+	 * Returns the data type of this descriptor.
+	 * 
+	 * @return The data type of this descriptor.
+	 * @since 2021/01/12
+	 */
+	public DataType dataType()
+	{
+		return DataType.of(this);
+	}
+	
+	/**
 	 * Returns the number of dimensions in this class.
 	 *
 	 * @return The number of dimensions in the class.
@@ -215,6 +227,9 @@ public final class FieldDescriptor
 	@Override
 	public boolean equals(Object __o)
 	{
+		if (this == __o)
+			return true;
+		
 		// Check
 		if (!(__o instanceof FieldDescriptor))
 			return false;

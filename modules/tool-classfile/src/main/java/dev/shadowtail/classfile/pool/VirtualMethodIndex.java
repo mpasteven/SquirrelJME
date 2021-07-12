@@ -18,23 +18,30 @@ import net.multiphasicapps.classfile.MethodName;
 /**
  * Represents an index of a method in the method table of a class.
  *
+ * @deprecated Use {@link InvokedMethod}.
  * @since 2019/04/30
  */
+@Deprecated
 public final class VirtualMethodIndex
 {
 	/** The name of the class. */
+	@Deprecated
 	public final ClassName inClass;
 	
 	/** The method name. */
+	@Deprecated
 	public final MethodName name;
 	
 	/** The method type. */
+	@Deprecated
 	public final MethodDescriptor type;
 	
 	/** The hashcode. */
+	@Deprecated
 	private int _hash;
 	
 	/** The string form. */
+	@Deprecated
 	private Reference<String> _string;
 	
 	/**
@@ -46,6 +53,7 @@ public final class VirtualMethodIndex
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/09/11
 	 */
+	@Deprecated
 	public VirtualMethodIndex(ClassName __cl, String __n, MethodDescriptor __t)
 		throws NullPointerException
 	{
@@ -61,6 +69,7 @@ public final class VirtualMethodIndex
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/04/30
 	 */
+	@Deprecated
 	public VirtualMethodIndex(ClassName __cl, MethodName __n, MethodDescriptor __t)
 		throws NullPointerException
 	{
@@ -77,6 +86,7 @@ public final class VirtualMethodIndex
 	 * @since 2019/04/30
 	 */
 	@Override
+	@Deprecated
 	public final boolean equals(Object __o)
 	{
 		if (this == __o)
@@ -99,6 +109,7 @@ public final class VirtualMethodIndex
 	 * @since 2019/04/30
 	 */
 	@Override
+	@Deprecated
 	public final int hashCode()
 	{
 		int rv = this._hash;
@@ -113,6 +124,7 @@ public final class VirtualMethodIndex
 	 * @since 2019/04/30
 	 */
 	@Override
+	@Deprecated
 	public final String toString()
 	{
 		Reference<String> ref = this._string;

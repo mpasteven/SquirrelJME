@@ -353,7 +353,7 @@ public final class String
 	 *
 	 * @param __o The string to compare against.
 	 * @return A negative value if this string precedes the other string, a
-	 * positive value if this string procedes the other string, or zero if the
+	 * positive value if this string precedes the other string, or zero if the
 	 * strings are equal.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2016/04/02

@@ -61,7 +61,7 @@ public class SwingItemSpacer
 	 * @since 2020/07/18
 	 */
 	@Override
-	public void property(int __id, int __sub, int __newValue)
+	public void property(int __intProp, int __sub, int __newValue)
 		throws MLECallError
 	{
 		throw Debugging.todo();
@@ -72,7 +72,7 @@ public class SwingItemSpacer
 	 * @since 2020/07/18
 	 */
 	@Override
-	public void property(int __id, int __sub, String __newValue)
+	public void property(int __strProp, int __sub, String __newValue)
 	{
 		throw Debugging.todo();
 	}

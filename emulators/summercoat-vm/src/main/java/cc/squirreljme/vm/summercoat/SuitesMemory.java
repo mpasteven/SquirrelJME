@@ -9,13 +9,24 @@
 
 package cc.squirreljme.vm.summercoat;
 
-import cc.squirreljme.emulator.vm.VMException;
 import cc.squirreljme.emulator.vm.VMSuiteManager;
+import cc.squirreljme.jvm.mle.constants.ByteOrderType;
+import cc.squirreljme.jvm.summercoat.constants.PackProperty;
+import cc.squirreljme.jvm.summercoat.ld.mem.AbstractReadableMemory;
+import cc.squirreljme.jvm.summercoat.ld.mem.ByteArrayMemory;
+import cc.squirreljme.jvm.summercoat.ld.mem.MemoryAccessException;
+import cc.squirreljme.jvm.summercoat.ld.mem.NotRealMemoryException;
+import cc.squirreljme.jvm.summercoat.ld.mem.ReadableMemory;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.runtime.cldc.io.HexDumpOutputStream;
+import cc.squirreljme.vm.PreAddressedClassLibrary;
+import cc.squirreljme.vm.VMClassLibrary;
 import dev.shadowtail.packfile.MinimizedPackHeader;
+import dev.shadowtail.packfile.PackMinimizer;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,10 +38,9 @@ import java.util.Map;
  */
 public final class SuitesMemory
 	extends AbstractReadableMemory
-	implements ReadableMemory
 {
-	/** Configuration and table space size. */
-	public static final int CONFIG_TABLE_SIZE =
+	/** Size of the ROM header, the maximum permitted. */
+	public static final int ROM_HEADER_SIZE =
 		1048576;
 	
 	/** The suite chunk size. */
@@ -52,11 +62,11 @@ public final class SuitesMemory
 	/** This is the mapping of suite names to memory. */
 	private final Map<String, SuiteMemory> _suitemap;
 	
-	/** The suite configuration table (addresses of suites). */
-	private volatile ReadableMemory _configtable;
+	/** The ROM header information. */
+	private volatile ReadableMemory _headerRom;
 	
 	/** Was the config table initialized? */
-	private volatile boolean _didconfiginit;
+	private volatile boolean _didInit;
 	
 	/**
 	 * Initializes the suites memory.
@@ -69,6 +79,8 @@ public final class SuitesMemory
 	public SuitesMemory(int __off, VMSuiteManager __sm)
 		throws NullPointerException
 	{
+		super(ByteOrderType.BIG_ENDIAN);
+		
 		if (__sm == null)
 			throw new NullPointerException("NARG");
 		
@@ -76,23 +88,19 @@ public final class SuitesMemory
 		this.suites = __sm;
 		
 		// All the libraries which are available for usage
-		String[] libnames = __sm.listLibraryNames();
-		int n = libnames.length;
+		String[] libNames = __sm.listLibraryNames();
+		int n = libNames.length;
 		
 		// Setup suite memory area
 		SuiteMemory[] suitemem = new SuiteMemory[n];
 		Map<String, SuiteMemory> suitemap = new LinkedHashMap<>();
 		
 		// Setup memory regions for the various suites
-		int off = SuitesMemory.CONFIG_TABLE_SIZE;
+		int off = SuitesMemory.ROM_HEADER_SIZE;
 		for (int i = 0; i < n; i++, off += SuitesMemory.SUITE_CHUNK_SIZE)
 		{
 			// Need the suite name for later lookup on init
-			String libname = libnames[i];
-			
-			// Normalize and add JAR
-			if (!libname.endsWith(".jar"))
-				libname = libname + ".jar";
+			String libname = PackMinimizer.normalizeJarName(libNames[i]);
 			
 			// Map suite
 			SuiteMemory sm;
@@ -105,7 +113,8 @@ public final class SuitesMemory
 		// {@squirreljme.error AE0q Suite space has exceeded size limit of
 		// 2GiB. (The current size; The amount of bytes over)}
 		if (off < 0)
-			throw new VMException("AE0q " + (((long)off) & 0xFFFFFFFFL) + " " +
+			throw new VMMemoryAccessException("AE0q " +
+				(((long)off) & 0xFFFFFFFFL) + " " +
 				(off - 0x7FFFFFFF));
 		
 		// Store all the various suite memories
@@ -115,6 +124,17 @@ public final class SuitesMemory
 		// Store final memory parameters
 		this.offset = __off;
 		this.size = off;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/04/03
+	 */
+	@Override
+	public long absoluteAddress(long __addr)
+		throws MemoryAccessException, NotRealMemoryException
+	{
+		return this.offset + __addr;
 	}
 	
 	/**
@@ -157,45 +177,43 @@ public final class SuitesMemory
 	 * @since 2019/04/21
 	 */
 	@Override
-	public int memReadByte(int __addr)
+	public int memReadByte(long __addr)
 	{
-		// Needs to be initialized?
-		if (!this._didconfiginit)
-			this.__init();
+		// ROM memory was not initialized, so it is invalid
+		if (!this._didInit)
+			throw new IllegalStateException("Memory not initialized.");
+			
+		// Negative address accessed
+		if (__addr < 0)
+			throw new VMMemoryAccessException(String.format(
+				"Negative address byte read: %#08x", __addr));
 		
 		// Reading from the config table?
-		if (__addr < SuitesMemory.CONFIG_TABLE_SIZE)
-			return this._configtable.memReadByte(__addr);
+		if (__addr < SuitesMemory.ROM_HEADER_SIZE)
+			return this._headerRom.memReadByte(__addr);
 		
 		// Determine the suite index we are wanting to look in memory
-		int si = (__addr - SuitesMemory.CONFIG_TABLE_SIZE) /
+		int si = (int)(__addr - SuitesMemory.ROM_HEADER_SIZE) /
 			SuitesMemory.SUITE_CHUNK_SIZE;
 		
-		// Instead of failing, return some invalid values
-		SuiteMemory[] suitemem = this._suitemem;
-		if (si < 0 || si >= suitemem.length)
-			return 0xFF;
+		// Fail if illegal memory is read, this should never happen
+		SuiteMemory[] suiteMem = this._suitemem;
+		if (si >= suiteMem.length)
+			throw new VMMemoryAccessException(String.format(
+				"Invalid byte read: %#08x (library: %d of %d)",
+				__addr, si, suiteMem.length));
 		
 		// Read from suite memory
-		return suitemem[si].memReadByte(__addr - suitemem[si].offset);
+		return suiteMem[si].memReadByte(__addr - suiteMem[si].offset);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 * @since 2019/04/21
+	 * @return
 	 */
 	@Override
-	public int memRegionOffset()
-	{
-		return this.offset;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @since 2019/04/21
-	 */
-	@Override
-	public final int memRegionSize()
+	public final long memRegionSize()
 	{
 		return this.size;
 	}
@@ -204,19 +222,20 @@ public final class SuitesMemory
 	 * Initializes the configuration space.
 	 *
 	 * @since 2019/04/21
+	 * @since 2020/12/12
 	 */
 	final void __init()
 	{
 		// Do not initialize twice!
-		if (this._didconfiginit)
+		if (this._didInit)
 			return;
-		this._didconfiginit = true;
+		this._didInit = true;
 		
 		// Initialize the bootstrap
-		SuiteMemory superv = this.findLibrary("cldc-compact");
+		SuiteMemory bootLib = this.findLibrary("cldc-compact");
 		try
 		{
-			superv.__init();
+			bootLib.__init();
 		}
 		
 		// {@squirreljme.error AE0a Could not initialize the supervisor.}
@@ -226,82 +245,55 @@ public final class SuitesMemory
 		}
 		
 		// Get suites and the number of them for processing
-		SuiteMemory[] suitemem = this._suitemem;
-		int numsuites = suitemem.length;
+		SuiteMemory[] suiteMem = this._suitemem;
+		int numSuites = suiteMem.length;
 		
-		// Build a virtualized pack header which works with SummerCoat and
-		// matches the ROM format (just appears as a larger ROM)
-		int packoffset = this.offset;
-		try (ByteArrayOutputStream pbaos = new ByteArrayOutputStream(4096);
-			DataOutputStream dos = new DataOutputStream(pbaos))
+		// The base address of this memory
+		int base = this.offset;
+		
+		// Use virtually set predefined addresses so we can recycle the
+		// minimizer writing code without needing to duplicate everything
+		// This ensures that it works as well.
+		VMClassLibrary[] pre = new VMClassLibrary[numSuites];
+		for (int i = 0; i < numSuites; i++)
 		{
-			// Relative offset for names
-			int reloff = MinimizedPackHeader.HEADER_SIZE_WITH_MAGIC +
-				(MinimizedPackHeader.TOC_ENTRY_SIZE * numsuites);
-			
-			// Write pack header
-			dos.writeInt(MinimizedPackHeader.MAGIC_NUMBER);
-			
-			// Count and table of contents position
-			dos.writeInt(numsuites);
-			dos.writeInt(MinimizedPackHeader.HEADER_SIZE_WITH_MAGIC);
-			
-			// Boot properties
-			dos.writeInt(Arrays.asList(suitemem).indexOf(superv));
-			dos.writeInt(superv.offset);
-			dos.writeInt(SuitesMemory.SUITE_CHUNK_SIZE);
-			dos.writeInt(0);
-			dos.writeInt(0);
-			dos.writeInt(0);
-			dos.writeInt(0);
-			
-			// Class and run-time constant pools
-			dos.writeInt(0);
-			dos.writeInt(0);
-			dos.writeInt(0);
-			dos.writeInt(0);
-			
-			// Name table output
-			ByteArrayOutputStream nbaos = new ByteArrayOutputStream(4096);
-			DataOutputStream ndos = new DataOutputStream(nbaos);
-			
-			// Write TOC
-			for (int i = 0; i < numsuites; i++)
-			{
-				SuiteMemory suite = suitemem[i];
-				
-				// Align name
-				while (((reloff + ndos.size()) & 1) != 0)
-					ndos.write(0);
-				
-				// Name position
-				dos.writeInt(reloff + ndos.size());
-				
-				// Write name
-				ndos.writeUTF(suite.libname);
-				
-				// Offset and size of the chunk
-				dos.writeInt(suite.offset);
-				dos.writeInt(SuitesMemory.SUITE_CHUNK_SIZE);
-				
-				// The manifest is not known, must be searched
-				dos.writeInt(0);
-				dos.writeInt(0);
-			}
-			
-			// Write name table
-			nbaos.writeTo(dos);
-			
-			// Store written configuration table
-			ReadableMemory configtable = new ByteArrayMemory(packoffset,
-				pbaos.toByteArray());
-			this._configtable = configtable;
+			SuiteMemory from = suiteMem[i];
+			pre[i] = new PreAddressedClassLibrary(
+				(int)from.absoluteAddress(0),
+				(int)from.memRegionSize(), from.libName);
 		}
 		
-		// {@squirreljme.error AE0b Could not write the virtual packfile.}
+		// Write the virtual header
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream())
+		{
+			// Perform initial minimization
+			PackMinimizer.minimize(baos, bootLib.libName, pre);
+			byte[] romData = baos.toByteArray();
+			
+			// Replace a property within the header
+			try (InputStream in = new ByteArrayInputStream(romData))
+			{
+				// Decode and change the header property
+				MinimizedPackHeader header = MinimizedPackHeader.decode(in);
+				MinimizedPackHeader newHeader =
+					header.change(PackProperty.ROM_SIZE, this.size);
+				
+				// Encode a new header
+				byte[] newBytes = newHeader.toByteArray();
+				
+				// Replace existing header
+				System.arraycopy(newBytes, 0,
+					romData, 0, newBytes.length);
+			}
+			
+			// Store ROM virtual header
+			this._headerRom = new ByteArrayMemory(this.offset, romData);
+		}
+		
+		// Failed to write the virtual header, so fail
 		catch (IOException e)
 		{
-			throw new RuntimeException("AE0b", e);
+			throw new RuntimeException("Could not write virtual header.", e);
 		}
 	}
 }

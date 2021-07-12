@@ -11,12 +11,12 @@ package cc.squirreljme.jvm.mle.callbacks;
 
 import cc.squirreljme.jvm.mle.brackets.UIFormBracket;
 import cc.squirreljme.jvm.mle.brackets.UIItemBracket;
-import cc.squirreljme.jvm.mle.constants.UIWidgetProperty;
 import cc.squirreljme.jvm.mle.constants.UIKeyEventType;
 import cc.squirreljme.jvm.mle.constants.UIKeyModifier;
 import cc.squirreljme.jvm.mle.constants.UIMouseButton;
 import cc.squirreljme.jvm.mle.constants.UIMouseEventType;
 import cc.squirreljme.jvm.mle.constants.UIPixelFormat;
+import cc.squirreljme.jvm.mle.constants.UIWidgetProperty;
 
 /**
  * Interface that is used a callback on a user-interface form is to be done.

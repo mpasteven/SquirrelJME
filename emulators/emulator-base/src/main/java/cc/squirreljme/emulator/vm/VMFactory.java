@@ -76,7 +76,8 @@ public abstract class VMFactory
 	 * Creates the virtual machine using the given parameters.
 	 *
 	 * @param __ps The profiler snapshot to write to.
-	 * @param __jdwp
+	 * @param __jdwp The debugger to use.
+	 * @param __threadModel The threading model to use.
 	 * @param __sm The suite manager.
 	 * @param __cp The classpath to initialize with.
 	 * @param __maincl The main class to start executing.
@@ -89,7 +90,8 @@ public abstract class VMFactory
 	 * @since 2018/11/17
 	 */
 	protected abstract VirtualMachine createVM(ProfilerSnapshot __ps,
-		JDWPFactory __jdwp, VMSuiteManager __sm, VMClassLibrary[] __cp,
+		JDWPFactory __jdwp, VMThreadModel __threadModel, VMSuiteManager __sm,
+		VMClassLibrary[] __cp,
 		String __maincl, Map<String, String> __sprops, String[] __args)
 		throws IllegalArgumentException, NullPointerException, VMException;
 	
@@ -126,11 +128,15 @@ public abstract class VMFactory
 		String jdwpHost = null; 
 		int jdwpPort = -1;
 		
+		// Threading model
+		VMThreadModel threadModel = VMThreadModel.DEFAULT;
+		
 		// Command line format is:
 		// -Xemulator:(vm)
 		// -Xsnapshot:(path-to-nps)
 		// -Xlibraries:(class:path:...)
 		// -Xjdwp:[hostname]:port
+		// -Xthread:(single|coop|multi|smt)
 		// -Dsysprop=value
 		// -classpath (class:path:...)
 		// Main-class
@@ -146,8 +152,13 @@ public abstract class VMFactory
 			// Eat it up
 			queue.removeFirst();
 			
+			// Thread model
+			if (item.startsWith("-Xthread:"))
+				threadModel = VMThreadModel.of(
+					item.substring("-Xthread:".length()));
+			
 			// JDWP Usage
-			if (item.startsWith("-Xjdwp:"))
+			else if (item.startsWith("-Xjdwp:"))
 			{
 				String hostPort = item.substring("-Xjdwp:".length());
 				
@@ -306,6 +317,7 @@ public abstract class VMFactory
 				profilerSnapshot,
 				(jdwpPort >= 1 ?
 					VMFactory.__setupJdwp(jdwpHost, jdwpPort) : null),
+				threadModel,
 				new ArraySuiteManager(suites.values()),
 				classpath.<String>toArray(new String[classpath.size()]),
 				mainClass,
@@ -356,7 +368,8 @@ public abstract class VMFactory
 	 * @param __vm The name of the virtual machine to use, if {@code null}
 	 * then this is automatically determined.
 	 * @param __ps The profiler snapshot to use.
-	 * @param __jdwp
+	 * @param __jdwp The debugger to use.
+	 * @param __threadModel The threading model.
 	 * @param __sm The suite manager used.
 	 * @param __cp The starting class path.
 	 * @param __bootcl The booting class, if {@code null} then {@code __bootid}
@@ -371,7 +384,8 @@ public abstract class VMFactory
 	 * @since 2018/11/17
 	 */
 	public static VirtualMachine mainVm(String __vm, ProfilerSnapshot __ps,
-		JDWPFactory __jdwp, VMSuiteManager __sm, String[] __cp,
+		JDWPFactory __jdwp, VMThreadModel __threadModel, VMSuiteManager __sm,
+		String[] __cp,
 		String __bootcl, Map<String, String> __sprops, String... __args)
 		throws IllegalArgumentException, NullPointerException, VMException
 	{
@@ -436,8 +450,8 @@ public abstract class VMFactory
 		}
 		
 		// Create the virtual machine now that everything is available
-		return factory.createVM(__ps, __jdwp, __sm, classpath, __bootcl,
-			__sprops, __args);
+		return factory.createVM(__ps, __jdwp, __threadModel, __sm, classpath,
+			__bootcl, __sprops, __args);
 	}
 	
 	/**

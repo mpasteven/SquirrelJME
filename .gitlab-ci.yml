@@ -11,6 +11,12 @@
 ################################# BOILERPLATE ################################
 ##############################################################################
 
+# Stages for building
+stages:
+  - build-prepare
+  - build-shared
+  - build-static
+
 # Core definitions
 .core-defs:
   variables:
@@ -18,6 +24,22 @@
     JNI_PATH: ratufacoat/libretro/
     MAKEFILE_PATH: ratufacoat
     MAKEFILE: makefilelibretro
+    SQUIRRELJME_HAS_BUILTIN: 1
+    SQUIRRELJME_ROM_URL: https://circleci.com/api/v1.1/project/github/SquirrelJME/SquirrelJME/$SQUIRRELJME_ROM_ID/artifacts
+
+# SquirrelJME Support (Common)
+.squirreljme-support-common:
+  # Only trigger from external triggers
+  only:
+    - triggers
+  before_script:
+    # Make sure the directories exist first
+    - mkdir -p ratufacoat/build/
+
+    # Download the built-in ROM
+    - echo Downloading External ROM...
+    - "curl -L -H \"Circle-Token: $CIRCLECI_ACCESS_TOKEN\" \"$SQUIRRELJME_ROM_URL\" | tr -d '\n' | tr -d ' ' | sed 's/.*\"url\":\"\\([^\"]*\\)\".*/\\1/' > .rom-url"
+    - "curl -L \"$(cat .rom-url)\" > ratufacoat/build/builtin.c"
 
 # Inclusion templates, required for the build to work
 include:
@@ -93,15 +115,31 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/emscripten-static.yml'
 
-# Stages for building
-stages:
-  - build-prepare
-  - build-shared
-  - build-static
-
 ##############################################################################
 #################################### STAGES ##################################
 ##############################################################################
+
+########################### SUMMERCOAT BUILT-IN ROM ##########################
+#summercoat-built-in:
+#  image: openjdk:8-jdk
+#  stage: squirreljme-rom
+#  artifacts:
+#    paths:
+#      - "ratufacoat/build/builtin.c"
+#    expire_in: 10 min
+#  script:
+#    # Debugging
+#    - "echo \"CI_PIPELINE_ID: $CI_PIPELINE_ID\""
+#    - "echo \"CI_JOB_NAME: $CI_JOB_NAME\""
+#    - "echo \"CI_COMMIT_SHA: $CI_COMMIT_SHA\""
+#    - "echo \"CI_JOB_ID: $CI_JOB_ID\""
+#
+#    # We need a compile to generate the native code used to compile ROMs
+#    - apt-get update
+#    - apt-get --no-install-recommends -y install build-essential gcc g++
+#
+#    # Then perform the ROM generation
+#    - ./gradlew :romSummerCoatRatufaCoat --full-stacktrace
 
 ################################### DESKTOPS #################################
 # Linux 32-bit
@@ -109,36 +147,42 @@ libretro-build-linux-i686:
   extends:
     - .libretro-linux-i686-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 # Linux 64-bit
 libretro-build-linux-x64:
   extends:
     - .libretro-linux-x64-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 # MacOS 64-bit
 libretro-build-osx-x64:
   extends:
     - .libretro-osx-x64-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 # MacOS ARM 64-bit
 libretro-build-osx-arm64:
   extends:
     - .libretro-osx-arm64-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 # Windows 32-bit
 libretro-build-windows-i686:
   extends:
     - .libretro-windows-i686-mingw-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 # Windows 64-bit
 libretro-build-windows-x64:
   extends:
     - .libretro-windows-x64-mingw-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 ################################### CELLULAR #################################
 # Android ARMv7a
@@ -146,30 +190,35 @@ android-armeabi-v7a:
   extends:
     - .libretro-android-jni-armeabi-v7a
     - .core-defs
+    - .squirreljme-support-common
 
 # Android ARMv8a
 android-arm64-v8a:
   extends:
     - .libretro-android-jni-arm64-v8a
     - .core-defs
+    - .squirreljme-support-common
 
 # Android 64-bit x86
 android-x86_64:
   extends:
     - .libretro-android-jni-x86_64
     - .core-defs
+    - .squirreljme-support-common
 
 # Android 32-bit x86
 android-x86:
   extends:
     - .libretro-android-jni-x86
     - .core-defs
+    - .squirreljme-support-common
 
 # iOS 9
 libretro-build-ios9:
   extends:
     - .libretro-ios9-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 ################################### CONSOLES #################################
 # Dingux (GCW Zero)
@@ -177,48 +226,56 @@ libretro-build-dingux:
   extends:
     - .libretro-dingux-mips32-make-default
     - .core-defs
+    - .squirreljme-support-common
 
 # Nintendo 3DS
 libretro-build-ctr:
   extends:
     - .libretro-ctr-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 # Nintendo GameCube
 libretro-build-ngc:
   extends:
     - .libretro-ngc-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 # Nintendo Switch
 libretro-build-libnx-aarch64:
   extends:
     - .libretro-libnx-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 # Nintendo Wii
 libretro-build-wii:
   extends:
     - .libretro-wii-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 # Nintendo Wii U
 libretro-build-wiiu:
   extends:
     - .libretro-wiiu-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 # PlayStation 2
 libretro-build-ps2:
   extends:
     - .libretro-ps2-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 # PlayStation Vita
 libretro-build-vita:
   extends:
     - .libretro-vita-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common
 
 #################################### MISC ##################################
 # Emscripten
@@ -226,3 +283,4 @@ libretro-build-emscripten:
   extends:
     - .libretro-emscripten-static-retroarch-master
     - .core-defs
+    - .squirreljme-support-common

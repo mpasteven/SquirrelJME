@@ -17,17 +17,17 @@
 #ifndef SJME_hGRATUFACOATSJMONHSJMECONH
 #define SJME_hGRATUFACOATSJMONHSJMECONH
 
-/** Anti-C++. */
-#ifdef _cplusplus
+/* Anti-C++. */
+#ifdef __cplusplus
 #ifndef SJME_CXX_IS_EXTERNED
 #define SJME_CXX_IS_EXTERNED
 #define SJME_cXRATUFACOATSJMONHSJMECONH
 extern "C"
 {
-#endif /** #ifdef SJME_CXX_IS_EXTERNED */
-#endif /** #ifdef __cplusplus */
+#endif /* #ifdef SJME_CXX_IS_EXTERNED */
+#endif /* #ifdef __cplusplus */
 
-/****************************************************************************/
+/*--------------------------------------------------------------------------*/
 
 /*****************************************************************************
 ***************************** DEFAULT CONSTANTS ******************************
@@ -38,9 +38,6 @@ extern "C"
 
 /** Minimum permitted RAM size. */
 #define SJME_MINIMUM_RAM_SIZE SJME_JINT_C(65536)
-
-/** Default size of configuration ROM. */
-#define SJME_DEFAULT_CONF_SIZE SJME_JINT_C(65536)
 
 /** Magic number for ROMs. */
 #define SJME_ROM_MAGIC_NUMBER SJME_JINT_C(0x58455223)
@@ -107,12 +104,6 @@ extern "C"
 ********************************* REGISTERS **********************************
 *****************************************************************************/
 
-/** Maximum CPU registers. */
-#define SJME_MAX_REGISTERS SJME_JINT_C(64)
-
-/** Maximum system call arguments. */
-#define SJME_MAX_SYSCALLARGS SJME_JINT_C(8)
-
 /** The zero register. */
 #define SJME_ZERO_REGISTER SJME_JINT_C(0)
 
@@ -142,101 +133,6 @@ extern "C"
 
 /** The register of the first argument. */
 #define SJME_ARGBASE_REGISTER SJME_JINT_C(8)
-
-/*****************************************************************************
-*************************** INSTRUCTION ENCODINGS ****************************
-*****************************************************************************/
-
-/** Encoding mask. */
-#define SJME_ENC_MASK UINT8_C(0xF0)
-
-/** Math, R=RR, Integer. */
-#define SJME_ENC_MATH_REG_INT UINT8_C(0x00)
-
-/** Comparison mask. */
-#define SJME_ENC_COMPARE_MASK UINT8_C(0x07)
-
-/** Int comparison, then maybe jump. */
-#define SJME_ENC_IF_ICMP UINT8_C(0x10)
-
-/** Math type mask. */
-#define SJME_ENC_MATH_MASK UINT8_C(0x0F)
-
-/** Mask for Java order mode. */
-#define SJME_ENC_MEMORY_JAVA_MASK UINT8_C(0x10)
-
-/** Memory access, offset is in register. */
-#define SJME_ENC_MEMORY_OFF_REG UINT8_C(0x20)
-
-/** Memory access to big endian Java format, offset is in register. */
-#define SJME_ENC_MEMORY_OFF_REG_JAVA UINT8_C(0x30)
-
-/** Math, R=RC, Integer. */
-#define SJME_ENC_MATH_CONST_INT UINT8_C(0x80)
-
-/** Memory access, offset is a constant. */
-#define SJME_ENC_MEMORY_OFF_ICONST UINT8_C(0xA0)
-
-/** Memory access to big endian Java format, offset is a constant. */
-#define SJME_ENC_MEMORY_OFF_ICONST_JAVA UINT8_C(0xB0)
-
-/** Special. */
-#define SJME_ENC_SPECIAL_A UINT8_C(0xE0)
-
-/** Special.*/
-#define SJME_ENC_SPECIAL_B UINT8_C(0xF0)
-
-/*****************************************************************************
-******************************* CPU OPERATIONS *******************************
-*****************************************************************************/
-
-/** If equal to constant. */
-#define SJME_OP_IFEQ_CONST UINT8_C(0xE6)
-
-/** Debug entry to method. */
-#define SJME_OP_DEBUG_ENTRY UINT8_C(0xE8)
-
-/** Debug exit from method. */
-#define SJME_OP_DEBUG_EXIT UINT8_C(0xE9)
-
-/** Debug single point in method. */
-#define SJME_OP_DEBUG_POINT UINT8_C(0xEA)
-
-/** Return. */
-#define SJME_OP_RETURN UINT8_C(0xF3)
-
-/** Store to pool, note that at code gen time this is aliased. */
-#define SJME_OP_STORE_POOL UINT8_C(0xF4)
-
-/** Store to integer array. */
-#define SJME_OP_STORE_TO_INTARRAY UINT8_C(0xF5)
-
-/** Invoke. */
-#define SJME_OP_INVOKE UINT8_C(0xF7)
-
-/** Copy value in register. */
-#define SJME_OP_COPY UINT8_C(0xF8)
-
-/** Atomically decrements a memory address and gets the value. */
-#define SJME_OP_ATOMIC_INT_DECREMENT_AND_GET UINT8_C(0xF9)
-
-/** Atomically increments a memory address. */
-#define SJME_OP_ATOMIC_INT_INCREMENT UINT8_C(0xFA)
-
-/** System call. */
-#define SJME_OP_SYSTEM_CALL UINT8_C(0xFB)
-
-/** Atomically checks, gets, and sets (if matched) the value. */
-#define SJME_OP_ATOMIC_COMPARE_GET_AND_SET UINT8_C(0xFC)
-
-/** Load from pool, note that at code gen time this is aliased. */
-#define SJME_OP_LOAD_POOL UINT8_C(0xFD)
-
-/** Load from integer array. */
-#define SJME_OP_LOAD_FROM_INTARRAY UINT8_C(0xFE)
-
-/** Compare and exchange. */
-#define SJME_OP_BREAKPOINT UINT8_C(0xFF)
 
 /*****************************************************************************
 ******************************** MATH TYPES **********************************
@@ -299,34 +195,6 @@ extern "C"
 
 /** Mask for data types in memory. */
 #define SJME_MEM_DATATYPE_MASK UINT8_C(0x07)
-
-/*****************************************************************************
-******************************** DATA TYPES **********************************
-*****************************************************************************/
-
-/** Object. */
-#define SJME_DATATYPE_OBJECT UINT8_C(0)
-
-/** Byte. */
-#define SJME_DATATYPE_BYTE UINT8_C(1)
-
-/** Short. */
-#define SJME_DATATYPE_SHORT UINT8_C(2)
-
-/** Character. */
-#define SJME_DATATYPE_CHARACTER UINT8_C(3)
-
-/** Integer. */
-#define SJME_DATATYPE_INTEGER UINT8_C(4)
-
-/** Float. */
-#define SJME_DATATYPE_FLOAT UINT8_C(5)
-
-/** Long. */
-#define SJME_DATATYPE_LONG UINT8_C(6)
-
-/** Double. */
-#define SJME_DATATYPE_DOUBLE UINT8_C(7)
 
 /*****************************************************************************
 ***************************** COMPARISON TYPES *******************************
@@ -792,16 +660,16 @@ extern "C"
 /** The Thread ID for out of bounds IPC events. */
 #define SJME_OOB_IPC_THREAD SJME_JINT_C(0xFFFFFFFF)
 
-/****************************************************************************/
+/*--------------------------------------------------------------------------*/
 
-/** Anti-C++. */
+/* Anti-C++. */
 #ifdef __cplusplus
 #ifdef SJME_cXRATUFACOATSJMONHSJMECONH
 }
 #undef SJME_cXRATUFACOATSJMONHSJMECONH
 #undef SJME_CXX_IS_EXTERNED
 #endif /** #ifdef SJME_cXRATUFACOATSJMONHSJMECONH */
-#endif /** #ifdef __cplusplus */
+#endif /* #ifdef __cplusplus */
 
 /** Header guard. */
 #endif /* #ifndef SJME_hGRATUFACOATSJMONHSJMECONH */

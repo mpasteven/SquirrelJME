@@ -12,8 +12,7 @@ import dev.shadowtail.classfile.mini.Minimizer;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import net.multiphasicapps.classfile.ClassFile;
-import net.multiphasicapps.tac.TestRunnable;
-import net.multiphasicapps.tac.UntestableException;
+import net.multiphasicapps.tac.TestConsumer;
 
 /**
  * Tests that minimizing is performed properly.
@@ -21,27 +20,28 @@ import net.multiphasicapps.tac.UntestableException;
  * @since 2019/03/10
  */
 public class TestMinimizer
-	extends TestRunnable
+	extends TestConsumer<String>
 {
 	/**
 	 * {@inheritDoc}
 	 * @since 2019/03/10
 	 */
 	@Override
-	public void test()
+	public void test(String __class)
 		throws Throwable
 	{
-		if (true)
-			throw new UntestableException("Not a good test, minimized " +
-				"classes can change resulting in this test breaking."); 
-		
-		for (String x : new String[]{"ByteDeque.data",
-			"InflaterInputStream.data"})
-			try (InputStream in = TestClassLoad.class.getResourceAsStream(x);
-				ByteArrayOutputStream out = new ByteArrayOutputStream())
-			{
-				Minimizer.minimize(ClassFile.decode(in), out);
-			}
+		try (InputStream in = TestClassLoad.class.getResourceAsStream(__class);
+			ByteArrayOutputStream out = new ByteArrayOutputStream())
+		{
+			System.err.printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%n");
+			System.err.printf("@@@ %s%n", __class);
+			System.err.printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%n");
+			
+			Minimizer.minimize(ClassFile.decode(in), out);
+			
+			System.err.printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%n");
+			System.err.println();
+		}
 	}
 }
 

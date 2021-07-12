@@ -389,7 +389,7 @@ public final class MinimizedPoolBuilder
 					case LONG:
 					case DOUBLE:
 					case USED_STRING:
-					case VIRTUAL_METHOD_INDEX:
+					case INVOKE_XTABLE:
 						{
 							// Write number of parts
 							int npart = part.length;

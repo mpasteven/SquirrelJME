@@ -9,11 +9,9 @@
 
 package security;
 
-import cc.squirreljme.jvm.mle.DebugShelf;
-import cc.squirreljme.jvm.mle.constants.VerboseDebugFlag;
+import cc.squirreljme.runtime.cldc.util.SortedTreeMap;
 import java.security.Permission;
 import java.util.Map;
-import  cc.squirreljme.runtime.cldc.util.SortedTreeMap;
 import net.multiphasicapps.tac.TestRunnable;
 
 /**

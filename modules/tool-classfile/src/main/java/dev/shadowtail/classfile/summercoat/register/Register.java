@@ -15,6 +15,7 @@ package dev.shadowtail.classfile.summercoat.register;
  * @since 2020/11/24
  */
 public abstract class Register
+	implements Comparable<Register>
 {
 	/** The register Id. */
 	public final int register;
@@ -31,6 +32,32 @@ public abstract class Register
 	}
 	
 	/**
+	 * Returns this value as an integer value.
+	 * 
+	 * @return This register as an int value register.
+	 * @since 2020/11/28
+	 */
+	public IntValueRegister asIntValue()
+	{
+		if (this instanceof IntValueRegister)
+			return (IntValueRegister)this;
+		return IntValueRegister.of(this.register);
+	}
+	
+	/**
+	 * Returns the register as a memory handle.
+	 * 
+	 * @return This register as a memory handle.
+	 * @since 2021/04/10
+	 */
+	public final MemHandleRegister asMemHandle()
+	{
+		if (this instanceof MemHandleRegister)
+			return (MemHandleRegister)this;
+		return MemHandleRegister.of(this.register);
+	}
+	
+	/**
 	 * Uses the same register in this class, but as a plain register.
 	 * 
 	 * @return The plain register.
@@ -40,8 +67,17 @@ public abstract class Register
 	{
 		if (this instanceof PlainRegister)
 			return (PlainRegister)this;
-		
 		return new PlainRegister(this.register);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/04/08
+	 */
+	@Override
+	public final int compareTo(Register __b)
+	{
+		return this.register - __b.register;
 	}
 	
 	/**

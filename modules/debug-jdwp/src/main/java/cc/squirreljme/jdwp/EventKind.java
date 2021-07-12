@@ -486,6 +486,19 @@ public enum EventKind
 		}
 	},
 	
+	/** Special alias to indicate an unconditional {@link #BREAKPOINT}. */
+	UNCONDITIONAL_BREAKPOINT(-2, null, null)
+	{
+		@Override
+		public void write(JDWPController __controller, Object __thread,
+			JDWPPacket __packet, Object... __args)
+			throws JDWPException
+		{
+			// This should not truly be called
+			throw Debugging.oops();
+		}
+	},
+	
 	/* End. */
 	;
 	

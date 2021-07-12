@@ -9,12 +9,19 @@
 
 package cc.squirreljme.vm.summercoat;
 
+import cc.squirreljme.emulator.vm.VMException;
+import cc.squirreljme.emulator.vm.VMSuiteManager;
+import cc.squirreljme.jvm.mle.constants.ByteOrderType;
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
+import cc.squirreljme.jvm.summercoat.ld.mem.AbstractReadableMemory;
+import cc.squirreljme.jvm.summercoat.ld.mem.ByteArrayMemory;
+import cc.squirreljme.jvm.summercoat.ld.mem.MemoryAccessException;
+import cc.squirreljme.jvm.summercoat.ld.mem.NotRealMemoryException;
+import cc.squirreljme.jvm.summercoat.ld.mem.ReadableMemory;
+import cc.squirreljme.jvm.summercoat.ld.mem.ReadableMemoryInputStream;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.vm.SummerCoatJarLibrary;
 import cc.squirreljme.vm.VMClassLibrary;
-import cc.squirreljme.emulator.vm.VMException;
-import cc.squirreljme.emulator.vm.VMSuiteManager;
-import dev.shadowtail.jarfile.JarMinimizer;
 import dev.shadowtail.jarfile.MinimizedJarHeader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,7 +40,7 @@ public final class SuiteMemory
 	protected final VMSuiteManager suites;
 	
 	/** The library this uses. */
-	protected final String libname;
+	protected final String libName;
 	
 	/** The offset to this memory region. */
 	protected final int offset;
@@ -58,12 +65,25 @@ public final class SuiteMemory
 	public SuiteMemory(int __off, VMSuiteManager __sm, String __ln)
 		throws NullPointerException
 	{
+		super(ByteOrderType.BIG_ENDIAN);
+		
 		if (__sm == null || __ln == null)
 			throw new NullPointerException("NARG");
 		
 		this.suites = __sm;
-		this.libname = __ln;
+		this.libName = __ln;
 		this.offset = __off;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/04/03
+	 */
+	@Override
+	public long absoluteAddress(long __addr)
+		throws MemoryAccessException, NotRealMemoryException
+	{
+		return this.offset + __addr;
 	}
 	
 	/**
@@ -71,7 +91,7 @@ public final class SuiteMemory
 	 * @since 2019/04/21
 	 */
 	@Override
-	public int memReadByte(int __addr)
+	public int memReadByte(long __addr)
 	{
 		// Initialize?
 		if (!this._didinit)
@@ -93,7 +113,7 @@ public final class SuiteMemory
 	 * @since 2019/04/21
 	 */
 	@Override
-	public void memReadBytes(int __addr, byte[] __b, int __o, int __l)
+	public void memReadBytes(long __addr, byte[] __b, int __o, int __l)
 		throws IndexOutOfBoundsException, NullPointerException
 	{
 		// Initialize?
@@ -116,7 +136,7 @@ public final class SuiteMemory
 	 * @since 2019/04/21
 	 */
 	@Override
-	public int memReadInt(int __addr)
+	public int memReadInt(long __addr)
 	{
 		// Initialize?
 		if (!this._didinit)
@@ -138,7 +158,7 @@ public final class SuiteMemory
 	 * @since 2019/04/21
 	 */
 	@Override
-	public int memReadShort(int __addr)
+	public int memReadShort(long __addr)
 	{
 		// Initialize?
 		if (!this._didinit)
@@ -158,19 +178,10 @@ public final class SuiteMemory
 	/**
 	 * {@inheritDoc}
 	 * @since 2019/04/21
+	 * @return
 	 */
 	@Override
-	public int memRegionOffset()
-	{
-		return this.offset;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * @since 2019/04/21
-	 */
-	@Override
-	public final int memRegionSize()
+	public final long memRegionSize()
 	{
 		return SuitesMemory.SUITE_CHUNK_SIZE;
 	}
@@ -190,7 +201,7 @@ public final class SuiteMemory
 		this._didinit = true;
 		
 		// Load the class library
-		String libname = this.libname;
+		String libname = this.libName;
 		VMClassLibrary clib = this.__loadLibrary(libname);
 		
 		// Debug
@@ -239,7 +250,7 @@ public final class SuiteMemory
 		// Load the JAR header
 		this._jarheader = MinimizedJarHeader.decode(
 			new ReadableMemoryInputStream(rm, 0,
-				MinimizedJarHeader.HEADER_SIZE_WITH_MAGIC));
+				ClassInfoConstants.JAR_MAXIMUM_HEADER_SIZE));
 	}
 	
 	/**

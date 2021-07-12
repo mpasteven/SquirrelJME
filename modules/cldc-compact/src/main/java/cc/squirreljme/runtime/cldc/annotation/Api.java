@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
 /**
  * Indicates the API level of the native call.
  *
+ * @deprecated This is SquirrelJME specific and is no longer used. 
  * @since 2018/12/05
  */
 @Documented
@@ -26,6 +27,7 @@ import java.lang.annotation.Target;
 @Target(value={ElementType.CONSTRUCTOR, ElementType.FIELD,
 	ElementType.LOCAL_VARIABLE, ElementType.METHOD, ElementType.PACKAGE,
 	ElementType.PARAMETER, ElementType.TYPE})
+@Deprecated
 public @interface Api
 {
 	/** @return The API level. */

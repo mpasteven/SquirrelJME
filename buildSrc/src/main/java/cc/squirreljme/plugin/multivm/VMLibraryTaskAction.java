@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Function;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.SourceSet;
@@ -60,6 +61,22 @@ public class VMLibraryTaskAction
 	@Override
 	public void execute(Task __task)
 	{
+		VMLibraryTaskAction.execute(__task, this.vmType, this.sourceSet,
+			this.vmType::processLibrary);
+	}
+	
+	/**
+	 * Performs a library like action.
+	 * 
+	 * @param __task The task calling from.
+	 * @param __vmType The virtual machine type.
+	 * @param __sourceSet The source set used.
+	 * @param __func The function to use.
+	 * @since 2021/05/16
+	 */
+	public static void execute(Task __task, VMSpecifier __vmType,
+		String __sourceSet, VMLibraryExecuteFunction __func)
+	{
 		// Open the input library for processing
 		Path tempFile = null;
 		try (InputStream in = Files.newInputStream(__task.getInputs()
@@ -67,15 +84,15 @@ public class VMLibraryTaskAction
 		{
 			// Where shall this go?
 			tempFile = Files.createTempFile(
-				this.vmType.vmName(VMNameFormat.LOWERCASE), this.sourceSet);
+				__vmType.vmName(VMNameFormat.LOWERCASE), __sourceSet);
 			
 			// Setup output file for writing
 			try (OutputStream out = Files.newOutputStream(tempFile,
 				StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
 				StandardOpenOption.CREATE))
 			{
-				this.vmType.processLibrary(__task,
-					SourceSet.TEST_SOURCE_SET_NAME.equals(this.sourceSet),
+				__func.function(__task,
+					SourceSet.TEST_SOURCE_SET_NAME.equals(__sourceSet),
 					in, out);
 			}
 			

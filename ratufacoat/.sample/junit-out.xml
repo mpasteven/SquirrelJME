@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.TestReadLineEOF" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-03-05T18:23:27.788" hostname="Hosted" time="916.623" >
+<properties>
+<property name="squirreljme.test.result" value="XERSQUIRRELJMEXER:result:PASS:" />
+<property name="squirreljme.test.nanoseconds" value="XERSQUIRRELJMEXER:nanoseconds:916622600:" />
+</properties>
+<testcase name="io.TestReadLineEOF" classname="io.TestReadLineEOF" time="916.623">
+<system-out><![CDATA[]]></system-out>
+<system-err><![CDATA[Java Version: 1.8.0_252Java Over-Layer: Loading C:\Users\xer\Projects\squirreljme\emulators\emulator-base\build\lib\main\release\emulator-base.dll...
+JNI Sub-Level: Loading Library...
+Java Over-Layer: Binding methods...
+JNI Sub-Level: Binding Methods...
+JNI Sub-Level: Methods are now bound!
+Java Over-Layer: Methods bound!
+Java Over-Layer: Loading took 69ms
+DB: SET line-1=string:Rodents\_are\_softly\_cute!
+DB: SET line-2=string:Squirrels!
+DB: SET line-3=string:Mice!
+DB: SET line-4=string:And\_rats!
+DB: About to run test...
+DB: SET line-1=string:Rodents\_are\_softly\_cute!
+DB: SET line-2=string:Squirrels!
+DB: SET line-3=string:Mice!
+DB: SET line-4=string:And\_rats!
+DB: Finished test execution.
+class io.TestReadLineEOF: PASS {rv=int:5, tv=NoExceptionThrown, sv={line-1=string:Rodents\_are\_softly\_cute!, line-2=string:Squirrels!, line-3=string:Mice!, line-4=string:And\_rats!}}
+]]></system-err>
+</testcase>
+</testsuite>

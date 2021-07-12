@@ -22,6 +22,12 @@ out/
 ratufacoat/.idea/workspace.xml
 file-*
 
+# IntelliJ Dependency Matrix
+emulators/*/out/production/
+emulators/*/out/test/
+modules/*/out/production/
+modules/*/out/test/
+
 # Contributions
 *.diff
 *.gdiff
@@ -45,19 +51,24 @@ file-*
 java_pid*.hprof
 
 # CMake
+CMakeFiles
+CTestTestfile.cmake
+CMakeCache.txt
 ratufacoat/cmake-build-release
 ratufacoat/cmake-build-debug
-ratufacoat/CMakeFiles
-ratufacoat/src/CMakeFiles
 ratufacoat/src/Debug
 ratufacoat/src/Release
 ratufacoat/src/SquirrelJME.dir
 ratufacoat/x86
 ratufacoat/x64
 ratufacoat/out
+ratufacoat/Testing
+ratufacoat/Makefile
+cmake_install.cmake
 *.o
 *.dll
 *.exe
+*.dylib
 
 # Fossil files
 _FOSSIL_

@@ -11,18 +11,15 @@ package cc.squirreljme.plugin.multivm;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
-import org.gradle.api.tasks.SourceSet;
 
 /**
  * This performs the actual work that is needed to build the ROM.

@@ -10,9 +10,9 @@
 
 package dev.shadowtail.classfile.nncc;
 
+import cc.squirreljme.runtime.cldc.util.UnmodifiableIterator;
 import java.util.Iterator;
 import net.multiphasicapps.classfile.ByteCode;
-import net.multiphasicapps.collections.UnmodifiableIterator;
 
 /**
  * This is similar to {@link ByteCode} except that it instead of using a
@@ -41,7 +41,14 @@ public final class NativeCode
 	public static final int EXCEPTION_REGISTER =
 		3;
 	
-	/** The pointer containing static field data. */
+	/**
+	 * The pointer containing static field data.
+	 * 
+	 * @deprecated Because static fields will be referred to by an instance
+	 * of the class information rather than be within a single fixed size
+	 * chunk of memory.
+	 */
+	@Deprecated
 	public static final int STATIC_FIELD_REGISTER =
 		4;
 	
@@ -74,7 +81,7 @@ public final class NativeCode
 	
 	/** Maximum number of registers possible to use. */
 	public static final int MAX_REGISTERS =
-		64;
+		128;
 	
 	/** This bit XORed NEG bit == set, means memory access is volatile. */
 	@Deprecated

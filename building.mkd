@@ -197,6 +197,12 @@ The following _System_ properties are available:
    * If only `:port` is specified it will listen for incoming connections from
      a debugger.
    * If both `hostname:port` is specified it will connect to a remote debugger.
+   * Note that if the hosted environment is debugged, launched sub-tasks will
+     not be run under the debugger.
+ * `squirreljme.xjdwp=[hostname]:port` -- Enable JDWP for Hosted environment.
+   * Does the same as `squirreljme.jdwp` but takes priority if both are
+     specified in the event that debugging should be done for the hosted
+     process.
  * `squirreljme.midlet=value` -- The MIDlet to run, in the following order:
    * If `value` is a number and is `-1`, then no MIDlet will be selected and
      the `Main-Class` attribute will be force selected.
@@ -212,6 +218,9 @@ The following _System_ properties are available:
    * As an example `squirreljme.sysprop.favorite.animal=squirrel`:
      * Will define system property `favorite.animal=squirrel` within the
        virtual machine.
+ * `squirreljme.thread=value` -- The threading model to use.
+   * `single` or `coop` -- Single Cooperatively Threaded.
+   * `multi` or `smt` -- Simultaneous Multi-Threading.
  * `test.single=classname` -- Run only the given test:
    * Will be the test class to be run.
    * Multi-parameter tests are in the form of `classname@parameter`, if a

@@ -17,6 +17,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
@@ -111,22 +113,82 @@ public class Main
 		// Find the backend to use
 		Backend backend = Main.findBackend(compiler);
 		
-		// Which mode should occur?
-		switch (mode)
+		// Use explicit input/output
+		try (InputStream in = new StandardInputStream();
+			OutputStream out = System.out)
 		{
-				// Compile code
-			case "compile":
-				Main.mainCompile(backend, name, args);
-				break;
+			// Which mode should occur?
+			switch (mode)
+			{
+					// Compile code
+				case "compile":
+					Main.mainCompile(backend, in, out, name, args);
+					break;
+					
+					// Dump the result of "compile"
+				case "dumpCompile":
+					Main.dumpCompile(backend, in, out, name);
+					break;
+					
+					// Link multiple libraries into one
+				case "rom":
+					Main.mainRom(backend, out, args);
+					break;
 				
-				// Link multiple libraries into one
-			case "rom":
-				Main.mainRom(backend, args);
-				break;
+				// {@squirreljme.error AE02 Unknown mode. (The mode)}
+				default:
+					throw new IllegalArgumentException("AE02 " + mode);
+			}
+		}
+	}
+	
+	/**
+	 * Dumps the result of the compilation to a readable text format used
+	 * for debugging.
+	 * 
+	 * @param __backend The backend to use.
+	 * @param __inGlob The input glob.
+	 * @param __out Where to write the output.
+	 * @param __name The name of the Glob.
+	 * @throws IOException On read/write errors.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/05/16
+	 */
+	private static void dumpCompile(Backend __backend, InputStream __inGlob,
+		OutputStream __out, String __name)
+		throws IOException, NullPointerException
+	{
+		if (__backend == null || __inGlob == null || __out == null ||
+			__name == null)
+			throw new NullPointerException("NARG");
+		
+		// Read in the entire contents of the data
+		byte[] dump;
+		try (InputStream in = __inGlob;
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(
+				Math.max(4096, __inGlob.available())))
+		{
+			// Load in a copy
+			byte[] buf = new byte[8192];
+			for (;;)
+			{
+				int rc = in.read(buf);
+				
+				// EOF?
+				if (rc < 0)
+					break;
+				
+				baos.write(buf, 0, rc);
+			}
 			
-			// {@squirreljme.error AE02 Unknown mode. (The mode)}
-			default:
-				throw new IllegalArgumentException("AE02 " + mode);
+			// Write output
+			dump = baos.toByteArray();
+		}
+		
+		// Dump the output
+		try (PrintStream out = new PrintStream(__out, true))
+		{
+			__backend.dumpGlob(dump, __name, out);
 		}
 	}
 	
@@ -134,27 +196,30 @@ public class Main
 	 * Handles the main compilation stage.
 	 * 
 	 * @param __backend The backend to use.
+	 * @param __inZip The input stream of the input ZIP.
+	 * @param __outGlob The output stream of the Glob.
 	 * @param __name The name of the library.
 	 * @param __args The arguments to use.
 	 * @throws IOException On read errors.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/11/22
 	 */
-	private static void mainCompile(Backend __backend, String __name,
-		Deque<String> __args)
+	private static void mainCompile(Backend __backend, InputStream __inZip,
+		OutputStream __outGlob, String __name, Deque<String> __args)
 		throws IOException, NullPointerException
 	{
-		if (__backend == null || __name == null || __args == null)
+		if (__backend == null || __name == null || __args == null ||
+			__inZip == null || __outGlob == null)
 			throw new NullPointerException("NARG");
 		
 		// Parse compilation arguments
 		CompileSettings settings = CompileSettings.parse(__args);
 		
 		// Setup glob for final linking
-		LinkGlob glob = __backend.linkGlob(settings, __name, System.out);
+		LinkGlob glob = __backend.linkGlob(settings, __name, __outGlob);
 		
 		// Read input JAR and perform inline compilation
-		try (InputStream in = new StandardInputStream();
+		try (InputStream in = __inZip;
 			ZipStreamReader zip = new ZipStreamReader(in))
 		{
 			// Process JAR entries and compile them into individual class
@@ -204,15 +269,17 @@ public class Main
 	 * Links the ROM together as one.
 	 * 
 	 * @param __backend The backend to use.
+	 * @param __out Where the resultant ROM is to be written.
 	 * @param __args The arguments to the ROM linking.
 	 * @throws IOException On read/write errors.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/11/27
 	 */
-	public static void mainRom(Backend __backend, Deque<String> __args)
+	public static void mainRom(Backend __backend, OutputStream __out,
+		Deque<String> __args)
 		throws IOException, NullPointerException
 	{
-		if (__backend == null || __args == null)
+		if (__backend == null || __args == null || __out == null)
 			throw new NullPointerException("NARG");
 		
 		// Parse rom arguments
@@ -239,7 +306,7 @@ public class Main
 			throw new IllegalArgumentException("AE08");
 		
 		// Perform combined linking
-		__backend.rom(settings, System.out,
+		__backend.rom(settings, __out,
 			libs.toArray(new VMClassLibrary[libs.size()]));
 	}
 }

@@ -236,7 +236,9 @@ public interface JDWPViewType
 	boolean readValue(Object __which, int __index, JDWPValue __out);
 	
 	/**
-	 * Returns the signature of the given type.
+	 * Returns the signature of the given type, this signature is in the
+	 * same format as field signatures. As such for non-array types and
+	 * primitives, this should be the same one used to describe fields.
 	 * 
 	 * @param __which Get the signature of which type?
 	 * @return The signature of the given type.

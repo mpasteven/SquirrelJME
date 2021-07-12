@@ -9,8 +9,6 @@
 
 package lcdui.canvas;
 
-import cc.squirreljme.jvm.SystemCallError;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
 

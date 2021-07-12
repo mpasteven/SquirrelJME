@@ -1,0 +1,208 @@
+{
+	"backtraceGraph": {
+		"commands": [
+			"add_test"
+		],
+		"files": [
+			"C:/Users/xer/squirreljme/ratufacoat/tests/CMakeLists.txt"
+		],
+		"nodes": [
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 0
+			},
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 2
+			},
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 4
+			},
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 6
+			},
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 8
+			},
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 10
+			},
+			{
+				"file": 0
+			},
+			{
+				"command": 0,
+				"file": 0,
+				"line": 43,
+				"parent": 12
+			}
+		]
+	},
+	"kind": "ctestInfo",
+	"tests": [
+		{
+			"backtrace": 1,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testJvmInit"
+			],
+			"name": "testJvmInit",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		},
+		{
+			"backtrace": 3,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testMemHandleCycle"
+			],
+			"name": "testMemHandleCycle",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		},
+		{
+			"backtrace": 5,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testMemHandleInit"
+			],
+			"name": "testMemHandleInit",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		},
+		{
+			"backtrace": 7,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testMemHandleInvalid"
+			],
+			"name": "testMemHandleInvalid",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		},
+		{
+			"backtrace": 9,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testNothing"
+			],
+			"name": "testNothing",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		},
+		{
+			"backtrace": 11,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testOpCodes"
+			],
+			"name": "testOpCodes",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		},
+		{
+			"backtrace": 13,
+			"command": [
+				"C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests/SquirrelJMETests.exe",
+				"testSkipped"
+			],
+			"name": "testSkipped",
+			"properties": [
+				{
+					"name": "SKIP_RETURN_CODE",
+					"value": 42
+				},
+				{
+					"name": "WORKING_DIRECTORY",
+					"value": "C:/Users/xer/squirreljme/ratufacoat/cmake-build-debug/tests"
+				}
+			]
+		}
+	],
+	"version": {
+		"major": 1,
+		"minor": 0
+	}
+}

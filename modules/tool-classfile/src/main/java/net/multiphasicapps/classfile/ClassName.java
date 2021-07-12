@@ -158,7 +158,7 @@ public class ClassName
 	/**
 	 * Returns the number of array dimensions that are used.
 	 *
-	 * @return The array dimensions.
+	 * @return The array dimensions, will return {@code 0} if not an array.
 	 * @since 2018/09/28
 	 */
 	public final int dimensions()
@@ -175,6 +175,9 @@ public class ClassName
 	@Override
 	public boolean equals(Object __o)
 	{
+		if (this == __o)
+			return true;
+		
 		if (!(__o instanceof ClassName))
 			return false;
 		
@@ -269,6 +272,17 @@ public class ClassName
 	}
 	
 	/**
+	 * Checks if this is the object class.
+	 * 
+	 * @return If this is the object class.
+	 * @since 2020/12/21
+	 */
+	public boolean isObjectClass()
+	{
+		return this.toString().equals("java/lang/Object");
+	}
+	
+	/**
 	 * Does this class refer to a primitive type?
 	 *
 	 * @return If this is a primitive type.
@@ -288,10 +302,13 @@ public class ClassName
 	 */
 	public final PrimitiveType primitiveType()
 	{
-		if (!this.isPrimitive())
+		// If not a binary name but a field, then it can never be a primitive
+		// type
+		BinaryName binary = this.binary;
+		if (binary == null)
 			return null;
 		
-		switch (this.binary.toString())
+		switch (binary.toString())
 		{
 			case "boolean":		return PrimitiveType.BOOLEAN;
 			case "byte":		return PrimitiveType.BYTE;
@@ -301,9 +318,50 @@ public class ClassName
 			case "long":		return PrimitiveType.LONG;
 			case "float":		return PrimitiveType.FLOAT;
 			case "double":		return PrimitiveType.DOUBLE;
-			default:
-				throw new RuntimeException("TODO");
 		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns the root component type of this class name, that is this class
+	 * with all of the dimensions taken away.
+	 *
+	 * @return The component type.
+	 * @throws IllegalStateException If this is not an array.
+	 * @since 2021/01/31
+	 */
+	public final ClassName rootComponentType()
+		throws IllegalStateException
+	{
+		// {@squirreljme.error JC4w This class is not an array, cannot get
+		// the root component type. (The name of this class)}
+		if (!this.isArray())
+			throw new IllegalStateException(String.format("JC4w %s", this));
+		
+		// Keep going down until we are at the root.
+		ClassName rv;
+		for (rv = this; rv.isArray();)
+			rv = rv.componentType();
+		
+		return rv;
+	}
+	
+	/**
+	 * Returns the simple name of the class.
+	 * 
+	 * @return The simple name of the class.
+	 * @throws IllegalStateException If this is a primitive or array.
+	 * @since 2020/11/28
+	 */
+	public ClassIdentifier simpleName()
+		throws IllegalStateException
+	{
+		// {@squirreljme.error JC0g Cannot get the simple name of a primitive
+		// or array type.}
+		if (this.isArray() || this.isPrimitive())
+			throw new IllegalStateException("JC0g");
+		return this.binary.simpleName();
 	}
 	
 	/**

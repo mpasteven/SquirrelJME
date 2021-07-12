@@ -9,7 +9,6 @@
 
 package java.util;
 
-
 /**
  * The list iterator for this linked list.
  *

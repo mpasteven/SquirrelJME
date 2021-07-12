@@ -125,7 +125,7 @@ public final class SpringTaskManager
 				return __type.cast(new DebugViewThread(__state));
 			
 			case THREAD_GROUP:
-				return __type.cast(new DebugViewThreadGroup(__state));
+				return __type.cast(new DebugViewThreadGroup());
 			
 			case TYPE:
 				return __type.cast(new DebugViewType(__state));
@@ -257,7 +257,7 @@ public final class SpringTaskManager
 	@Override
 	public String vmDescription()
 	{
-		return "SquirrelJME SpringCoat " + SquirrelJME.RUNTIME_VERSION;
+		return "SquirrelJME SpringCoat " + this.vmVersion();
 	}
 	
 	/**

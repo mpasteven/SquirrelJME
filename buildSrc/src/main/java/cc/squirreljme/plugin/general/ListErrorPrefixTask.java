@@ -9,10 +9,8 @@
 
 package cc.squirreljme.plugin.general;
 
-import cc.squirreljme.plugin.ErrorCodeManager;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.Task;
 
 /**
  * Lists error prefixes for the task.

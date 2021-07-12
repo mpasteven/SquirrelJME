@@ -16,6 +16,9 @@ executors:
   buildenv:
     docker:
       - image: circleci/openjdk:8-jdk
+  buster:
+    docker:
+      - image: debian:buster-backports
 
 orbs:
   win: circleci/windows@2.4.0
@@ -38,7 +41,7 @@ jobs:
           # According to documentation, Gradle on Windows has trouble and tries
           # to make way too many workers which causes extreme resource.
           # contention --max-workers=2
-          command: gradlew build testHosted -x javadoc -x javadocJar -x testFixturesJavaDoc -x sourcesJar --console plain --continue --parallel
+          command: gradlew build testHosted -x javadoc -x javadocJar -x testFixturesJavaDoc -x sourcesJar --no-daemon --console plain --continue --parallel
       - run:
           shell: bash.exe
           name: Save test results
@@ -82,8 +85,30 @@ jobs:
           shell: bash.exe
           command: |
             "$PROGRAMFILES/CMake/bin/cmake.exe" --build .
+      - run:
+          name: Test CMake Build
+          working_directory: ratufacoat
+          shell: bash.exe
+          command: |
+            "$PROGRAMFILES/CMake/bin/ctest.exe" --extra-verbose -T Test .
+      - run:
+          shell: bash.exe
+          name: Convert CTest to JUnit XML
+          command: python3 ctest-to-junit.py < Testing/*/Test.xml
+          working_directory: ratufacoat
+          when: always
+      - run:
+          shell: bash.exe
+          name: Save test results
+          working_directory: ratufacoat
+          command: |
+            mkdir -p /c/users/circleci/test-results/junit-windows
+            /usr/bin/find . -type f -regex '.*/build/junit/.*\.xml' -exec cp {} /c/users/circleci/test-results/junit-windows/ \;
+          when: always
+      - store_test_results:
+          path: c:\users\circleci\test-results
       - store_artifacts:
-          path: ratufacoat\src\Debug\SquirrelJME.exe
+          path: ratufacoat\src\sdl2\Debug\SquirrelJME.exe
           destination: SquirrelJME.exe
 
   ################################# MAC OS X #################################
@@ -113,7 +138,7 @@ jobs:
           command: brew install openjdk@11
       - run:
           name: Gradle Build and Test
-          command: ./gradlew build testHosted -x javadoc -x javadocJar -x testFixturesJavaDoc -x sourcesJar --console plain --continue --parallel
+          command: ./gradlew build testHosted -x javadoc -x javadocJar -x testFixturesJavaDoc -x sourcesJar --no-daemon --console plain --continue --parallel
       - run:
           name: Save test results
           command: |
@@ -137,6 +162,16 @@ jobs:
       # Do not auto-update brew as this takes forever and we really just want
       # a single package
       HOMEBREW_NO_AUTO_UPDATE: 1
+
+      # Do not auto-clean brew, this wastes time and everything will be thrown
+      # out when the container finishes anyway
+      HOMEBREW_CLEANUP_MAX_AGE_DAYS: 730
+
+      # Do not send analytics
+      HOMEBREW_NO_ANALYTICS: 1
+
+      # Do not cleanup after installation
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
     steps:
       - checkout
       - run:
@@ -152,8 +187,26 @@ jobs:
           name: Compile CMake build
           working_directory: ratufacoat
           command: cmake --build .
+      - run:
+          name: Test CMake Build
+          working_directory: ratufacoat
+          command: ctest --extra-verbose -T Test .
+      - run:
+          name: Convert CTest to JUnit XML
+          command: python3 ctest-to-junit.py < Testing/*/Test.xml
+          working_directory: ratufacoat
+          when: always
+      - run:
+          name: Save test results
+          working_directory: ratufacoat
+          command: |
+            mkdir -p ~/test-results/junit-macosx/
+            find . -type f -regex '.*/build/junit/.*\.xml' -exec cp {} ~/test-results/junit-macosx/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
       - store_artifacts:
-          path: ratufacoat/src/SquirrelJME
+          path: ratufacoat/src/sdl2/SquirrelJME
           destination: SquirrelJME
 
   ################################### LINUX ##################################
@@ -166,7 +219,7 @@ jobs:
       - checkout
       - run:
           name: Gradle Build and Test
-          command: ./gradlew build testHosted --console plain --continue --parallel
+          command: ./gradlew build testHosted --no-daemon --console plain --continue --parallel
       - run:
           name: Save test results
           command: |
@@ -204,22 +257,20 @@ jobs:
           at: .
       - run:
           name: Publish to OSS SonaType
-          command: ./gradlew publishMavenPublicationToMavenRepository --console plain --continue --parallel
+          command: ./gradlew publishMavenPublicationToMavenRepository --no-daemon --console plain --continue --parallel
 
   ### RatufaCoat
   ratufacoat_build_linux:
-    executor: buildenv
+    executor: buster
     resource_class: small
-    environment:
-      # Allow Gradle to be fully cached
-      GRADLE_USER_HOME: ${CIRCLE_WORKING_DIRECTORY}/.gradle/home
     steps:
       - checkout
       - run:
           name: Install required dependencies
           command: |
-            sudo apt-get update -y
-            sudo apt-get install -y cmake build-essential
+            apt-get update -y
+            apt-get install -y build-essential python3 git
+            apt-get install -y -t buster-backports cmake
       - attach_workspace:
           at: .
       - run:
@@ -230,9 +281,150 @@ jobs:
           name: Compile CMake build
           working_directory: ratufacoat
           command: cmake --build .
+      - run:
+          name: Test CMake Build
+          working_directory: ratufacoat
+          command: ctest --extra-verbose -T Test .
+      - run:
+          name: Convert CTest to JUnit XML
+          command: python3 ctest-to-junit.py < Testing/*/Test.xml
+          working_directory: ratufacoat
+          when: always
+      - run:
+          name: Save test results
+          working_directory: ratufacoat
+          command: |
+            mkdir -p ~/test-results/junit-linux/
+            find . -type f -regex '.*/build/junit/.*\.xml' -exec cp {} ~/test-results/junit-linux/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
       - store_artifacts:
-          path: ratufacoat/src/SquirrelJME
+          path: ratufacoat/src/sdl2/SquirrelJME
           destination: SquirrelJME
+
+  ### RatufaCoat (MIPS, Cross Arch Testing)
+  ratufacoat_build_linux_mips:
+    executor: buster
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install required dependencies
+          command: |
+            apt-get update -y
+            apt-get install -y build-essential gcc-mips-linux-gnu binutils-mips-linux-gnu python3 git
+            apt-get install -y -t buster-backports cmake qemu-user-static
+      - attach_workspace:
+          at: .
+      - run:
+          name: Setup CMake build
+          working_directory: ratufacoat
+          command: cmake -DSQUIRRELJME_TEST_WRAPPER="$(which qemu-mips-static)" -DCMAKE_C_COMPILER="$(which mips-linux-gnu-gcc)" -DCMAKE_AR="$(which mips-linux-gnu-gcc-ar)" -DCMAKE_LINKER="$(which mips-linux-gnu-ld)" .
+      - run:
+          name: Compile CMake build
+          working_directory: ratufacoat
+          command: cmake --build .
+      - run:
+          name: Test CMake Build
+          working_directory: ratufacoat
+          command: ctest --extra-verbose -T Test .
+      - run:
+          name: Convert CTest to JUnit XML
+          command: python3 ctest-to-junit.py < Testing/*/Test.xml
+          working_directory: ratufacoat
+          when: always
+      - run:
+          name: Save test results
+          working_directory: ratufacoat
+          command: |
+            mkdir -p ~/test-results/junit-linux/
+            find . -type f -regex '.*/build/junit/.*\.xml' -exec cp {} ~/test-results/junit-linux/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+
+  ### RatufaCoat (PowerPC, Cross Arch Testing)
+  ratufacoat_build_linux_powerpc:
+    executor: buster
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install required dependencies
+          command: |
+            apt-get update -y
+            apt-get install -y build-essential gcc-powerpc-linux-gnu binutils-powerpc-linux-gnu python3 git
+            apt-get install -y -t buster-backports cmake qemu-user-static
+      - attach_workspace:
+          at: .
+      - run:
+          name: Setup CMake build
+          working_directory: ratufacoat
+          command: cmake -DSQUIRRELJME_TEST_WRAPPER="$(which qemu-ppc-static)" -DCMAKE_C_COMPILER="$(which powerpc-linux-gnu-gcc)" -DCMAKE_AR="$(which powerpc-linux-gnu-gcc-ar)" -DCMAKE_LINKER="$(which powerpc-linux-gnu-ld)" .
+      - run:
+          name: Compile CMake build
+          working_directory: ratufacoat
+          command: cmake --build .
+      - run:
+          name: Test CMake Build
+          working_directory: ratufacoat
+          command: ctest --extra-verbose -T Test .
+      - run:
+          name: Convert CTest to JUnit XML
+          command: python3 ctest-to-junit.py < Testing/*/Test.xml
+          working_directory: ratufacoat
+          when: always
+      - run:
+          name: Save test results
+          working_directory: ratufacoat
+          command: |
+            mkdir -p ~/test-results/junit-linux/
+            find . -type f -regex '.*/build/junit/.*\.xml' -exec cp {} ~/test-results/junit-linux/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+
+  ### RatufaCoat (SPARC64, Cross Arch Testing)
+  ratufacoat_build_linux_sparc64:
+    executor: buster
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install required dependencies
+          command: |
+            apt-get update -y
+            apt-get install -y build-essential gcc-sparc64-linux-gnu binutils-sparc64-linux-gnu python3 git
+            apt-get install -y -t buster-backports cmake qemu-user-static
+      - attach_workspace:
+          at: .
+      - run:
+          name: Setup CMake build
+          working_directory: ratufacoat
+          command: cmake -DSQUIRRELJME_TEST_WRAPPER="$(which qemu-sparc64-static)" -DCMAKE_C_COMPILER="$(which sparc64-linux-gnu-gcc)" -DCMAKE_AR="$(which sparc64-linux-gnu-gcc-ar)" -DCMAKE_LINKER="$(which sparc64-linux-gnu-ld)" .
+      - run:
+          name: Compile CMake build
+          working_directory: ratufacoat
+          command: cmake --build .
+      - run:
+          name: Test CMake Build
+          working_directory: ratufacoat
+          command: ctest --extra-verbose -T Test .
+      - run:
+          name: Convert CTest to JUnit XML
+          command: python3 ctest-to-junit.py < Testing/*/Test.xml
+          working_directory: ratufacoat
+          when: always
+      - run:
+          name: Save test results
+          working_directory: ratufacoat
+          command: |
+            mkdir -p ~/test-results/junit-linux/
+            find . -type f -regex '.*/build/junit/.*\.xml' -exec cp {} ~/test-results/junit-linux/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
 
   ### SpringCoat
   test_springcoat:
@@ -246,7 +438,7 @@ jobs:
           at: .
       - run:
           name: SpringCoat Tests
-          command: timeout --foreground 15m ./gradlew testSpringCoat --console plain --continue --parallel
+          command: timeout --foreground 15m ./gradlew testSpringCoat --no-daemon --console plain --continue --parallel
           no_output_timeout: 15m
       - run:
           name: Save test results
@@ -281,7 +473,7 @@ jobs:
           at: .
       - run:
           name: SummerCoat Tests
-          command: timeout --foreground 15m ./gradlew testSummerCoat --console plain --continue --parallel
+          command: timeout --foreground 15m ./gradlew testSummerCoat --no-daemon --console plain --continue --parallel
           no_output_timeout: 15m
       - run:
           name: Save test results
@@ -348,7 +540,7 @@ jobs:
           at: .
       - run:
           name: Construct Test JARs
-          command: ./gradlew testJar --console plain --continue --parallel
+          command: ./gradlew testJar --no-daemon --console plain --continue --parallel
       - persist_to_workspace:
           root: .
           paths:
@@ -371,7 +563,7 @@ jobs:
           at: .
       - run:
           name: Construct SummerCoat Libraries
-          command: ./gradlew libSummerCoat --console plain --continue --parallel
+          command: ./gradlew libSummerCoat --no-daemon --console plain --continue --parallel
       - persist_to_workspace:
           root: .
           paths:
@@ -393,7 +585,7 @@ jobs:
           at: .
       - run:
           name: Construct Test SummerCoat Libraries
-          command: ./gradlew libTestSummerCoat --console plain --continue --parallel
+          command: ./gradlew libTestSummerCoat --no-daemon --console plain --continue --parallel
       - persist_to_workspace:
           root: .
           paths:
@@ -415,7 +607,7 @@ jobs:
           at: .
       - run:
           name: Construct SummerCoat ROM
-          command: ./gradlew romSummerCoat --console plain --continue --parallel
+          command: ./gradlew romSummerCoat --no-daemon --console plain --continue --parallel
       - persist_to_workspace:
           root: .
           paths:
@@ -439,7 +631,7 @@ jobs:
           at: .
       - run:
           name: Construct Test SummerCoat ROM
-          command: ./gradlew romTestSummerCoat --console plain --continue --parallel
+          command: ./gradlew romTestSummerCoat --no-daemon --console plain --continue --parallel
       - persist_to_workspace:
           root: .
           paths:
@@ -448,6 +640,40 @@ jobs:
             - '*/.gradle/*'
             - '*/build/*'
             - '*/*/build/*'
+
+  # Constructs the Built-In ROM used for RatufaCoat
+  construct_builtInSummerCoatRom:
+    executor: buildenv
+    environment:
+      # Allow Gradle to be fully cached
+      GRADLE_USER_HOME: ${CIRCLE_WORKING_DIRECTORY}/.gradle/home
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Construct Built-In SummerCoat ROM for RatufaCoat
+          command: ./gradlew :romSummerCoatRatufaCoat --no-daemon --console plain --continue --parallel
+      - persist_to_workspace:
+          root: .
+          paths:
+            - 'ratufacoat/build/builtin.c'
+
+  # Poke RetroArch for building the cores
+  poke_RetroArch:
+    executor: buildenv
+    environment:
+      # Allow Gradle to be fully cached
+      GRADLE_USER_HOME: ${CIRCLE_WORKING_DIRECTORY}/.gradle/home
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - store_artifacts:
+          path: ratufacoat/build/builtin.c
+      - run:
+          name: Poking RetroArch CI/CD Platform
+          command: curl -X POST -F "token=$RETROARCH_GITLAB_TRIGGER_TOKEN" -F "ref=$CIRCLE_BRANCH" -F "variables[SQUIRRELJME_ROM_ID]=$CIRCLE_BUILD_NUM" https://git.libretro.com/api/v4/projects/120/trigger/pipeline
 
 workflows:
   version: 2
@@ -458,9 +684,9 @@ workflows:
       - test_springcoat:
           requires:
             - construct_testJars
-#      - test_summercoat:
-#          requires:
-#            - construct_libTestSummerCoat
+      - test_summercoat:
+          requires:
+            - construct_libTestSummerCoat
 
       # Mac OS X runs decently however the jobs for it have a higher cost, so
       # only perform builds and tests for trunk to lower costs.
@@ -500,30 +726,58 @@ workflows:
             - build_linux
       - construct_libSummerCoat:
           requires:
-            - build_linux
+            - construct_testJars
       - construct_libTestSummerCoat:
           requires:
-            - construct_testJars
+            - construct_libSummerCoat
       - construct_romSummerCoat:
           requires:
-            - construct_libSummerCoat
+            - test_summercoat
       - construct_romTestSummerCoat:
           requires:
-            - construct_libTestSummerCoat
+            - construct_romSummerCoat
+
+      # The Built-In C File
+      - construct_builtInSummerCoatRom:
+          requires:
+            - construct_romSummerCoat
+
+      # Only tell RetroArch to build if Linux went okay
+      - poke_RetroArch:
+          requires:
+            - ratufacoat_build_linux
+            - ratufacoat_build_windows
+            - ratufacoat_build_macosx
 
       ############################## RATUFACOAT ##############################
-#      - ratufacoat_build_windows:
-#          requires:
-#            - build_windows
-#            - construct_romTestSummerCoat
-#      - ratufacoat_build_linux:
-#          requires:
-#            - build_linux
-#            - construct_romTestSummerCoat
-#      - ratufacoat_build_macosx:
-#          requires:
-#            - build_macosx
-#            - construct_romTestSummerCoat
+      - ratufacoat_build_linux:
+          requires:
+            - construct_builtInSummerCoatRom
+      - ratufacoat_build_linux_mips:
+          requires:
+            - ratufacoat_build_linux
+      - ratufacoat_build_linux_powerpc:
+          requires:
+            - ratufacoat_build_linux
+      - ratufacoat_build_linux_sparc64:
+          requires:
+            - ratufacoat_build_linux
+
+      # Only run Windows and Mac OS X on trunk as a cost saving measure
+      - ratufacoat_build_windows:
+          requires:
+            - construct_builtInSummerCoatRom
+          filters:
+            branches:
+              only:
+                - trunk
+      - ratufacoat_build_macosx:
+          requires:
+            - construct_builtInSummerCoatRom
+          filters:
+            branches:
+              only:
+                - trunk
 
   #################### TASKS TO INCREASE USER FRIENDLINESS ####################
   friendliness:

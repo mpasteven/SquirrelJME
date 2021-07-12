@@ -16,7 +16,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.multiphasicapps.io.TableSectionOutputStream;
+import net.multiphasicapps.io.ChunkSection;
+import net.multiphasicapps.io.ChunkWriter;
 
 /**
  * Stores temporary field data as it is processed.
@@ -53,13 +54,13 @@ final class __TempFields__
 			throw new NullPointerException("NARG");
 		
 		// The resulting table
-		TableSectionOutputStream output = new TableSectionOutputStream();
+		ChunkWriter output = new ChunkWriter();
 		
 		// Write
 		try
 		{
 			// Table of contents data
-			TableSectionOutputStream.Section toc = output.addSection();
+			ChunkSection toc = output.addSection();
 			
 			// Actual table data
 			ByteArrayOutputStream dbytes = new ByteArrayOutputStream();

@@ -11,6 +11,7 @@ package cc.squirreljme.runtime.cldc.util;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * Provides a list view of a {@code double} array.
@@ -19,6 +20,7 @@ import java.util.List;
  */
 public class DoubleArrayList
 	extends AbstractList<Double>
+	implements RandomAccess
 {
 	/** The backing array. */
 	protected final double[] array;

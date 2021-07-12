@@ -33,6 +33,7 @@ import javax.microedition.midlet.MIDlet;
  *
  * @since 2016/10/08
  */
+@SuppressWarnings("OverlyComplexClass")
 public abstract class Displayable
 	extends __CommonWidget__
 {
@@ -56,7 +57,7 @@ public abstract class Displayable
 	volatile String _userTitle;
 	
 	/** Display title to use. */
-	volatile String __displayTitle;
+	volatile String _displayTitle;
 	
 	/** The ticker of the displayable. */
 	volatile Ticker _ticker;
@@ -66,6 +67,9 @@ public abstract class Displayable
 	
 	/** The layout policy of this displayable. */
 	private CommandLayoutPolicy _layoutPolicy;
+	
+	/** Was the last time the title update, were we fullscreen? */
+	private boolean _titleFullScreen;
 	
 	/**
 	 * Initializes the base displayable object.
@@ -83,18 +87,19 @@ public abstract class Displayable
 		// Register it with the global state
 		StaticDisplayState.register(this, uiForm);
 		
+		// Build the title item
+		UIItemBracket uiTitle = instance.itemNew(UIItemType.LABEL);
+		this._uiTitle = uiTitle;
+		
 		// Use a default title for now
 		String title = Displayable.__defaultTitle();
-		this.__displayTitle = Displayable.__defaultTitle();
+		this._displayTitle = title;
+		Debugging.debugNote("Default title: %s", title);
 		
 		// Setup the title item
-		UIItemBracket uiTitle = instance.itemNew(UIItemType.LABEL);
 		instance.formItemPosition(uiForm, uiTitle, UIItemPosition.TITLE);
 		instance.widgetProperty(uiTitle, UIWidgetProperty.STRING_LABEL,
 			0, title);
-		
-		// Store for future adjustments
-		this._uiTitle = uiTitle;
 	}
 	
 	/**
@@ -405,12 +410,15 @@ public abstract class Displayable
 			__t = Displayable.__defaultTitle();
 		
 		// Store this
-		this.__displayTitle = __t;
+		this._displayTitle = __t;
 		
 		// We can always set the title for the widget as the form should be
 		// allocated
 		UIBackendFactory.getInstance().widgetProperty(this._uiTitle,
 			UIWidgetProperty.STRING_LABEL, 0, __t);
+		
+		// Update the form title
+		this.__updateFormTitle(false, false);
 	}
 	
 	/**
@@ -686,6 +694,41 @@ public abstract class Displayable
 	}
 	
 	/**
+	 * Updates the display title of the form.
+	 * 
+	 * @param __knownFull Is setting full-screen known?
+	 * @param __isFull Is this full-screen?
+	 * @since 2021/06/24
+	 */
+	final void __updateFormTitle(boolean __knownFull, boolean __isFull)
+	{
+		// If it is unknown whether we are full-screen, then restore the last
+		// known full-screen state. Otherwise if we do know our full-screen
+		// state set that.
+		if (!__knownFull)
+			__isFull = this._titleFullScreen;
+		else
+			this._titleFullScreen = __isFull;
+			
+		// Debug
+		Debugging.debugNote("__updateFormTitle(%b, %b) -> %s",
+			__knownFull, __isFull, this._displayTitle);
+		
+		// If we are not full-screen then the title bar is at the top, so we
+		// can just say we our SquirrelJME. Otherwise, that will be hidden so
+		// we can set the main window title.
+		String useTitle;
+		if (!__isFull)
+			useTitle = "SquirrelJME";
+		else
+			useTitle = this._displayTitle;
+		
+		// Set the form title
+		UIBackendFactory.getInstance().widgetProperty(this._uiForm,
+			UIWidgetProperty.STRING_FORM_TITLE, 0, useTitle);
+	}
+	
+	/**
 	 * Returns a default title to use for the application.
 	 *
 	 * @return Application default title.
@@ -698,15 +741,15 @@ public abstract class Displayable
 		if (amid != null)
 		{
 			// MIDlet Name
-			String midname = amid.getAppProperty("midlet-name");
-			if (midname != null)
-				return midname;
+			String midName = amid.getAppProperty("midlet-name");
+			if (midName != null)
+				return midName;
 			
 			// Otherwise this might not be a MIDlet, so just use the main
 			// class instead
-			String midclass = amid.getAppProperty("main-class");
-			if (midclass != null)
-				return midclass;
+			String midClass = amid.getAppProperty("main-class");
+			if (midClass != null)
+				return midClass;
 		}
 		
 		// Fallback to just using SquirrelJME

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+result: NoResult
+thrown: NoExceptionThrown
+only-in: anycoat
+secondary-vmthread--java: true
+secondary-java--vmthread: true
+secondary-vmthread--task: true

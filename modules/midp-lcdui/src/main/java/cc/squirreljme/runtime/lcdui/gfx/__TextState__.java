@@ -9,6 +9,9 @@
 
 package cc.squirreljme.runtime.lcdui.gfx;
 
+import cc.squirreljme.runtime.lcdui.font.SQFFont;
+import javax.microedition.lcdui.Font;
+
 /**
  * This represents the state of the current text drawing.
  *
@@ -39,6 +42,39 @@ final class __TextState__
 	
 	/** Text end X/Y. */
 	public int tex, tey;
+	
+	/** The starting X clip. */
+	public int clipsx;
+	
+	/** The starting Y clip. */
+	public int clipsy;
+	
+	/** The ending X clip. */
+	public int clipex;
+	
+	/** The ending Y clip. */
+	public int clipey;
+	
+	/** The last font. */
+	public Font lastfont;
+	
+	/** The font to use. */
+	public SQFFont sqf;
+	
+	/** The font bitmap. */
+	public byte[] bmp;
+	
+	/** The pixel height of the font. */
+	public int pixelheight;
+	
+	/** Bits per scanline. */
+	public int bitsperscan;
+	
+	/** Used background color. */
+	public int bgcol;
+	
+	/** Does this have a background? */
+	public boolean hasbg;
 	
 	/**
 	 * Loads integer arguments.

@@ -11,6 +11,10 @@ squirreljme
 	swmVendor = "Stephanie Gawroriski"
 	tags += "compiler"
 	tags += "deprecated-for-autumncoat"
+	
+	// For testing only
+	testSystemProperties.put("dev.shadowtail.classfile.xlate.debug", "true")
+	noParallelTests = true
 }
 
 dependencies

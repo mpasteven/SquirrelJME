@@ -60,6 +60,11 @@ public final class Volatile<R extends Register>
 		// These only get closed once!
 		this._closed = true;
 		
-		this._stack.removeUnmanaged(this.register.register);
+		// Remove high and low parts
+		R register = this.register;
+		if (register instanceof WideRegister)
+			this._stack.removeUnmanaged(
+				((WideRegister)register).high.register);
+		this._stack.removeUnmanaged(register.register);
 	}
 }

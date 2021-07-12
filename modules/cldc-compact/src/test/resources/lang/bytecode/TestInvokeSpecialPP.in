@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+result: int:1337
+thrown: NoExceptionThrown

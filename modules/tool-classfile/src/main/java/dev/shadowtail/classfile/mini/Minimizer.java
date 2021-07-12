@@ -10,13 +10,16 @@
 
 package dev.shadowtail.classfile.mini;
 
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
+import cc.squirreljme.jvm.summercoat.constants.StaticClassProperty;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
-import dev.shadowtail.classfile.nncc.ArgumentFormat;
+import dev.shadowtail.classfile.nncc.InstructionFormat;
 import dev.shadowtail.classfile.nncc.NativeCode;
 import dev.shadowtail.classfile.nncc.NativeInstruction;
 import dev.shadowtail.classfile.nncc.RegisterList;
 import dev.shadowtail.classfile.pool.DualClassRuntimePoolBuilder;
 import dev.shadowtail.classfile.summercoat.register.Register;
+import dev.shadowtail.classfile.summercoat.register.Volatile;
 import dev.shadowtail.classfile.xlate.DataType;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -39,7 +42,10 @@ import net.multiphasicapps.classfile.InvalidClassFormatException;
 import net.multiphasicapps.classfile.Method;
 import net.multiphasicapps.classfile.MethodFlags;
 import net.multiphasicapps.classfile.PrimitiveType;
-import net.multiphasicapps.io.TableSectionOutputStream;
+import net.multiphasicapps.io.ChunkDataType;
+import net.multiphasicapps.io.ChunkForwardedFuture;
+import net.multiphasicapps.io.ChunkSection;
+import net.multiphasicapps.io.ChunkWriter;
 
 /**
  * This takes an input class file and translates it to the minimized format
@@ -49,6 +55,15 @@ import net.multiphasicapps.io.TableSectionOutputStream;
  */
 public final class Minimizer
 {
+	/** The type for class information. */
+	public static final FieldDescriptor CLASS_INFO_FIELD_DESC =
+		new FieldDescriptor(
+		"Lcc/squirreljme/jvm/mle/brackets/TypeBracket;");
+	
+	/** The descriptor for the thread type. */
+	public static final FieldDescriptor THREAD_FIELD_DESC =
+		new FieldDescriptor("Ljava/lang/Thread;");
+	
 	/** Counter for UUIDs. */
 	private static volatile int _UUID_COUNTER =
 		17;
@@ -57,10 +72,10 @@ public final class Minimizer
 	protected final ClassFile input;
 	
 	/** The Jar or ROM backed pool, is optional. */
-	protected final DualClassRuntimePoolBuilder jarpool;
+	protected final DualClassRuntimePoolBuilder jarPool;
 	
 	/** The local constant pool. */
-	protected final DualClassRuntimePoolBuilder localpool =
+	protected final DualClassRuntimePoolBuilder localPool =
 		new DualClassRuntimePoolBuilder();
 	
 	/**
@@ -80,7 +95,7 @@ public final class Minimizer
 		this.input = __cf;
 		
 		// This is the packing JAR/ROM pool, this may be null
-		this.jarpool = __dp;
+		this.jarPool = __dp;
 	}
 	
 	/**
@@ -101,134 +116,209 @@ public final class Minimizer
 		ClassFile input = this.input;
 		
 		// The output section
-		TableSectionOutputStream output = new TableSectionOutputStream();
+		ChunkWriter output = new ChunkWriter();
 		
 		// This is the relative pool that the class file uses
-		DualClassRuntimePoolBuilder localpool = this.localpool;
+		DualClassRuntimePoolBuilder localPool = this.localPool;
+		
+		// Initialize header section
+		ChunkSection header = output.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
+		
+		// Magic number and minimized format, since about November 2020 there
+		// is a new version format
+		header.writeInt(ClassInfoConstants.CLASS_MAGIC_NUMBER);
+		header.writeShort(ClassInfoConstants.CLASS_VERSION_20201129);
+		
+		// The number of properties used, is always constant for now
+		ChunkForwardedFuture[] properties = new ChunkForwardedFuture[
+			StaticClassProperty.NUM_STATIC_PROPERTIES];
+		header.writeUnsignedShortChecked(properties.length);
+		
+		// Initialize empty properties
+		for (int i = 0; i < StaticClassProperty.NUM_STATIC_PROPERTIES; i++)
+		{
+			// Initialize the future that will later be used to initialize
+			// the value.
+			ChunkForwardedFuture future = new ChunkForwardedFuture();
+			properties[i] = future;
+			
+			// This property is written here
+			header.writeFuture(ChunkDataType.INTEGER, future);
+		}
+		
+		// This value is currently meaningless so for now it is always zero
+		properties[StaticClassProperty.INT_CLASS_VERSION_ID].setInt(0);
+		
+		// Data type of the class
+		properties[StaticClassProperty.INT_DATA_TYPE].setInt(
+			DataType.of(input.thisName().field()).ordinal());
+		
+		// This may be null for Object
+		ClassName superNameCn = input.superName();
+		
+		// Store class information, such as the flags
+		properties[StaticClassProperty.INT_CLASS_FLAGS].setInt(
+			input.flags().toJavaBits());
+		
+		// Dimensions, used for array checks
+		properties[StaticClassProperty.NUM_DIMENSIONS].setInt(
+			input.thisName().dimensions());
+		
+		// Is the root component object? Used for casting from any array
+		// to Object[]... or Object
+		if (input.thisName().isArray())
+			properties[StaticClassProperty.BOOLEAN_ROOT_IS_OBJECT].setInt(
+				input.thisName().rootComponentType().isObjectClass() ? 1 : 0);
+		else
+			properties[StaticClassProperty.BOOLEAN_ROOT_IS_OBJECT].setInt(
+				input.thisName().isObjectClass() ? 1 : 0);
+		
+		// Is this primitive?
+		properties[StaticClassProperty.BOOLEAN_IS_PRIMITIVE].setInt(
+			(input.thisName().isPrimitive() ? 1 : 0));
+		
+		// Debug signature, for JDWP
+		ChunkSection debugSig = output.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
+		debugSig.writeUTF(input.thisName().field().toString());
+		properties[StaticClassProperty.OFFSETOF_DEBUG_SIGNATURE].set(
+			debugSig.futureAddress());
+		properties[StaticClassProperty.SIZEOF_DEBUG_SIGNATURE].set(
+			debugSig.futureSize());
+		
+		// name, superclass, and interfaces
+		properties[StaticClassProperty.SPOOL_THIS_CLASS_NAME].setInt(
+			localPool.add(false, input.thisName()).index);
+		properties[StaticClassProperty.SPOOL_SUPER_CLASS_NAME].setInt(
+			(superNameCn == null ? 0 :
+				localPool.add(false, superNameCn).index));
+		properties[StaticClassProperty.SPOOL_INTERFACES].setInt(
+			localPool.add(false, input.interfaceNames()).index);
+		
+		// Class type and version
+		properties[StaticClassProperty.INT_CLASS_TYPE].setInt(
+			input.type().ordinal());
+		properties[StaticClassProperty.INT_CLASS_VERSION].setInt(
+			input.version().ordinal());
+		
+		// Needed for debugging to figure out what file the class is in,
+		// will be very useful
+		String sfn = input.sourceFile();
+		properties[StaticClassProperty.SPOOL_SOURCE_FILENAME].setInt(
+			(sfn == null ? 0 : localPool.add(false, sfn).index));
 		
 		// Process all fields and methods
 		__TempFields__[] fields = this.__doFields();
 		__TempMethods__[] methods = this.__doMethods();
 		
-		// Initialize header section
-		TableSectionOutputStream.Section header =
-			output.addSection(MinimizedClassHeader.HEADER_SIZE_WITH_MAGIC);
-		
-		// Write magic number to specify this format
-		header.writeInt(MinimizedClassHeader.MAGIC_NUMBER);
-		
-		// Unused, may be used later when needed
-		header.writeShort(0);
-		
-		// The index of the instance method named __start
-		header.writeByte(methods[1].findMethodIndex("__start"));
-		
-		// Data type of the class
-		header.writeByte(DataType.of(input.thisName().field()).ordinal());
-		
-		// This may be null for Object
-		ClassName supernamecn = input.superName();
-		
-		// Unused
-		header.writeShort(0);
-		
-		// Store class information, such as the flags, name, superclass,
-		// interfaces, class type, and version
-		header.writeInt(input.flags().toJavaBits());
-		header.writeUnsignedShortChecked(
-			localpool.add(false, input.thisName()).index);
-		header.writeUnsignedShortChecked((supernamecn == null ? 0 :
-			localpool.add(false, supernamecn).index));
-		header.writeUnsignedShortChecked(
-			localpool.add(false, input.interfaceNames()).index);
-		header.writeByte(input.type().ordinal());
-		header.writeByte(input.version().ordinal());
-		
-		// Needed for debugging to figure out what file the class is in,
-		// will be very useful
-		String sfn = input.sourceFile();
-		header.writeUnsignedShortChecked((sfn == null ? 0 :
-			localpool.add(false, sfn).index));
-		
 		// Write static and instance field counts
 		for (int i = 0; i < 2; i++)
 		{
+			int base = (i == 0 ?
+				StaticClassProperty.BASEDX_STATIC_FIELD :
+				StaticClassProperty.BASEDX_INSTANCE_FIELD);
 			__TempFields__ tf = fields[i];
 			
-			header.writeUnsignedShortChecked(tf._count);
-			header.writeUnsignedShortChecked((tf._bytes + 3) & (~3));
-			header.writeUnsignedShortChecked(tf._objects);
+			// Generate section
+			ChunkSection subsection =
+				output.addSection(tf.getBytes(localPool), 4);
+			
+			properties[base + StaticClassProperty.BASEDX_INT_X_FIELD_COUNT]
+				.setInt(tf._count);
+			properties[base + StaticClassProperty.BASEDX_INT_X_FIELD_BYTES]
+				.setInt((tf._bytes + 3) & (~3));
+			properties[base + StaticClassProperty.BASEDX_INT_X_FIELD_OBJECTS]
+				.setInt(tf._objects);
+			properties[base + StaticClassProperty.BASEDX_OFFSET_X_FIELD_DATA]
+				.set(subsection.futureAddress());
+			properties[base + StaticClassProperty.BASEDX_SIZE_X_FIELD_DATA]
+				.set(subsection.futureSize());
 		}
 		
 		// Write static and instance method counts
+		ChunkSection[] methodChunks = new ChunkSection[2];
 		for (int i = 0; i < 2; i++)
 		{
+			int base = (i == 0 ?
+				StaticClassProperty.BASEDX_STATIC_METHOD :
+				StaticClassProperty.BASEDX_INSTANCE_METHOD);
 			__TempMethods__ tm = methods[i];
 			
-			header.writeUnsignedShortChecked(tm._count);
-		}
-		
-		// Unused, the pool was here
-		header.writeInt(0);
-		header.writeInt(0);
-		
-		// Field locator
-		for (int i = 0; i < 2; i++)
-		{
 			// Generate section
-			TableSectionOutputStream.Section subsection =
-				output.addSection(fields[i].getBytes(localpool), 4);
+			ChunkSection subsection =
+				output.addSection(tm.getBytes(localPool), 4);
+			methodChunks[i] = subsection;
 			
-			// Write section details
-			header.writeSectionAddressInt(subsection);
-			header.writeSectionSizeInt(subsection);
+			properties[base + StaticClassProperty.BASEDX_INT_X_METHOD_COUNT]
+				.setInt(tm._count);
+			properties[base + StaticClassProperty.BASEDX_OFFSET_X_METHOD_DATA]
+				.set(subsection.futureAddress());
+			properties[base + StaticClassProperty.BASEDX_SIZE_X_METHOD_DATA]
+				.set(subsection.futureSize());
 		}
 		
-		// Method locator
-		for (int i = 0; i < 2; i++)
-		{
-			// Generate section
-			TableSectionOutputStream.Section subsection =
-				output.addSection(methods[i].getBytes(localpool), 4);
-			
-			// Write section details
-			header.writeSectionAddressInt(subsection);
-			header.writeSectionSizeInt(subsection);
-		}
+		// The entry point for the Virtual Machine Bootstrap
+		int bootMethodId = methods[0].findMethodIndex("vmEntry");
+		properties[StaticClassProperty.INDEX_BOOT_METHOD].setInt(
+			bootMethodId);
+		
+		if (bootMethodId < 0)
+			properties[StaticClassProperty.OFFSET_BOOT_METHOD].setInt(-1);
+		else
+			properties[StaticClassProperty.OFFSET_BOOT_METHOD].set(
+				methods[0]._codeChunks.get(bootMethodId).futureAddress(),
+				methodChunks[0].futureAddress());
 		
 		// Generate a UUID and write it
 		long uuid = Minimizer.generateUUID();
-		header.writeInt((int)(uuid >>> 32));
-		header.writeInt((int)uuid);
+		properties[StaticClassProperty.INT_UUID_HI].setInt(
+			(int)(uuid >>> 32));
+		properties[StaticClassProperty.INT_UUID_LO].setInt(
+			(int)uuid);
 		
 		// Write absolute file size! This saves time in calculating how big
 		// a file we have and we can just read that many bytes for all the
 		// data areas or similar if needed
-		header.writeFileSizeInt();
-		
-		// Not used anymore
-		header.writeInt(0);
+		properties[StaticClassProperty.INT_FILE_SIZE].set(
+			output.futureSize());
 		
 		// Where our pools are going
-		TableSectionOutputStream.Section lpd = output.addSection();
+		ChunkSection lpd = output.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
 		
 		// Encode the local pool or the local pool on top of the JAR pool
-		DualClassRuntimePoolBuilder jarpool = this.jarpool;
-		DualPoolEncodeResult der = (jarpool == null ?
-			DualPoolEncoder.encode(localpool, lpd) :
-			DualPoolEncoder.encodeLayered(localpool, jarpool, lpd));
+		DualClassRuntimePoolBuilder jarPool = this.jarPool;
+		boolean ourPool = (jarPool == null);
+		DualPoolEncodeResult der = (ourPool ?
+			DualPoolEncoder.encode(localPool, lpd) :
+			DualPoolEncoder.encodeLayered(localPool, jarPool, lpd));
 		
 		// Static pool
-		header.writeSectionAddressInt(lpd, der.staticpooloff);
-		header.writeInt(der.staticpoolsize);
+		properties[StaticClassProperty.OFFSET_STATIC_POOL]
+			.set(lpd.futureAddress(der.staticpooloff));
+		properties[StaticClassProperty.SIZE_STATIC_POOL]
+			.setInt(der.staticpoolsize);
 		
 		// Run-time pool
-		header.writeSectionAddressInt(lpd, der.runtimepooloff);
-		header.writeInt(der.runtimepoolsize);
+		properties[StaticClassProperty.OFFSET_RUNTIME_POOL]
+			.set(lpd.futureAddress(der.runtimepooloff));
+		properties[StaticClassProperty.SIZE_RUNTIME_POOL]
+			.setInt(der.runtimepoolsize);
 		
-		// Write end magic number, which is at the end of the file
-		TableSectionOutputStream.Section eofmagic = output.addSection(4);
-		eofmagic.writeInt(MinimizedClassHeader.END_MAGIC_NUMBER);
+		// Verify values are set
+		for (int i = 0; i < StaticClassProperty.NUM_STATIC_PROPERTIES; i++)
+			if (!properties[i].isSet())
+				throw Debugging.oops(i);
+		
+		// Class ID, for reference
+		ChunkSection hiddenName = output.addSection();
+		hiddenName.writeUTF(input.thisName().toString()); 
+		
+		// Write end magic number, which is at the end of the file. This is
+		// to make sure stuff is properly read.
+		ChunkSection eofMagic = output.addSection(4);
+		eofMagic.writeInt(ClassInfoConstants.CLASS_END_MAGIC_NUMBER);
 		
 		// Write resulting file
 		output.writeTo(__os);
@@ -242,7 +332,7 @@ public final class Minimizer
 	 */
 	private __TempFields__[] __doFields()
 	{
-		DualClassRuntimePoolBuilder localpool = this.localpool;
+		DualClassRuntimePoolBuilder localpool = this.localPool;
 		
 		// Static and instance fields are split because they are stored
 		// in different places
@@ -260,38 +350,33 @@ public final class Minimizer
 		List<Field> sorted = new ArrayList<>(this.input.fields());
 		Collections.sort(sorted, new __MinimizerFieldSort__());
 		
-		// If this is an object, add the special class type (internal class
-		// pointer) and the reference count. These are always in a fixed
-		// order.
+		// If this is an object, add the special fields in a specifically
+		// defined fixed order. This is used within SummerCoat to specially
+		// handle these kinds of objects.
 		if (isobject)
 		{
 			// (ClassInfo) Synthetic + Transient + Final
 			sorted.add(0, new Field(new FieldFlags(0x1090),
-				new FieldName("_class"),
-				FieldDescriptor.INTEGER, null, null));
-			
-			// (Reference count) Synthetic + Transient + Volatile
-			sorted.add(1, new Field(new FieldFlags(0x10c0),
-				new FieldName("_refcount"),
-				FieldDescriptor.INTEGER, null, null));
+				new FieldName("_classInfo"),
+				Minimizer.CLASS_INFO_FIELD_DESC, null, null));
 			
 			// (monitor owning thread) Synthetic + Transient + Volatile
-			sorted.add(2, new Field(new FieldFlags(0x10c0),
+			sorted.add(1, new Field(new FieldFlags(0x10c0),
 				new FieldName("_monitor"),
-				FieldDescriptor.INTEGER, null, null));
+				Minimizer.THREAD_FIELD_DESC, null, null));
 			
 			// (monitor enter count) Synthetic + Transient + Volatile
-			sorted.add(3, new Field(new FieldFlags(0x10c0),
-				new FieldName("_moncount"),
+			sorted.add(2, new Field(new FieldFlags(0x10c0),
+				new FieldName("_monitorCount"),
 				FieldDescriptor.INTEGER, null, null));
 		}
 		
 		// If an array, add the length of the array
 		else if (isarray)
 		{
-			// Synthetic + Transient + Final
-			sorted.add(0, new Field(new FieldFlags(0x1090),
-				new FieldName("_length"),
+			// (array length) Public + Synthetic + Transient + Final
+			sorted.add(0, new Field(new FieldFlags(0x1091),
+				new FieldName("length"),
 				FieldDescriptor.INTEGER, null, null));
 		}
 		
@@ -359,7 +444,7 @@ public final class Minimizer
 	 */
 	private __TempMethods__[] __doMethods()
 	{
-		DualClassRuntimePoolBuilder localpool = this.localpool;
+		DualClassRuntimePoolBuilder localpool = this.localPool;
 		ClassFile input = this.input;
 		
 		// Split static and instance methods to make them easier to locate
@@ -382,7 +467,7 @@ public final class Minimizer
 			{
 				// The minified classes use register code since it is easier
 				// to handle by the VM
-				NativeCode rc = m.nativeCode();
+				NativeCode rc = m.nativeCode(input.sourceFile());
 				
 				// Encode data to bytes
 				try
@@ -413,10 +498,8 @@ public final class Minimizer
 			// Add method
 			MinimizedMethod q;
 			temp._methods.add((q = new MinimizedMethod(mf.toJavaBits(),
-				temp._count,
-				m.name(),
-				m.type(),
-				transcode)));
+				temp._count, m.name(), m.type(), transcode, 0,
+				m.methodIndex())));
 			
 			// Quick count for used methods
 			temp._count++;
@@ -452,7 +535,7 @@ public final class Minimizer
 		List<__Jump__> jumpreps = new LinkedList<>();
 		
 		// Operations will reference this constant pool
-		DualClassRuntimePoolBuilder localpool = this.localpool;
+		DualClassRuntimePoolBuilder localpool = this.localPool;
 		
 		// Go through each instruction
 		for (int cdx = 0; cdx < cdn; cdx++)
@@ -471,15 +554,15 @@ public final class Minimizer
 			dos.write(op);
 			
 			// Encode arguments
-			ArgumentFormat[] format = i.argumentFormat();
+			InstructionFormat format = i.argumentFormat();
 			for (int a = 0, an = i.argumentCount(),
-				afn = format.length; a < an; a++)
+				afn = format.size(); a < an; a++)
 			{
 				// Read argument
 				Object v = i.argument(a);
 				
 				// Write the format
-				switch (format[a])
+				switch (format.get(a))
 				{
 						// Variable 16-bit unsigned integer
 					case VUINT:
@@ -488,14 +571,15 @@ public final class Minimizer
 					case VJUMP:
 						// Remap value
 						int vm = 0;
-						switch (format[a])
+						switch (format.get(a))
 						{
 							case VPOOL:
 								try
 								{
 									vm = localpool.add(true, v).index;
 								}
-								catch (IllegalArgumentException e)
+								catch (IllegalArgumentException|
+									NullPointerException e)
 								{
 									// {@squirreljme.error JC4g Could not add
 									// pool entry because it is not valid.
@@ -518,9 +602,11 @@ public final class Minimizer
 							
 							case VUINT:
 							case VUREG:
-								vm = ((v instanceof Register) ? 
-									((Register)v).register :
-									((Number)v).intValue());
+								vm = ((v instanceof Volatile) ?
+									((Volatile)v).register.register :
+										((v instanceof Register) ? 
+										((Register)v).register :
+										((Number)v).intValue()));
 								break;
 						}
 						
@@ -657,7 +743,8 @@ public final class Minimizer
 			(System.currentTimeMillis() << 24) + (++Minimizer._UUID_COUNTER));
 		
 		// Skip a random amount of values to run it for a bit
-		for (int i = 0, n = rand.nextInt(32 + rand.nextInt(32)); i < n; i++)
+		for (int i = 0, n = rand.nextInt(32 + rand.nextInt(32));
+			i < n; i++)
 			rand.nextInt();
 		
 		// Just use the next long value

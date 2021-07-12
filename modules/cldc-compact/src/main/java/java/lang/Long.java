@@ -10,7 +10,9 @@
 
 package java.lang;
 
+import cc.squirreljme.jvm.mle.RuntimeShelf;
 import cc.squirreljme.jvm.mle.TypeShelf;
+import cc.squirreljme.jvm.mle.constants.MemoryProfileType;
 import cc.squirreljme.runtime.cldc.annotation.ImplementationNote;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -135,12 +137,17 @@ public final class Long
 	@Override
 	public String toString()
 	{
+		// Normal memory profile?
+		if (RuntimeShelf.memoryProfile() >= MemoryProfileType.NORMAL)
+			return Long.toString(this._value, 10);
+		
+		// Try to reduce memory usage
 		Reference<String> ref = this._string;
 		String rv;
 		
 		if (ref == null || null == (rv = ref.get()))
 			this._string = new WeakReference<>(
-				(rv = Long.toString(this._value)));
+				(rv = Long.toString(this._value, 10)));
 		
 		return rv;
 	}
@@ -275,9 +282,25 @@ public final class Long
 		throw new todo.TODO();
 	}
 	
-	public static long reverseBytes(long __a)
+	/**
+	 * Reverses the given bytes.
+	 * 
+	 * @param __i The integer to reverse.
+	 * @return The reversed bytes.
+	 * @since 2021/02/18
+	 */
+	public static long reverseBytes(long __i)
 	{
-		throw new todo.TODO();
+		// 0xAABBCCDD_EEFFGGHH -> 0xBBAADDCC_FFEEHHGG
+		__i = (((__i & 0xFF00FF00_FF00FF00L) >>> 8) |
+			((__i & 0x00FF00FF_00FF00FFL) << 8));
+			
+		// 0xAABBCCDD_EEFFGGHH -> 0xDDCCBBAA_HHGGFFEE
+		__i = (((__i & 0xFFFF0000_FFF0000L) >>> 8) |
+			((__i & 0x0000FFFF_0000FFFFL) << 8));
+		
+		// 0xDDCCBBAA_HHGGFFEE -> 0xHHGGFFEE_DDCCBBAA
+		return (__i >>> 32) | (__i << 32);
 	}
 	
 	public static long rotateLeft(long __a, int __b)
@@ -440,6 +463,7 @@ public final class Long
 	 * @return The boxed value.
 	 * @since 2018/09/23
 	 */
+	@SuppressWarnings("UnnecessaryBoxing")
 	@ImplementationNote("This is not cached.")
 	public static Long valueOf(long __v)
 	{

@@ -57,14 +57,14 @@ public class SwingItemAdjustableGauge
 	}
 	
 	@Override
-	public void property(int __id, int __sub, int __newValue)
+	public void property(int __intProp, int __sub, int __newValue)
 		throws MLECallError
 	{
 		throw Debugging.todo();
 	}
 	
 	@Override
-	public void property(int __id, int __sub, String __newValue)
+	public void property(int __strProp, int __sub, String __newValue)
 	{
 		throw Debugging.todo();
 	}

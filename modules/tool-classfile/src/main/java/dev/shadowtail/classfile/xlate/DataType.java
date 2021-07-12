@@ -49,6 +49,10 @@ public enum DataType
 	/* End. */
 	;
 	
+	/** Mask for data type. */
+	public static final int MASK =
+		0b111;
+	
 	/**
 	 * Is this a wide data type?
 	 *

@@ -61,13 +61,13 @@ public class SwingItemLabel
 	 * @since 2020/07/18
 	 */
 	@Override
-	public void property(int __id, int __sub, int __newValue)
+	public void property(int __intProp, int __sub, int __newValue)
 		throws MLECallError
 	{
-		switch (__id)
+		switch (__intProp)
 		{
 			default:
-				throw new MLECallError("Invalid property: " + __id);
+				throw new MLECallError("Invalid property: " + __intProp);
 		}
 	}
 	
@@ -76,16 +76,16 @@ public class SwingItemLabel
 	 * @since 2020/07/18
 	 */
 	@Override
-	public void property(int __id, int __sub, String __newValue)
+	public void property(int __strProp, int __sub, String __newValue)
 	{
-		switch (__id)
+		switch (__strProp)
 		{
 			case UIWidgetProperty.STRING_LABEL:
 				this.label.setText(__newValue);
 				break;
 			
 			default:
-				throw new MLECallError("Invalid property: " + __id);
+				throw new MLECallError("Invalid property: " + __strProp);
 		}
 	}
 }

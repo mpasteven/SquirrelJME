@@ -10,9 +10,6 @@
 
 package cc.squirreljme.runtime.cldc.lang;
 
-import cc.squirreljme.jvm.Assembly;
-import cc.squirreljme.jvm.SystemCallIndex;
-
 /**
  * Provides access to the current API level.
  *
@@ -27,11 +24,6 @@ import cc.squirreljme.jvm.SystemCallIndex;
 @Deprecated
 public final class ApiLevel
 {
-	/** The current API level. */
-	@Deprecated
-	public static final int CURRENT_LEVEL =
-		Assembly.sysCallV(SystemCallIndex.API_LEVEL);
-	
 	/** Undefined. */
 	@Deprecated
 	public static final int UNDEFINED =
@@ -78,19 +70,6 @@ public final class ApiLevel
 			(__l / 100000) % 10,
 			__l % 1000,
 			2000 + ((__l / 1000) % 100));
-	}
-	
-	/**
-	 * Checks if the runtime API level is at a minimum this given level.
-	 *
-	 * @param __l The level to check.
-	 * @return If the minimum level is met.
-	 * @since 2019/02/02
-	 */
-	@Deprecated
-	public static boolean minimumLevel(int __l)
-	{
-		return (ApiLevel.CURRENT_LEVEL >= __l);
 	}
 }
 

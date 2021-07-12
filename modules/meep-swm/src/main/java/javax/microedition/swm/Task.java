@@ -10,7 +10,7 @@
 
 package javax.microedition.swm;
 
-import cc.squirreljme.runtime.cldc.asm.TaskAccess;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.util.Objects;
 
 /**
@@ -143,7 +143,7 @@ public final class Task
 		if (tid < 0)
 			return TaskStatus.START_FAILED;
 		
-		return TaskStatus.__of(TaskAccess.taskStatus(tid));
+		return TaskStatus.__of(Debugging.<Integer>todoObject(tid));
 	}
 	
 	/**

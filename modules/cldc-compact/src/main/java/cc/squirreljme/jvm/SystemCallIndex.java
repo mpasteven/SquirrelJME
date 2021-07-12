@@ -9,12 +9,16 @@
 
 package cc.squirreljme.jvm;
 
-import cc.squirreljme.jvm.config.ConfigRomKey;
-import cc.squirreljme.jvm.config.ConfigRomType;
+import cc.squirreljme.jvm.mle.constants.BuiltInLocaleType;
+import cc.squirreljme.jvm.mle.constants.PipeErrorType;
+import cc.squirreljme.jvm.mle.constants.VerboseDebugFlag;
+import cc.squirreljme.jvm.summercoat.SystemCall;
+import cc.squirreljme.jvm.summercoat.constants.RuntimeVmAttribute;
 
 /**
  * This contains the index of system calls.
  *
+ * @see SystemCall
  * @since 2019/05/23
  */
 public interface SystemCallIndex
@@ -149,14 +153,15 @@ public interface SystemCallIndex
 		11;
 	
 	/**
-	 * The API Level of the VM, this has been deprecated since the current
-	 * SquirrelJME API specified in these system calls better handles various
-	 * features.
+	 * Copies bytes from one memory handle to another.
 	 *
-	 * @squirreljme.syscallreturn The API level of the virtual machine.
+	 * @squirreljme.syscallparam 0 The source memory handle.
+	 * @squirreljme.syscallparam 1 The source offset.
+	 * @squirreljme.syscallparam 2 The destination memory handle.
+	 * @squirreljme.syscallparam 3 The destination offset.
+	 * @squirreljme.syscallparam 4 The number of bytes to copy.
 	 */
-	@Deprecated
-	byte API_LEVEL =
+	byte MEM_HANDLE_MOVE =
 		12;
 	
 	/**
@@ -246,16 +251,6 @@ public interface SystemCallIndex
 		20;
 	
 	/**
-	 * Returns the string of the given pointer.
-	 *
-	 * @squirreljme.syscallparam 1 The pointer to the modified UTF encoded
-	 * string.
-	 * @squirreljme.syscallreturn An instance of {@link String}.
-	 */
-	byte LOAD_STRING =
-		21;
-	
-	/**
 	 * Fatal ToDo hit.
 	 *
 	 * @squirreljme.syscallparam 1 The code to use for the To Do.
@@ -263,7 +258,7 @@ public interface SystemCallIndex
 	 * supported.
 	 */
 	byte FATAL_TODO =
-		22;
+		21;
 	
 	/**
 	 * This is used to indicate that the supervisor booted correctly and that
@@ -273,7 +268,7 @@ public interface SystemCallIndex
 	 * returned.
 	 */
 	byte SUPERVISOR_BOOT_OKAY =
-		23;
+		22;
 	
 	/**
 	 * Get, set, or change a property of the framebuffer, the properties which
@@ -286,7 +281,7 @@ public interface SystemCallIndex
 	 * return.
 	 */
 	byte FRAMEBUFFER =
-		24;
+		23;
 	
 	/**
 	 * Returns the native byte order of the system the virtual machine is
@@ -296,7 +291,7 @@ public interface SystemCallIndex
 	 * will be big endian.
 	 */
 	byte BYTE_ORDER_LITTLE =
-		25;
+		24;
 	
 	/**
 	 * Returns the pointer to the option JAR data.
@@ -306,7 +301,7 @@ public interface SystemCallIndex
 	 * option JAR defined in the requested slot.
 	 */
 	byte OPTION_JAR_DATA =
-		26;
+		25;
 	
 	/**
 	 * Returns the size of the option JAR data.
@@ -317,54 +312,7 @@ public interface SystemCallIndex
 	 * option JAR defined in the requested slot.
 	 */
 	byte OPTION_JAR_SIZE =
-		27;
-	
-	/**
-	 * Loads the specified class.
-	 *
-	 * @squirreljme.syscallparam 1 The Modified UTF specifying the class name.
-	 * @squirreljme.syscallreturn The pointer to the loaded class info, will be
-	 * zero on failure.
-	 */
-	byte LOAD_CLASS_UTF =
-		28;
-	
-	/**
-	 * Loads the specified class.
-	 *
-	 * @squirreljme.syscallparam 1 A byte array encoded in UTF-8 which contains
-	 * the class name.
-	 * @squirreljme.syscallreturn The pointer to the loaded class info, will be
-	 * zero on failure.
-	 */
-	byte LOAD_CLASS_BYTES =
-		29;
-	
-	/**
-	 * Sets the value of a supervisor property.
-	 *
-	 * Supervisor properties are local to a thread.
-	 *
-	 * Only the supervisor is allowed to set these properties.
-	 *
-	 * @squirreljme.syscallparam 1 The supervisor property to set.
-	 * @squirreljme.syscallparam 2 The new value of the property.
-	 * @squirreljme.syscallreturn A non-zero value if this was successful.
-	 */
-	byte SUPERVISOR_PROPERTY_SET =
-		30;
-	
-	/**
-	 * Gets the value of a supervisor property.
-	 *
-	 * Supervisor properties are local to a thread.
-	 *
-	 * @squirreljme.syscallparam 1 The supervisor property to get.
-	 * @squirreljme.syscallreturn The value of that property, error should be
-	 * checked to ensure that it did not fail.
-	 */
-	byte SUPERVISOR_PROPERTY_GET =
-		31;
+		26;
 	
 	/**
 	 * Sets the task ID of the current thread frame.
@@ -375,7 +323,7 @@ public interface SystemCallIndex
 	 * @squirreljme.syscallreturn A non-zero value if this was successful.
 	 */
 	byte FRAME_TASK_ID_SET =
-		32;
+		27;
 	
 	/**
 	 * Gets the value of a thread register.
@@ -383,7 +331,7 @@ public interface SystemCallIndex
 	 * @squirreljme.syscallreturn The value of the task ID.
 	 */
 	byte FRAME_TASK_ID_GET =
-		33;
+		28;
 	
 	/**
 	 * Perform a feedback operation.
@@ -393,7 +341,7 @@ public interface SystemCallIndex
 	 * @squirreljme.syscallreturn Non-zero on success.
 	 */
 	byte DEVICE_FEEDBACK =
-		34;
+		29;
 	
 	/**
 	 * Sleep for the given number of nanoseconds.
@@ -403,7 +351,7 @@ public interface SystemCallIndex
 	 * @squirreljme.syscallreturn Returns zero unless sleep was interrupted.
 	 */
 	byte SLEEP =
-		35;
+		30;
 	
 	/**
 	 * If the framebuffer is shared with the console, this tells the console
@@ -411,45 +359,84 @@ public interface SystemCallIndex
 	 * display on the screen.
 	 */
 	byte SQUELCH_FB_CONSOLE =
+		31;
+	
+	/**
+	 * Allocates a new memory handle.
+	 * 
+	 * @squirreljme.syscallparam 1 The kind of memory handle to allocate.
+	 * @squirreljme.syscallparam 2 The number of bytes to allocate for.
+	 * @squirreljme.syscallreturn The newly allocated memory handle.
+	 * @since 2020/11/29
+	 */
+	byte MEM_HANDLE_NEW =
+		32;
+	
+	/**
+	 * Returns the allocation base of arrays, this is needed to read properties
+	 * from the pool and otherwise.
+	 * 
+	 * @squirreljme.syscallreturn The allocation base of arrays.
+	 * @since 2021/01/24
+	 */
+	byte ARRAY_ALLOCATION_BASE =
+		33;
+	
+	/**
+	 * Returns the static virtual machine metrics via
+	 * {@link SystemCall#staticVmAttributes()}.
+	 * 
+	 * @squirreljme.syscallreturn The static virtual machine attributes
+	 * structure.
+	 * @since 2021/01/24
+	 */
+	byte STATIC_VM_ATTRIBUTES =
+		34;
+	
+	/**
+	 * Check if the given range sequence is in range for a memory handle.
+	 * 
+	 * @squirreljme.syscallparam 1 The memory handle.
+	 * @squirreljme.syscallparam 2 The offset into the handle.
+	 * @squirreljme.syscallparam 3 The number of bytes to check.
+	 * @squirreljme.syscallreturn Zero if not in bounds, non-zero if in bounds.
+	 * @since 2021/01/24
+	 */
+	byte MEM_HANDLE_IN_BOUNDS =
+		35;
+	
+	/**
+	 * Return the operating system SquirrelJME is running on.
+	 * 
+	 * @squirreljme.syscallparam 1 The {@link RuntimeVmAttribute}.
+	 * @squirreljme.syscallreturn The value of the attribute.
+	 * @since 2021/01/30
+	 */
+	byte RUNTIME_VM_ATTRIBUTE =
 		36;
 	
 	/**
-	 * Perform IPC call.
-	 *
-	 * @squirreljme.syscallparam 1 The task to call, {@code 0} is the
-	 * supervisor.
-	 * @squirreljme.syscallparam 2 The IPC identifier which specifies which
-	 * service this was associated with.
-	 * @squirreljme.syscallparam ... Any arguments to the call.
-	 * @squirreljme.syscallreturn The value returned from the remote call.
+	 * Enables or disables selective verbosity.
+	 * 
+	 * @squirreljme.syscallparam 1 The starting point on the stack trace,
+	 * should be zero or a negative number.
+	 * @squirreljme.syscallparam 2 The {@link VerboseDebugFlag} to use.
+	 * @squirreljme.syscallparam 3 The code, which can be used to stop.
+	 * @squirreljme.syscallreturn The code to pass later to stop the verbosity.
+	 * @since 2021/02/20
 	 */
-	byte IPC_CALL =
+	byte VERBOSE =
 		37;
 	
 	/**
-	 * Returns the value stored in the configuration.
-	 *
-	 * @squirreljme.syscallparam 1 The key of the value to get, which will
-	 * be one of {@link ConfigRomKey}.
-	 * @squirreljme.syscallreturn The value of the key, or {@code 0} if not
-	 * set.
-	 * @see ConfigRomKey
-	 * @since 2020/05/03
+	 * Flushes the given pipe descriptor.
+	 * 
+	 * @squirreljme.syscallparam 1 The pipe descriptor.
+	 * @squirreljme.syscallreturn One of {@link PipeErrorType}.
+	 * @since 2021/04/03
 	 */
-	byte CONFIG_GET_VALUE =
+	byte PD_FLUSH =
 		38;
-	
-	/**
-	 * Returns the type stored in the configuration for the given key.
-	 *
-	 * @squirreljme.syscallparam 1 The key of the value to get, which will
-	 * be one of {@link ConfigRomKey}.
-	 * @squirreljme.syscallreturn The type of the key, which will be one of
-	 * {@link ConfigRomType}.
-	 * @since 2020/05/03
-	 */
-	byte CONFIG_GET_TYPE =
-		39;
 	
 	/**
 	 * The number of system calls that are defined in this run-time.
@@ -458,6 +445,6 @@ public interface SystemCallIndex
 	 * unintended consequences of requesting future API values.
 	 */
 	byte NUM_SYSCALLS =
-		40;
+		39;
 }
 

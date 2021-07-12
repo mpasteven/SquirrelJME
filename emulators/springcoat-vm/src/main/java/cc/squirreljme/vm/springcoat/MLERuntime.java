@@ -12,11 +12,12 @@ package cc.squirreljme.vm.springcoat;
 import cc.squirreljme.jvm.mle.RuntimeShelf;
 import cc.squirreljme.jvm.mle.constants.BuiltInEncodingType;
 import cc.squirreljme.jvm.mle.constants.BuiltInLocaleType;
+import cc.squirreljme.jvm.mle.constants.ByteOrderType;
+import cc.squirreljme.jvm.mle.constants.MemoryProfileType;
 import cc.squirreljme.jvm.mle.constants.VMDescriptionType;
 import cc.squirreljme.jvm.mle.constants.VMStatisticType;
 import cc.squirreljme.jvm.mle.constants.VMType;
 import cc.squirreljme.runtime.cldc.SquirrelJME;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.runtime.cldc.lang.LineEndingUtils;
 import cc.squirreljme.vm.springcoat.exceptions.SpringMLECallError;
 
@@ -28,6 +29,21 @@ import cc.squirreljme.vm.springcoat.exceptions.SpringMLECallError;
 public enum MLERuntime
 	implements MLEFunction
 {
+	/** {@link RuntimeShelf#byteOrder()}. */
+	BYTE_ORDER("byteOrder:()I")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/02/09
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			// SpringCoat is always big endian
+			return ByteOrderType.BIG_ENDIAN;
+		}
+	},
+	
 	/** {@link RuntimeShelf#currentTimeMillis()}. */
 	CURRENT_TIME_MILLIS("currentTimeMillis:()J")
 	{
@@ -131,6 +147,21 @@ public enum MLERuntime
 				default:
 					return BuiltInLocaleType.UNSPECIFIED;
 			}
+		}
+	},
+	
+	/** {@link RuntimeShelf#memoryProfile()}. */
+	MEMORY_PROFILE("memoryProfile:()I")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/02/19
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			// No memory concerns
+			return MemoryProfileType.NORMAL;
 		}
 	},
 	

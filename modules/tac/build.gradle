@@ -14,42 +14,12 @@ squirreljme
 	tags += "testing"
 }
 
-// We need to compile a class but not write it to:
-// /squirreljme/modules/tac/build/classes/java/main
-sourceSets
-{
-	main
-	{
-		java
-		{
-			exclude "org/testng/internal/annotations/DisabledRetryAnalyzer.java"
-			exclude "org/testng/annotations/CustomAttribute.java"
-			exclude "org/testng/annotations/Test.java"
-			exclude "org/testng/SkipException.java"
-		}
-	}
-}
-
 dependencies
 {
-	// We have some annotations we need the source for, but we do not want
-	// these to stay at run-time
-	compileOnly "org.testng:testng:7.1.0"
-
 	api project(":modules:cldc-compact")
+	api project(":modules:common-vm")
 	api project(":modules:io")
 	api project(":modules:meep-midlet")
-	api project(":modules:tool-manifest-reader")
 	api project(":modules:tool-manifest-writer")
 	api project(":modules:collections")
-}
-
-jar
-{
-	// These are excluded because they are not needed by the source and are
-	// part of TestNG
-	exclude("org/testng/internal/annotations/DisabledRetryAnalyzer.class")
-	exclude("org/testng/annotations/CustomAttribute.class")
-	exclude("org/testng/annotations/Test.class")
-	exclude("org/testng/SkipException.class")
 }

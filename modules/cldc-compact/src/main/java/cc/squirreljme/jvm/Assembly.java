@@ -9,6 +9,8 @@
 
 package cc.squirreljme.jvm;
 
+import cc.squirreljme.jvm.mle.brackets.TypeBracket;
+
 /**
  * This class is used special by the compiler to transform all the various
  * operations into regular instructions rather than method calls.
@@ -20,7 +22,7 @@ package cc.squirreljme.jvm;
  *
  * @since 2019/04/20
  */
-@SuppressWarnings("NewMethodNamingConvention")
+@SuppressWarnings({"NewMethodNamingConvention", "OverlyComplexClass"})
 public final class Assembly
 {
 	/**
@@ -40,7 +42,7 @@ public final class Assembly
 	 * an array.
 	 * @since 2020/02/23
 	 */
-	public static native int arrayLength(long __o);
+	public static native int arrayLength(int __o);
 	
 	/**
 	 * Returns the array length of the given object.
@@ -51,24 +53,6 @@ public final class Assembly
 	 * @since 2019/05/24
 	 */
 	public static native int arrayLength(Object __o);
-	
-	/**
-	 * Sets the array length of an array.
-	 *
-	 * @param __o The object to set.
-	 * @param __l The length to set.
-	 * @since 2020/02/23
-	 */
-	public static native void arrayLengthSet(long __o, int __l);
-	
-	/**
-	 * Sets the array length of an array.
-	 *
-	 * @param __o The object to set.
-	 * @param __l The length to set.
-	 * @since 2020/02/23
-	 */
-	public static native void arrayLengthSet(Object __o, int __l);
 	
 	/**
 	 * Atomic comparison and set.
@@ -108,142 +92,14 @@ public final class Assembly
 	public static native void breakpoint();
 	
 	/**
-	 * Returns the class info pointer of {@code boolean}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfBoolean();
-	
-	/**
-	 * Returns the class info pointer of {@code boolean}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfBooleanPointer();
-	
-	/**
-	 * Returns the class info pointer of {@code byte}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfByte();
-	
-	/**
-	 * Returns the class info pointer of {@code byte}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfBytePointer();
-	
-	/**
-	 * Returns the class info pointer of {@code char}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfCharacter();
-	
-	/**
-	 * Returns the class info pointer of {@code char}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfCharacterPointer();
-	
-	/**
-	 * Returns the class info pointer of {@code double}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfDouble();
-	
-	/**
-	 * Returns the class info pointer of {@code double}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfDoublePointer();
-	
-	/**
-	 * Returns the class info pointer of {@code float}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfFloat();
-	
-	/**
-	 * Returns the class info pointer of {@code float}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfFloatPointer();
-	
-	/**
-	 * Returns the class info pointer of {@code int}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfInteger();
-	
-	/**
-	 * Returns the class info pointer of {@code int}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfIntegerPointer();
-	
-	/**
-	 * Returns the class info pointer of {@code long}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfLong();
-	
-	/**
-	 * Returns the class info pointer of {@code long}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfLongPointer();
-	
-	/**
-	 * Returns the class info pointer of {@code short}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/01/19
-	 */
-	public static native ClassInfo classInfoOfShort();
-	
-	/**
-	 * Returns the class info pointer of {@code short}.
-	 *
-	 * @return The class info pointer.
-	 * @since 2020/02/24
-	 */
-	public static native long classInfoOfShortPointer();
-	
-	/**
 	 * Packs the given two integers to a double value.
 	 *
-	 * @param __hi The high value.
 	 * @param __lo The low value.
+	 * @param __hi The high value.
 	 * @return The double value.
 	 * @since 2019/06/21
 	 */
-	public static native double doublePack(int __hi, int __lo);
+	public static native double doublePack(int __lo, int __hi);
 	
 	/**
 	 * Double to raw long bits.
@@ -304,7 +160,7 @@ public final class Assembly
 	 * @param __pool The pool address to load.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool);
+	public static native void invoke(int __addr, int __pool);
 	
 	/**
 	 * Invoke method at pointer, with arguments.
@@ -314,7 +170,7 @@ public final class Assembly
 	 * @param __a Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a);
+	public static native void invoke(int __addr, int __pool, int __a);
 	
 	/**
 	 * Invoke method at pointer, with arguments.
@@ -325,7 +181,7 @@ public final class Assembly
 	 * @param __b Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b);
 	
 	/**
@@ -338,7 +194,7 @@ public final class Assembly
 	 * @param __c Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b, int __c);
 	
 	/**
@@ -352,7 +208,7 @@ public final class Assembly
 	 * @param __d Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b, int __c, int __d);
 	
 	/**
@@ -367,7 +223,7 @@ public final class Assembly
 	 * @param __e Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e);
 	
 	/**
@@ -383,7 +239,7 @@ public final class Assembly
 	 * @param __f Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e, int __f);
 	
 	/**
@@ -400,7 +256,7 @@ public final class Assembly
 	 * @param __g Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e, int __f, int __g);
 	
 	/**
@@ -418,7 +274,7 @@ public final class Assembly
 	 * @param __h Argument.
 	 * @since 2019/04/28
 	 */
-	public static native void invoke(long __addr, long __pool, int __a,
+	public static native void invoke(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e, int __f, int __g, int __h);
 	
 	/**
@@ -429,7 +285,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool);
+	public static native int invokeV(int __addr, int __pool);
 	
 	/**
 	 * Invoke method at pointer, with arguments.
@@ -440,7 +296,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a);
+	public static native int invokeV(int __addr, int __pool, int __a);
 	
 	/**
 	 * Invoke method at pointer, with arguments.
@@ -452,7 +308,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b);
 	
 	/**
@@ -466,7 +322,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b, int __c);
 	
 	/**
@@ -481,7 +337,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b, int __c, int __d);
 	
 	/**
@@ -497,7 +353,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e);
 	
 	/**
@@ -514,7 +370,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e, int __f);
 	
 	/**
@@ -532,7 +388,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e, int __f, int __g);
 	
 	/**
@@ -551,7 +407,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/04/28
 	 */
-	public static native int invokeV(long __addr, long __pool, int __a,
+	public static native int invokeV(int __addr, int __pool, int __a,
 		int __b, int __c, int __d, int __e, int __f, int __g, int __h);
 	
 	/**
@@ -562,7 +418,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool);
+	public static native long invokeVL(int __addr, int __pool);
 	
 	/**
 	 * Invoke method at pointer, with arguments.
@@ -573,7 +429,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a);
+	public static native long invokeVL(int __addr, int __pool, int __a);
 	
 	/**
 	 * Invoke method at pointer, with arguments.
@@ -585,7 +441,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a,
+	public static native long invokeVL(int __addr, int __pool, int __a,
 		int __b);
 	
 	/**
@@ -599,7 +455,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a,
+	public static native long invokeVL(int __addr, int __pool, int __a,
 		int __b, int __c);
 	
 	/**
@@ -614,7 +470,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a, 
+	public static native long invokeVL(int __addr, int __pool, int __a, 
 		int __b, int __c, int __d);
 	
 	/**
@@ -630,7 +486,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a, 
+	public static native long invokeVL(int __addr, int __pool, int __a, 
 		int __b, int __c, int __d, int __e);
 	
 	/**
@@ -647,7 +503,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a, 
+	public static native long invokeVL(int __addr, int __pool, int __a, 
 		int __b, int __c, int __d, int __e, int __f);
 	
 	/**
@@ -665,7 +521,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a, 
+	public static native long invokeVL(int __addr, int __pool, int __a, 
 		int __b, int __c, int __d, int __e, int __f, int __g);
 	
 	/**
@@ -684,7 +540,7 @@ public final class Assembly
 	 * @return The result of the invocation.
 	 * @since 2019/12/08
 	 */
-	public static native long invokeVL(long __addr, long __pool, int __a, 
+	public static native long invokeVL(int __addr, int __pool, int __a, 
 		int __b, int __c, int __d, int __e, int __f, int __g, int __h);
 	
 	/**
@@ -699,12 +555,12 @@ public final class Assembly
 	/**
 	 * Packs the given two integers to a long value.
 	 *
-	 * @param __hi The high value.
 	 * @param __lo The low value.
+	 * @param __hi The high value.
 	 * @return The long value.
 	 * @since 2019/06/21
 	 */
-	public static native long longPack(int __hi, int __lo);
+	public static native long longPack(int __lo, int __hi);
 	
 	/**
 	 * Unpack high value from long.
@@ -723,6 +579,321 @@ public final class Assembly
 	 * @since 2019/06/21
 	 */
 	public static native int longUnpackLow(long __v);
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native int memHandleReadByte(Object __mh, int __off);
+	
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native int memHandleReadByte(int __mh, int __off);
+	
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native double memHandleReadDouble(Object __mh, int __off);
+	
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native double memHandleReadDouble(int __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native float memHandleReadFloat(Object __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native float memHandleReadFloat(int __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native int memHandleReadInt(Object __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native int memHandleReadInt(int __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native long memHandleReadLong(Object __mh, int __off);
+	
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native long memHandleReadLong(int __mh, int __off);
+	
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native Object memHandleReadObject(Object __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native Object memHandleReadObject(int __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native int memHandleReadShort(Object __mh, int __off);
+		
+	/**
+	 * Reads the given value from the memory handle.
+	 *
+	 * @param __mh The handle to read from.
+	 * @param __off The offset into the handle.
+	 * @return The value that was read.
+	 * @since 2021/01/23
+	 */
+	public static native int memHandleReadShort(int __mh, int __off);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteByte(Object __mh, int __off,
+		int __v);
+
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteByte(int __mh, int __off,
+		int __v);
+	
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteCharacter(Object __mh, int __off,
+		char __v);
+	
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteCharacter(int __mh, int __off,
+		char __v);
+	
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteDouble(Object __mh, int __off,
+		double __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteDouble(int __mh, int __off,
+		double __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteFloat(Object __mh, int __off,
+		float __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteFloat(int __mh, int __off,
+		float __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteInt(Object __mh, int __off,
+		int __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteInt(int __mh, int __off,
+		int __v);
+	
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteLong(Object __mh, int __off,
+		long __v);
+	
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteLong(int __mh, int __off,
+		long __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteObject(Object __mh, int __off,
+		Object __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteObject(int __mh, int __off,
+		Object __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteShort(Object __mh, int __off,
+		int __v);
+		
+	/**
+	 * Writes the given value to the memory handle.
+	 *
+	 * @param __mh The handle to write to.
+	 * @param __off The offset into the handle.
+	 * @param __v The value to write.
+	 * @since 2021/01/23
+	 */
+	public static native void memHandleWriteShort(int __mh, int __off,
+		int __v);
 	
 	/**
 	 * Reads byte from address.
@@ -735,6 +906,36 @@ public final class Assembly
 	public static native int memReadByte(long __p, int __o);
 	
 	/**
+	 * Reads character from address.
+	 *
+	 * @param __p The pointer.
+	 * @param __o The offset.
+	 * @return The result of the read.
+	 * @since 2021/02/14
+	 */
+	public static native char memReadCharacter(long __p, int __o);
+	
+	/**
+	 * Reads double from address.
+	 *
+	 * @param __p The pointer.
+	 * @param __o The offset.
+	 * @return The result of the read.
+	 * @since 2021/02/14
+	 */
+	public static native double memReadDouble(long __p, int __o);
+	
+	/**
+	 * Reads float from address.
+	 *
+	 * @param __p The pointer.
+	 * @param __o The offset.
+	 * @return The result of the read.
+	 * @since 2021/02/14
+	 */
+	public static native float memReadFloat(long __p, int __o);
+	
+	/**
 	 * Reads integer from address.
 	 *
 	 * @param __p The pointer.
@@ -745,44 +946,24 @@ public final class Assembly
 	public static native int memReadInt(long __p, int __o);
 	
 	/**
-	 * Reads big endian Java integer from address.
-	 *
-	 * @param __p The pointer.
-	 * @param __o The offset.
-	 * @return The result of the read.
-	 * @since 2019/05/29
-	 */
-	public static native int memReadJavaInt(long __p, int __o);
-	
-	/**
-	 * Reads big endian Java long from address.
-	 *
-	 * @param __p The pointer.
-	 * @param __o The offset.
-	 * @return The result of the read.
-	 * @since 2020/02/24
-	 */
-	public static native long memReadJavaLong(long __p, int __o);
-	
-	/**
-	 * Reads big endian Java short from address.
-	 *
-	 * @param __p The pointer.
-	 * @param __o The offset.
-	 * @return The result of the read.
-	 * @since 2019/05/29
-	 */
-	public static native int memReadJavaShort(long __p, int __o);
-	
-	/**
-	 * Reads pointer from address.
+	 * Reads long from address.
 	 *
 	 * @param __p The pointer.
 	 * @param __o The offset.
 	 * @return The result of the read.
 	 * @since 2019/04/22
 	 */
-	public static native long memReadPointer(long __p, int __o);
+	public static native long memReadLong(long __p, int __o);
+	
+	/**
+	 * Reads object from address.
+	 *
+	 * @param __p The pointer.
+	 * @param __o The offset.
+	 * @return The result of the read.
+	 * @since 2021/02/14
+	 */
+	public static native Object memReadObject(long __p, int __o);
 	
 	/**
 	 * Reads short from address.
@@ -805,6 +986,26 @@ public final class Assembly
 	public static native void memWriteByte(long __p, int __o, int __v);
 	
 	/**
+	 * Writes double to address.
+	 *
+	 * @param __p The pointer.
+	 * @param __o The offset.
+	 * @param __v The value to write.
+	 * @since 2020/02/14
+	 */
+	public static native void memWriteDouble(long __p, int __o, double __v);
+	
+	/**
+	 * Writes float to address.
+	 *
+	 * @param __p The pointer.
+	 * @param __o The offset.
+	 * @param __v The value to write.
+	 * @since 2020/02/14
+	 */
+	public static native void memWriteFloat(long __p, int __o, double __v);
+	
+	/**
 	 * Writes integer to address.
 	 *
 	 * @param __p The pointer.
@@ -815,44 +1016,24 @@ public final class Assembly
 	public static native void memWriteInt(long __p, int __o, int __v);
 	
 	/**
-	 * Writes big endian Java integer to address.
-	 *
-	 * @param __p The pointer.
-	 * @param __o The offset.
-	 * @param __v The value to write.
-	 * @since 2019/05/29
-	 */
-	public static native void memWriteJavaInt(long __p, int __o, int __v);
-	
-	/**
-	 * Writes big endian Java long to address.
+	 * Writes long to address.
 	 *
 	 * @param __p The pointer.
 	 * @param __o The offset.
 	 * @param __v The value to write.
 	 * @since 2020/02/24
 	 */
-	public static native void memWriteJavaLong(long __p, int __o, long __v);
+	public static native void memWriteLong(long __p, int __o, long __v);
 	
 	/**
-	 * Writes big endian Java short to address.
+	 * Writes object to address.
 	 *
 	 * @param __p The pointer.
 	 * @param __o The offset.
 	 * @param __v The value to write.
-	 * @since 2019/05/29
+	 * @since 2020/02/14
 	 */
-	public static native void memWriteJavaShort(long __p, int __o, int __v);
-	
-	/**
-	 * Writes a pointer to address.
-	 *
-	 * @param __p The pointer.
-	 * @param __o The offset.
-	 * @param __v The value to write.
-	 * @since 2020/02/24
-	 */
-	public static native void memWritePointer(long __p, int __o, long __v);
+	public static native void memWriteObject(long __p, int __o, Object __v);
 	
 	/**
 	 * Writes short to address.
@@ -1113,85 +1294,13 @@ public final class Assembly
 	public static native void monitorOwnerSetAtomic(Object __p, Thread __t);
 	
 	/**
-	 * Gets the ClassInfo of an object.
-	 *
-	 * @param __o The object to read from.
-	 * @return The resulting class info.
-	 * @since 2020/02/23
-	 */
-	public static native ClassInfo objectGetClassInfo(long __o);
-	
-	/**
-	 * Gets the ClassInfo of an object.
-	 *
-	 * @param __o The object to read from.
-	 * @return The resulting class info.
-	 * @since 2020/02/23
-	 */
-	public static native ClassInfo objectGetClassInfo(Object __o);
-	
-	/**
-	 * Gets the ClassInfo of an object.
-	 *
-	 * @param __o The object to read from.
-	 * @return The resulting class info.
-	 * @since 2020/02/23
-	 */
-	public static native long objectGetClassInfoPointer(long __o);
-	
-	/**
-	 * Gets the ClassInfo of an object.
-	 *
-	 * @param __o The object to read from.
-	 * @return The resulting class info.
-	 * @since 2020/02/23
-	 */
-	public static native long objectGetClassInfoPointer(Object __o);
-	
-	/**
-	 * Sets the ClassInfo of an object.
-	 *
-	 * @param __o The object to set the class of.
-	 * @param __v The class info to set.
-	 * @since 2020/02/23
-	 */
-	public static native void objectSetClassInfo(long __o, long __v);
-	
-	/**
-	 * Sets the ClassInfo of an object.
-	 *
-	 * @param __o The object to set the class of.
-	 * @param __v The class info to set.
-	 * @since 2020/02/23
-	 */
-	public static native void objectSetClassInfo(Object __o, long __v);
-	
-	/**
-	 * Sets the ClassInfo of an object.
-	 *
-	 * @param __o The object to set the class of.
-	 * @param __v The class info to set.
-	 * @since 2020/02/23
-	 */
-	public static native void objectSetClassInfo(long __o, ClassInfo __v);
-	
-	/**
-	 * Sets the ClassInfo of an object.
-	 *
-	 * @param __o The object to set the class of.
-	 * @param __v The class info to set.
-	 * @since 2020/02/23
-	 */
-	public static native void objectSetClassInfo(Object __o, ClassInfo __v);
-	
-	/**
 	 * Used to convert an object to a pointer.
 	 *
 	 * @param __o The object.
 	 * @return The pointer of the object.
-	 * @since 2019/04/21
+	 * @since 2020/11/29
 	 */
-	public static native long objectToPointer(Object __o);
+	public static native int objectToPointer(Object __o);
 	
 	/**
 	 * Used to convert an object to a pointer, do use reference queing for it
@@ -1202,7 +1311,23 @@ public final class Assembly
 	 * @return The pointer of the object.
 	 * @since 2019/04/21
 	 */
-	public static native long objectToPointerRefQueue(Object __o);
+	public static native int objectToPointerRefQueue(Object __o);
+	
+	/**
+	 * Generates a ping, similar to a breakpoint but not fatal.
+	 * 
+	 * @since 2021/01/24
+	 */
+	public static native void ping();
+	
+	/**
+	 * Converts a pointer to {@link TypeBracket}.
+	 *
+	 * @param __p The pointer.
+	 * @return The object of the pointer.
+	 * @since 2021/01/24
+	 */
+	public static native TypeBracket pointerToTypeBracket(int __p);
 	
 	/**
 	 * Used to convert a pointer to an object.
@@ -1211,58 +1336,27 @@ public final class Assembly
 	 * @return The object of the pointer.
 	 * @since 2019/04/21
 	 */
-	public static native Object pointerToObject(long __p);
-	
-	/**
-	 * Used to convert a pointer to a class info type.
-	 *
-	 * @param __p The pointer.
-	 * @return The object of the pointer.
-	 * @since 2019/04/21
-	 */
-	public static native ClassInfo pointerToClassInfo(long __p);
+	public static native Object pointerToObject(int __p);
 	
 	/**
 	 * Loads a value from the constant pool at the given index.
 	 *
 	 * @param __p The memory address of the pool to access.
 	 * @param __i The index to load.
-	 * @return The read value, this may be truncated to 32-bits on 32-bit
-	 * systems.
+	 * @return The read value.
 	 * @since 2020/02/24
 	 */
-	public static native long poolLoad(long __p, int __i);
+	public static native int poolLoad(int __p, int __i);
 	
 	/**
 	 * Loads a value from the constant pool at the given index.
 	 *
 	 * @param __p The object representation of the pool to access.
 	 * @param __i The index to load.
-	 * @return The read value, this may be truncated to 32-bits on 32-bit
-	 * systems
+	 * @return The read value.
 	 * @since 2020/02/24
 	 */
-	public static native long poolLoad(Object __p, int __i);
-	
-	/**
-	 * Writes a value to the constant pool of a class.
-	 * 
-	 * @param __p The address of the constant pool.
-	 * @param __i The index to write.
-	 * @param __v The value to write, note that on 32-bit .
-	 * @since 2019/02/24
-	 */
-	public static native void poolStore(long __p, int __i, long __v);
-	
-	/**
-	 * Writes a value to the constant pool of a class.
-	 * 
-	 * @param __p The object representation of the pool to access.
-	 * @param __i The index to write.
-	 * @param __v The value to write, note that on 32-bit .
-	 * @since 2019/02/24
-	 */
-	public static native void poolStore(Object __p, int __i, long __v);
+	public static native int poolLoad(Object __p, int __i);
 	
 	/**
 	 * Perform reference counting logic on object.
@@ -1270,7 +1364,7 @@ public final class Assembly
 	 * @param __p The object to count up.
 	 * @since 2019/05/25
 	 */
-	public static native void refCount(long __p);
+	public static native void refCount(int __p);
 	
 	/**
 	 * Perform reference counting logic on object.
@@ -1287,7 +1381,7 @@ public final class Assembly
 	 * @return The reference count of the object.
 	 * @since 2020/02/24
 	 */
-	public static native int refGetCount(long __p);
+	public static native int refGetCount(int __p);
 	
 	/**
 	 * Get reference count of object.
@@ -1305,7 +1399,7 @@ public final class Assembly
 	 * @param __v The value to set.
 	 * @since 2020/02/24
 	 */
-	public static native void refSetCount(long __p, int __v);
+	public static native void refSetCount(int __p, int __v);
 	
 	/**
 	 * Set reference count of object.
@@ -1322,7 +1416,7 @@ public final class Assembly
 	 * @param __p The object to count down.
 	 * @since 2019/05/25
 	 */
-	public static native void refUncount(long __p);
+	public static native void refUncount(int __p);
 	
 	/**
 	 * Perform reference uncounting logic on object.
@@ -1363,30 +1457,6 @@ public final class Assembly
 	 * @since 2020/02/24
 	 */
 	public static native void returnFrameLong(long __v);
-	
-	/**
-	 * Returns the size of base arrays.
-	 * 
-	 * @return The base array size.
-	 * @since 2020/02/24
-	 */
-	public static native int sizeOfBaseArray();
-	
-	/**
-	 * Returns the size of base objects.
-	 * 
-	 * @return The base object size.
-	 * @since 2020/02/24
-	 */
-	public static native int sizeOfBaseObject();
-	
-	/**
-	 * Returns the size of pointers and object references.
-	 * 
-	 * @return The pointer size.
-	 * @since 2020/02/24
-	 */
-	public static native int sizeOfPointer();
 	
 	/**
 	 * Returns the exception register.
@@ -1447,14 +1517,6 @@ public final class Assembly
 	public static native long specialGetReturnRegisterLong();
 	
 	/**
-	 * Reads the value of the static field register.
-	 *
-	 * @return The value of the static field register.
-	 * @since 2019/04/22
-	 */
-	public static native long specialGetStaticFieldRegister();
-	
-	/**
 	 * Returns the register representing the current thread.
 	 *
 	 * @return The current thread register.
@@ -1503,14 +1565,6 @@ public final class Assembly
 	public static native void specialSetPoolRegister(Object __v);
 	
 	/**
-	 * Sets the value of the static field register.
-	 *
-	 * @param __v The new value of the static field register.
-	 * @since 2019/04/22
-	 */
-	public static native void specialSetStaticFieldRegister(long __v);
-	
-	/**
 	 * Sets the current thread pointer.
 	 *
 	 * @param __v The value to use.
@@ -1525,718 +1579,4 @@ public final class Assembly
 	 * @since 2020/02/24
 	 */
 	public static native void specialSetThreadRegister(Thread __v);
-	
-	/**
-	 * Invoke system call at the given index.
-	 *
-	 * @param __si The address to invoke.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b, int __c);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b, int __c,
-		int __d);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b, int __c,
-		int __d, int __e);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @param __h Argument.
-	 * @since 2019/05/23
-	 */
-	public static native void sysCall(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g, int __h);
-	
-	/**
-	 * Invoke pure system call at the given index.
-	 *
-	 * @param __si The address to invoke.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b, int __c);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b, int __c,
-		int __d);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b, int __c,
-		int __d, int __e);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @param __h Argument.
-	 * @since 2019/05/27
-	 */
-	public static native void sysCallP(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g, int __h);
-	
-	/**
-	 * Invoke pure system call at the given index.
-	 *
-	 * @param __si System call index.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b, int __c);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b, int __c,
-		int __d);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b, int __c,
-		int __d, int __e);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @param __h Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native int sysCallPV(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g, int __h);
-		
-	/**
-	 * Invoke pure system call at the given index.
-	 *
-	 * @param __si System call index.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b, int __c);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b, int __c,
-		int __d);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b, int __c,
-		int __d, int __e);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g);
-	
-	/**
-	 * Invoke pure system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @param __h Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/27
-	 */
-	public static native long sysCallPVL(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g, int __h);
-	
-	/**
-	 * Invoke system call at the given index.
-	 *
-	 * @param __si System call index.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b, int __c);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b, int __c,
-		int __d);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b, int __c,
-		int __d, int __e);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @param __h Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native int sysCallV(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g, int __h);
-		
-	/**
-	 * Invoke system call at the given index.
-	 *
-	 * @param __si System call index.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b, int __c);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b, int __c,
-		int __d);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b, int __c,
-		int __d, int __e);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g);
-	
-	/**
-	 * Invoke system call at the given index, with arguments.
-	 *
-	 * @param __si System call index.
-	 * @param __a Argument.
-	 * @param __b Argument.
-	 * @param __c Argument.
-	 * @param __d Argument.
-	 * @param __e Argument.
-	 * @param __f Argument.
-	 * @param __g Argument.
-	 * @param __h Argument.
-	 * @return The result of the invocation.
-	 * @since 2019/05/23
-	 */
-	public static native long sysCallVL(short __si, int __a, int __b, int __c,
-		int __d, int __e, int __f, int __g, int __h);
 }

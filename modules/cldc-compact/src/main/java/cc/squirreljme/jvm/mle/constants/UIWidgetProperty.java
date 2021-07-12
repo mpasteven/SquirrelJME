@@ -107,7 +107,11 @@ public interface UIWidgetProperty
 	byte INT_UPDATE_LIST_SELECTION_LOCK =
 		18;
 	
+	/** The form title. */
+	byte STRING_FORM_TITLE =
+		19;
+	
 	/** The number of properties. */
 	byte NUM_PROPERTIES =
-		19;
+		20;
 }

@@ -67,9 +67,21 @@ public class JasminAssembleTask
 				{
 					// Assemble source
 					ClassFile jasClass = new ClassFile();
-					jasClass.readJasmin(new BufferedInputStream(in),
-						output.input.relative.getFileName().toString(),
-						true);
+					try
+					{
+						jasClass.readJasmin(new BufferedInputStream(in),
+							output.input.relative.getFileName().toString(),
+							true);
+					}
+					
+					// This could fail
+					catch (jas.jasError e)
+					{
+						throw new RuntimeException(String.format(
+							"Error assembling: %s (%d errors): %s",
+							output.input.absolute, jasClass.errorCount(),
+							e.getMessage()));
+					}
 					
 					// Failed to assemble?
 					if (jasClass.errorCount() > 0)
@@ -90,13 +102,16 @@ public class JasminAssembleTask
 					out.flush();
 				}
 			}
+			
+			// Fallback to catch any other failures
 			catch (Exception e)
 			{
 				if (e instanceof RuntimeException)
 					throw (RuntimeException)e;
 				
 				throw new RuntimeException(String.format(
-					"Could not assemble: %s.", output.input.absolute), e);
+					"Could not assemble %s: %s", output.input.absolute,
+					e.getMessage()), e);
 			}
 	}
 }

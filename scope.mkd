@@ -46,14 +46,14 @@ specifications.
 
 These specifications are obsolete and are implemented by newer specifications.
 
- * **JSR030** -- J2ME Connected, Limited Device Configuration.
+ * **JSR30**/**JSR030** -- J2ME Connected, Limited Device Configuration.
    * _Implemented by newer JSR_.
    * CLDC 1.0.
- * **JSR037** -- Mobile Information Device Profile for the J2ME Platform.
+ * **JSR37**/**JSR037** -- Mobile Information Device Profile for the J2ME Platform.
    * _Implemented by newer JSR_.
    * MIDP 1.0.
    * Contains the Limited Capability Device User Interface (LCDUI).
- * **JSR075** -- PDA Optional Packages for the J2ME Platform
+ * **JSR75**/**JSR075** -- PDA Optional Packages for the J2ME Platform
    * _Implemented by newer JSR_.
    * Contains file related `javax.microedition.io` classes.
  * **JSR118** -- Mobile Information Device Profile 2.0

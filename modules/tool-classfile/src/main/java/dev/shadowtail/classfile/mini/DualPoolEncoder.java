@@ -14,17 +14,20 @@ import dev.shadowtail.classfile.pool.AccessedField;
 import dev.shadowtail.classfile.pool.BasicPool;
 import dev.shadowtail.classfile.pool.BasicPoolBuilder;
 import dev.shadowtail.classfile.pool.BasicPoolEntry;
-import dev.shadowtail.classfile.pool.ClassInfoPointer;
+import dev.shadowtail.classfile.pool.ClassNameHash;
 import dev.shadowtail.classfile.pool.ClassPool;
 import dev.shadowtail.classfile.pool.DualClassRuntimePool;
 import dev.shadowtail.classfile.pool.DualClassRuntimePoolBuilder;
 import dev.shadowtail.classfile.pool.FieldAccessTime;
 import dev.shadowtail.classfile.pool.FieldAccessType;
+import dev.shadowtail.classfile.pool.HighRuntimeValue;
 import dev.shadowtail.classfile.pool.InvokeType;
+import dev.shadowtail.classfile.pool.InvokeXTable;
 import dev.shadowtail.classfile.pool.InvokedMethod;
 import dev.shadowtail.classfile.pool.NotedString;
+import dev.shadowtail.classfile.pool.QuickCastCheck;
+import dev.shadowtail.classfile.pool.TypeBracketPointer;
 import dev.shadowtail.classfile.pool.UsedString;
-import dev.shadowtail.classfile.pool.VirtualMethodIndex;
 import dev.shadowtail.classfile.summercoat.pool.InterfaceClassName;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -36,7 +39,8 @@ import net.multiphasicapps.classfile.ClassName;
 import net.multiphasicapps.classfile.ClassNames;
 import net.multiphasicapps.classfile.InvalidClassFormatException;
 import net.multiphasicapps.classfile.MethodDescriptor;
-import net.multiphasicapps.io.TableSectionOutputStream;
+import net.multiphasicapps.io.ChunkSection;
+import net.multiphasicapps.io.ChunkWriter;
 
 /**
  * This contains the encoder and decoder for dual pools.
@@ -163,7 +167,7 @@ public final class DualPoolEncoder
 						// Everything else just consists of parts which are
 						// either values to other indexes or an ordinal
 					case ACCESSED_FIELD:
-					case CLASS_INFO_POINTER:
+					case TYPE_BRACKET_POINTER:
 					case CLASS_NAME:
 					case CLASS_NAMES:
 					case CLASS_POOL:
@@ -173,10 +177,13 @@ public final class DualPoolEncoder
 					case DOUBLE:
 					case INVOKED_METHOD:
 					case METHOD_DESCRIPTOR:
-					case VIRTUAL_METHOD_INDEX:
+					case INVOKE_XTABLE:
 					case NOTED_STRING:
 					case USED_STRING:
 					case INTERFACE_CLASS:
+					case QUICK_CAST_CHECK:
+					case CLASS_NAME_HASH:
+					case HIGH_RUNTIME_VALUE:
 						// Read parts
 						if (iswide)
 							for (int p = 0; p < numparts; p++)
@@ -258,8 +265,8 @@ public final class DualPoolEncoder
 								break;
 							
 								// Class information point
-							case CLASS_INFO_POINTER:
-								value = new ClassInfoPointer(
+							case TYPE_BRACKET_POINTER:
+								value = new TypeBracketPointer(
 									classpool.byIndex(parts[0]).
 									<ClassName>value(ClassName.class));
 								break;
@@ -284,14 +291,11 @@ public final class DualPoolEncoder
 								break;
 								
 								// Method index in vtable
-							case VIRTUAL_METHOD_INDEX:
-								value = new VirtualMethodIndex(
+							case INVOKE_XTABLE:
+								value = new InvokeXTable(
+									InvokeType.of(parts[0]),
 									classpool.<ClassName>byIndex(
-										ClassName.class, parts[1]),
-									classpool.<String>byIndex(
-										String.class, parts[2]),
-									classpool.<MethodDescriptor>byIndex(
-										MethodDescriptor.class, parts[3]));
+										ClassName.class, parts[1]));
 								break;
 								
 								// Noted string
@@ -299,6 +303,15 @@ public final class DualPoolEncoder
 								value = new NotedString(
 									classpool.byIndex(parts[0]).
 									<String>value(String.class));
+								break;
+								
+								// Quick case
+							case QUICK_CAST_CHECK:
+								value = new QuickCastCheck(
+									classpool.<ClassName>byIndex(
+										ClassName.class, parts[0]),
+									classpool.<ClassName>byIndex(
+										ClassName.class, parts[1]));
 								break;
 								
 								// Used string
@@ -313,6 +326,19 @@ public final class DualPoolEncoder
 								value = new InterfaceClassName(
 									classpool.<ClassName>byIndex(
 										ClassName.class, parts[0]));
+								break;
+								
+								// Class Name Hash
+							case CLASS_NAME_HASH:
+								value = new ClassNameHash(
+									classpool.<ClassName>byIndex(
+										ClassName.class, parts[2]));
+								break;
+								
+								// Decoded value
+							case HIGH_RUNTIME_VALUE:
+								value = new HighRuntimeValue(
+									entries.get(parts[0]).value);
 								break;
 								
 								// Unknown
@@ -349,6 +375,74 @@ public final class DualPoolEncoder
 	}
 	
 	/**
+	 * Decodes the specified layered pool.
+	 *
+	 * @param __b The input byte array.
+	 * @param __co The class pool offset.
+	 * @param __cl The class pool length.
+	 * @param __ro The run-time pool offset.
+	 * @param __rl The run-time pool length.
+	 * @param __pool The pool to layer from.
+	 * @return The resulting dual pool.
+	 * @throws InvalidClassFormatException If the pool is not valid.
+	 * @throws IOException If the pool could not be read.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2002/12/16
+	 */
+	public static DualClassRuntimePool decodeLayered(byte[] __b,
+		int __co, int __cl, int __ro, int __rl, DualClassRuntimePool __pool)
+		throws InvalidClassFormatException, IOException, NullPointerException
+	{
+		if (__b == null)
+			throw new NullPointerException("NARG");
+		
+		BasicPoolEntry[] classPool = null;
+		BasicPoolEntry[] runPool = null;
+		
+		// We need to load both the static pool and the runtime pool, these
+		// are both encoded the same exact way
+		for (int type = 0; type < 2; type++)
+		{
+			// Are we loading the class pool?
+			boolean isClass = (type == 0);
+			
+			// Which pool did we layer over?
+			BasicPool under = (isClass ? __pool.classPool() :
+				__pool.runtimePool());
+			
+			// Read from the target pool
+			BasicPoolEntry[] target;
+			try (DataInputStream in = new DataInputStream((isClass ?
+				new ByteArrayInputStream(__b, __co, __cl) :
+				new ByteArrayInputStream(__b, __ro, __rl))))
+			{
+				// {@squirreljme.error JC4v Invalid pool size. (The size)}
+				int size = in.readInt();
+				if (size < 0)
+					throw new InvalidClassFormatException("JC4v " + size);
+				
+				// Initialize null pool entry
+				target = new BasicPoolEntry[size];
+				target[0] = under.byIndex(0);
+				
+				// Read all the other entries
+				for (int i = 1; i < size; i++)
+					target[i] = under.byIndex(in.readInt()); 
+			}
+			
+			// Set the appropriate target pool
+			if (isClass)
+				classPool = target;
+			else
+				runPool = target;
+		}
+		
+		// Use these pools
+		return new DualClassRuntimePool(
+			new BasicPool(classPool), new BasicPool(runPool));
+	}	
+	
+	/**
 	 * Encodes the dual pool to the given output stream and returns the
 	 * result.
 	 *
@@ -367,23 +461,23 @@ public final class DualPoolEncoder
 			throw new NullPointerException("NARG");
 		
 		// Table sections are used for output
-		TableSectionOutputStream output = new TableSectionOutputStream();
+		ChunkWriter output = new ChunkWriter();
 		
 		// Build sections for output
-		TableSectionOutputStream.Section clssection = output.addSection(
-			TableSectionOutputStream.VARIABLE_SIZE, 4);
-		TableSectionOutputStream.Section runsection = output.addSection(
-			TableSectionOutputStream.VARIABLE_SIZE, 4);
+		ChunkSection clssection = output.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
+		ChunkSection runsection = output.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
 		
 		// Write both of the pools
 		for (boolean isruntime = false;; isruntime = true)
 		{
 			// Sub output which writes to the section
-			TableSectionOutputStream sub = new TableSectionOutputStream();
+			ChunkWriter sub = new ChunkWriter();
 			
 			// Section containing the table of contents
-			TableSectionOutputStream.Section toc = sub.addSection(
-				TableSectionOutputStream.VARIABLE_SIZE, 4);
+			ChunkSection toc = sub.addSection(
+				ChunkWriter.VARIABLE_SIZE, 4);
 			
 			// Are we encoding the static or run-time pool?
 			BasicPoolBuilder pool = (isruntime ? __dp.runtimePool() :
@@ -435,8 +529,8 @@ public final class DualPoolEncoder
 				
 				// Encode the data into a section somewhere in this
 				// sub-section
-				TableSectionOutputStream.Section data = sub.addSection(
-					TableSectionOutputStream.VARIABLE_SIZE, 4);
+				ChunkSection data = sub.addSection(
+					ChunkWriter.VARIABLE_SIZE, 4);
 				data.write(DualPoolEncoder.encodeValue(et, ep, iswide, ev));
 				
 				// Write pool table entry
@@ -484,11 +578,11 @@ public final class DualPoolEncoder
 			throw new NullPointerException("NARG");
 		
 		// The resulting table
-		TableSectionOutputStream table = new TableSectionOutputStream();
+		ChunkWriter table = new ChunkWriter();
 		
 		// Process static entries
-		TableSectionOutputStream.Section sl = table.addSection(
-			TableSectionOutputStream.VARIABLE_SIZE, 4);
+		ChunkSection sl = table.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
 		for (BasicPoolEntry e : __src.classPool())
 		{
 			if (e.index == 0)
@@ -498,8 +592,8 @@ public final class DualPoolEncoder
 		}
 		
 		// Process run-time entries
-		TableSectionOutputStream.Section rl = table.addSection(
-			TableSectionOutputStream.VARIABLE_SIZE, 4);
+		ChunkSection rl = table.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
 		for (BasicPoolEntry e : __src.runtimePool())
 		{
 			if (e.index == 0)
@@ -537,8 +631,8 @@ public final class DualPoolEncoder
 			throw new NullPointerException("NARG");
 		
 		// Output for this data
-		TableSectionOutputStream output = new TableSectionOutputStream();
-		TableSectionOutputStream.Section dos = output.addSection();
+		ChunkWriter output = new ChunkWriter();
+		ChunkSection dos = output.addSection();
 		
 		// Depends on the type
 		switch (__t)
@@ -566,7 +660,7 @@ public final class DualPoolEncoder
 				// Everything else just consists of parts which are
 				// either values to other indexes or an ordinal
 			case ACCESSED_FIELD:
-			case CLASS_INFO_POINTER:
+			case TYPE_BRACKET_POINTER:
 			case CLASS_NAME:
 			case CLASS_NAMES:
 			case CLASS_POOL:
@@ -576,10 +670,13 @@ public final class DualPoolEncoder
 			case LONG:
 			case INVOKED_METHOD:
 			case METHOD_DESCRIPTOR:
-			case VIRTUAL_METHOD_INDEX:
+			case INVOKE_XTABLE:
 			case NOTED_STRING:
+			case QUICK_CAST_CHECK:
 			case USED_STRING:
 			case INTERFACE_CLASS:
+			case CLASS_NAME_HASH:
+			case HIGH_RUNTIME_VALUE:
 				if (__wide)
 					for (int i = 0, n = __p.length; i < n; i++)
 						dos.writeShortChecked(__p[i]);

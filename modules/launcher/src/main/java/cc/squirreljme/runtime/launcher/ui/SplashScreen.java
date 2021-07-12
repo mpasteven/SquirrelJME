@@ -11,7 +11,6 @@ package cc.squirreljme.runtime.launcher.ui;
 
 import cc.squirreljme.jvm.mle.constants.UIPixelFormat;
 import cc.squirreljme.runtime.cldc.SquirrelJME;
-import cc.squirreljme.runtime.lcdui.gfx.AdvancedGraphics;
 import cc.squirreljme.runtime.lcdui.mle.PencilGraphics;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +54,9 @@ public final class SplashScreen
 	 */
 	public SplashScreen(int __sw, int __sh)
 	{
+		// Set a nice title!
+		this.setTitle("SquirrelJME is Loading!");
+		
 		// Full-screen mode for the entire image
 		this.setFullScreenMode(true);
 		

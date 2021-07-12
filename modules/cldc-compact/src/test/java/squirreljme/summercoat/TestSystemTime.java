@@ -9,8 +9,7 @@
 
 package squirreljme.summercoat;
 
-import cc.squirreljme.jvm.Assembly;
-import cc.squirreljme.jvm.SystemCallIndex;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import net.multiphasicapps.tac.TestRunnable;
 
 /**
@@ -28,6 +27,8 @@ public class TestSystemTime
 	@Override
 	public void test()
 	{
+		throw Debugging.todo();
+		/*
 		Assembly.sysCall(SystemCallIndex.TIME_MILLI_WALL);
 		this.secondary("mw", Assembly.sysCallV(SystemCallIndex.ERROR_GET,
 			SystemCallIndex.TIME_MILLI_WALL));
@@ -35,6 +36,7 @@ public class TestSystemTime
 		Assembly.sysCall(SystemCallIndex.TIME_NANO_MONO);
 		this.secondary("nm", Assembly.sysCallV(SystemCallIndex.ERROR_GET,
 			SystemCallIndex.TIME_NANO_MONO));
+		 */
 	}
 }
 

@@ -64,7 +64,7 @@ public final class NativeFramebuffer
 				// Set title of the framebuffer
 			case Framebuffer.CONTROL_SET_TITLE:
 				this.title = String.valueOf((char[])Assembly.pointerToObject(
-					Assembly.longPack(__a, __b)));
+					__a));
 				return 0;
 			
 			default:

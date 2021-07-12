@@ -247,11 +247,12 @@ public final class Class<T>
 	
 	/**
 	 * Checks if the given class can be assigned to this one, the check is
-	 * in the same order as {code instanceOf Object} that is
-	 * {@code a.getClass().isAssignableFrom(b.getClass()) == (a instanceof b)}.
+	 * in the same order as {@code instanceof Object} that is
+	 * {@code b.getClass().isAssignableFrom(a.getClass()) == (a instanceof b)}
+	 * and {@code (Class<B>)a} does not throw {@link ClassCastException}.
 	 *
 	 * @param __cl The other class type.
-	 * @return If the otehr class can be assigned to this one.
+	 * @return If the other class can be assigned to this one.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2018/09/27
 	 */
@@ -266,39 +267,8 @@ public final class Class<T>
 		if (this == __cl)
 			return true;
 			
-		TypeBracket self = this._type;
-		TypeBracket other = TypeShelf.classToType(__cl);
-		
-		// Scan through the current and super classes of this class
-		for (TypeBracket rover = self; rover != null;
-			rover = TypeShelf.superClass(rover))
-		{
-			// Is this the same type?
-			if (TypeShelf.equals(self, rover))
-				return true;
-			
-			// Go through interfaces
-			for (TypeBracket iFace : TypeShelf.interfaces(rover))
-				if (TypeShelf.equals(self, iFace))
-					return true;
-		}
-		
-		// If this is an array and the other type is an array with the same
-		// number of dimensions, then compare the base type so that say
-		// Number[] is assignable from Integer[].
-		if (TypeShelf.isArray(self) && TypeShelf.isArray(other))
-		{
-			int thisDims = TypeShelf.dimensions(self);
-			int otherDims = TypeShelf.dimensions(other);
-			
-			if (thisDims > 0 && thisDims == otherDims)
-				return TypeShelf.typeToClass(TypeShelf.componentRoot(self))
-					.isAssignableFrom(TypeShelf.typeToClass(
-						TypeShelf.componentRoot(other)));
-		}
-		
-		// Not assignable
-		return false;
+		return TypeShelf.isAssignableFrom(this._type,
+			TypeShelf.classToType(__cl));
 	}
 	
 	/**

@@ -10,7 +10,6 @@
 package cc.squirreljme.emulator.uiform;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 
 /**
  * Represents an entry within a list.

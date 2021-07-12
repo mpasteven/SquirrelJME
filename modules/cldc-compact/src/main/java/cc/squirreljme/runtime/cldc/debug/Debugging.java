@@ -77,6 +77,18 @@ public final class Debugging
 	}
 	
 	/**
+	 * Emits a notice
+	 *
+	 * @param __fmt The format.
+	 * @param __args The arguments to the string.
+	 * @since 2021/01/18
+	 */
+	public static void notice(String __fmt, Object... __args)
+	{
+		Debugging.__format('\0', '\0', __fmt, __args);
+	}
+	
+	/**
 	 * Emits an oops error.
 	 *
 	 * @return The generated error.
@@ -97,6 +109,47 @@ public final class Debugging
 	public static Error oops(Object... __args)
 	{
 		return Debugging.todo(__args);
+	}
+	
+	/**
+	 * Prints the given character.
+	 *
+	 * @param __c The character to print.
+	 * @since 2020/05/07
+	 */
+	@SuppressWarnings({"SameParameterValue"})
+	public static void print(char __c)
+	{
+		Debugging.print(__c, '\0');
+	}
+	
+	/**
+	 * Prints the given characters.
+	 *
+	 * @param __c The character to print.
+	 * @param __d Second character to print.
+	 * @since 2020/05/07
+	 */
+	@SuppressWarnings("FeatureEnvy")
+	public static void print(char __c, char __d)
+	{
+		// If we are on standard Java SE, use the System.err for output
+		if (RuntimeShelf.vmType() == VMType.JAVA_SE)
+		{
+			System.err.print(__c);
+			if (__d > 0)
+				System.err.print(__d);
+			
+			return;
+		}
+		
+		// Use standard SquirrelJME output
+		TerminalShelf.write(StandardPipeType.STDERR,
+			(__c > Debugging._BYTE_LIMIT ? '?' : __c));
+		
+		if (__d > 0)
+			TerminalShelf.write(StandardPipeType.STDERR,
+				(__d > Debugging._BYTE_LIMIT ? '?' : __d));
 	}
 	
 	/**
@@ -312,14 +365,19 @@ public final class Debugging
 		// Print otherwise
 		try
 		{
-			// Print header marker
-			Debugging.__print(__cha, __chb);
-			Debugging.__print(':', ' ');
+			// Print header marker, but only if it is used
+			if (__cha != '\0' && __chb != '\0')
+			{
+				Debugging.print(__cha, __chb);
+				Debugging.print(':', ' ');
+			}
 			
 			// The specifier to print along with the field index
 			boolean specifier = false,
 				hasArgIndex = false,
-				firstChar = false;
+				firstChar = false,
+				usePrefix = false,
+				zeroPadding = false;
 			int argIndex = 0,
 				baseArg = 0,
 				width = -1,
@@ -334,14 +392,21 @@ public final class Debugging
 				if (specifier)
 				{
 					// Ignore flags
-					if (c == '-' || c == '#' || c == '+' ||
-						c == ' ' || c == ',' || c == '(' ||
-						(firstChar && c == '0'))
+					if (c == '-' || c == '+' ||
+						c == ' ' || c == ',' || c == '(')
 						continue;
 					
 					// Ignore precision
 					else if (c == '.')
 						continue;
+					
+					// Zero padded?
+					else if (firstChar && c == '0')
+						zeroPadding = true;
+					
+					// Prefix flag?
+					else if (c == '#')
+						usePrefix = true;
 					
 					// Could be width or argument index position
 					else if ((c >= '1' && c <= '9') ||
@@ -352,6 +417,14 @@ public final class Debugging
 							if (width < 0)
 								width = 0;
 							width = (width * 10) + (c - '0');
+							
+							// If the width is still zero, then this is the
+							// zero padding flag
+							if (width == 0)
+							{
+								zeroPadding = true;
+								width = -1;
+							}
 						}
 						else
 							argIndex = (argIndex * 10) + (c - '0');
@@ -365,7 +438,7 @@ public final class Debugging
 					else if (c == '%' || c == 'n')
 					{
 						if (c == '%')
-							Debugging.__print('%');
+							Debugging.print('%');
 						else
 							Debugging.__printLine();
 						
@@ -389,28 +462,56 @@ public final class Debugging
 						// Print its value
 						if (value == null)
 						{
-							Debugging.__print('n', 'u');
-							Debugging.__print('l', 'l');
+							Debugging.print('n', 'u');
+							Debugging.print('l', 'l');
 						}
 						
-						// Assume a string
+						// A string printed value
 						else
 						{
-							String string = value.toString();
+							String string;
+							
+							// Hex sequence
+							if (c == 'x' || c == 'X')
+							{
+								string = (usePrefix ? "0x" : "") +
+									Long.toString(((Number)value).longValue(),
+										16);
+								
+								if (c == 'X')
+									string = string.toUpperCase();
+							}
+							
+							// Octal
+							else if (c == 'o')
+								string = Long.toString(
+									((Number)value).longValue(), 8);
+								
+							// Assume string
+							else
+								string = value.toString();
 							
 							// Print left padding?
 							int strLen = string.length(),
 								pad = width - strLen;
 							while ((pad--) > 0)
-								Debugging.__print(' ');
+								if (zeroPadding)
+									Debugging.print('0');
+								else
+									Debugging.print(' ');
 							
 							// Print actual string
 							for (int j = 0; j < strLen; j++)
-								Debugging.__print(string.charAt(j));
+								Debugging.print(string.charAt(j));
 						}
 						
-						// Stop
+						// Stop and reset
 						specifier = false;
+						hasArgIndex = false;
+						usePrefix = false;
+						zeroPadding = false;
+						width = -1;
+						argIndex = -1;
 					}
 					
 					// No longer will be the first character
@@ -428,7 +529,7 @@ public final class Debugging
 				
 				// Plain character?
 				else
-					Debugging.__print(c);
+					Debugging.print(c);
 			}
 			
 			// End of line
@@ -440,8 +541,8 @@ public final class Debugging
 		catch (Throwable t)
 		{
 			// Indicate this has occurred
-			Debugging.__print('X');
-			Debugging.__print('X');
+			Debugging.print('X');
+			Debugging.print('X');
 			
 			// End of line
 			Debugging.__printLine();
@@ -505,7 +606,7 @@ public final class Debugging
 			if (c == 0)
 				break;
 			
-			Debugging.__print(c, '\0');
+			Debugging.print(c, '\0');
 		}
 	}
 }

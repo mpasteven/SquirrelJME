@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.ServiceLoader;
 
 /**
@@ -42,6 +41,20 @@ public interface Backend
 	 */
 	void compileClass(CompileSettings __settings, LinkGlob __glob,
 		String __name, InputStream __in, OutputStream __out)
+		throws IOException, NullPointerException;
+	
+	/**
+	 * Dumps the glob that was compiled to a text based format for
+	 * decompilation or otherwise.
+	 * 
+	 * @param __inGlob The input glob to dump.
+	 * @param __name The name of the glob.
+	 * @param __out Where the output goes.
+	 * @throws IOException On read errors.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/05/16
+	 */
+	void dumpGlob(byte[] __inGlob, String __name, PrintStream __out)
 		throws IOException, NullPointerException;
 	
 	/**

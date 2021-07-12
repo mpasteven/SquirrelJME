@@ -39,7 +39,7 @@ public final class CharSequenceUtils
 	 * @throws NullPointerException On null arguments.
 	 * @since 2017/11/30
 	 */
-	public static final CharSequence[] fieldSplit(char __delim,
+	public static CharSequence[] fieldSplit(char __delim,
 		CharSequence __s)
 		throws NullPointerException
 	{
@@ -48,13 +48,13 @@ public final class CharSequenceUtils
 		
 		// Get all indexes of that given character
 		int[] ind = CharSequenceUtils.multipleIndexOf(__delim, __s);
-		int delcount = ind.length;
+		int delCount = ind.length;
 		
-		int n = delcount + 1;
+		int n = delCount + 1;
 		CharSequence[] rv = new CharSequence[n];
 		for (int l = -1, r = 0, i = 0; i < n; i++, l++, r++)
 			rv[i] = __s.subSequence((l >= 0 ? ind[l] + 1 : 0),
-				(r < delcount ? ind[r] : __s.length()));
+				(r < delCount ? ind[r] : __s.length()));
 		
 		return rv;
 	}

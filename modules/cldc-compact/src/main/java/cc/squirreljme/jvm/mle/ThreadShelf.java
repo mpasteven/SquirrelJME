@@ -9,8 +9,10 @@
 
 package cc.squirreljme.jvm.mle;
 
+import cc.squirreljme.jvm.mle.brackets.TaskBracket;
 import cc.squirreljme.jvm.mle.brackets.TracePointBracket;
 import cc.squirreljme.jvm.mle.brackets.VMThreadBracket;
+import cc.squirreljme.jvm.mle.constants.ThreadModelType;
 import cc.squirreljme.jvm.mle.exceptions.MLECallError;
 
 /**
@@ -44,6 +46,14 @@ public final class ThreadShelf
 		throws MLECallError;
 	
 	/**
+	 * Returns the exit code for the current process.
+	 *
+	 * @return The exit code for the current process.
+	 * @since 2020/06/17
+	 */
+	public static native int currentExitCode();
+	
+	/**
 	 * Returns the current Java thread.
 	 *
 	 * @return The current {@link Thread}.
@@ -52,12 +62,25 @@ public final class ThreadShelf
 	public static native Thread currentJavaThread();
 	
 	/**
-	 * Returns the exit code for the current process.
-	 *
-	 * @return The exit code for the current process.
-	 * @since 2020/06/17
+	 * Returns the current virtual machine thread.
+	 * 
+	 * @return The current virtual machine thread.
+	 * @since 2021/05/08
 	 */
-	public static native int currentExitCode();
+	public static native VMThreadBracket currentVMThread();
+	
+	/**
+	 * Checks if these two threads are the same.
+	 * 
+	 * @param __a The first thread.
+	 * @param __b The second thread.
+	 * @return If these are the same thread.
+	 * @throws MLECallError If either arguments are null.
+	 * @since 2021/05/08
+	 */
+	public static native boolean equals(VMThreadBracket __a,
+		VMThreadBracket __b)
+		throws MLECallError;
 	
 	/**
 	 * Returns whether the interrupt flag was raised and clears it.
@@ -127,6 +150,14 @@ public final class ThreadShelf
 		throws MLECallError;
 	
 	/**
+	 * Returns the {@link ThreadModelType} of the virtual machine.
+	 * 
+	 * @return The {@link ThreadModelType} of the virtual machine.
+	 * @since 2021/05/07
+	 */
+	public static native int model();
+	
+	/**
 	 * Runs the main entry point for the current process and gives it all of
 	 * the arguments that were specified on program initialization.
 	 *
@@ -161,6 +192,10 @@ public final class ThreadShelf
 	 *
 	 * If both times are zero, this means to yield the thread (give up its
 	 * current execution context).
+	 * 
+	 * If SquirrelJME is running in cooperative
+	 * single threaded mode, this will relinquish control of the current
+	 * thread.
 	 *
 	 * @param __ms The number of milliseconds.
 	 * @param __ns The number of nanoseconds.
@@ -268,10 +303,25 @@ public final class ThreadShelf
 		throws MLECallError;
 	
 	/**
+	 * Returns the task that owns the given thread.
+	 * 
+	 * @param __vmThread The thread to get the task of.
+	 * @return The task for the given thread.
+	 * @throws MLECallError If the thread is not valid.
+	 * @since 2021/05/08
+	 */
+	public static native TaskBracket vmThreadTask(VMThreadBracket __vmThread)
+		throws MLECallError;
+	
+	/**
 	 * Waits for the state of threads to be updated, or just times out.
 	 *
 	 * A thread update is when another thread becomes alive, becomes dead,
 	 * or is started.
+	 * 
+	 * If waiting and SquirrelJME is running in cooperative
+	 * single threaded mode, this will relinquish control of the current
+	 * thread.
 	 *
 	 * @param __ms The amount of time to wait for.
 	 * @return If the thread was interrupted while waiting.
