@@ -42,6 +42,9 @@ void JNICALL forwardCallStaticVoid(JNIEnv* env,
 jint JNICALL forwardCallStaticInteger(JNIEnv* env,
 	const char* const classy, const char* const name, const char* const type,
 	...);
+jlong JNICALL forwardCallStaticLong(JNIEnv* env,
+	const char* const classy, const char* const name, const char* const type,
+	...);
 jobject JNICALL forwardCallStaticObject(JNIEnv* env,
 	const char* const classy, const char* const name, const char* const type,
 	...);

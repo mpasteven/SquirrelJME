@@ -42,7 +42,7 @@ public final class PencilShelf
 	 * then {@code 0} will be returned.
 	 * @since 2020/09/25
 	 */
-	public static native int capabilities(int __pf)
+	public static native long capabilities(int __pf)
 		throws MLECallError;
 	
 	/**

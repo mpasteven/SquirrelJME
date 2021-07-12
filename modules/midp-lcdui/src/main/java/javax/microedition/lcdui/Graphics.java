@@ -67,14 +67,14 @@ public abstract class Graphics
 		0;
 	
 	/**
-	 * The blending mode, the destination alpha becomes the source and as such
+	 * A blending mode, the destination alpha becomes the source and as such
 	 * the operation is a copy.
 	 */
 	public static final int SRC =
 		1;
 	
 	/**
-	 * The blending mode, the source alpha is a composited over the
+	 * A blending mode, the source alpha is a composited over the
 	 * destination.
 	 */
 	public static final int SRC_OVER =

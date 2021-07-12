@@ -12,6 +12,7 @@ package cc.squirreljme.runtime.lcdui.mle;
 import cc.squirreljme.jvm.mle.PencilShelf;
 import cc.squirreljme.jvm.mle.brackets.PencilBracket;
 import cc.squirreljme.jvm.mle.constants.PencilCapabilities;
+import cc.squirreljme.jvm.mle.constants.PencilFunction;
 import cc.squirreljme.jvm.mle.constants.UIPixelFormat;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import javax.microedition.lcdui.Font;
@@ -28,6 +29,7 @@ import javax.microedition.lcdui.Text;
  *
  * @since 2020/09/25
  */
+@SuppressWarnings("OverlyComplexClass")
 public final class PencilGraphics
 	extends Graphics
 {
@@ -37,14 +39,20 @@ public final class PencilGraphics
 	/** The hardware bracket reference. */
 	protected final PencilBracket bracket;
 	
-	/** The capabilities of the graphics hardware. */
-	protected final int capabilities;
+	/** The {@link PencilCapabilities} of the graphics hardware. */
+	protected final long capabilities;
 	
 	/** Surface width. */
 	protected final int surfaceW;
 	
 	/** Surface height. */
 	protected final int surfaceH;
+	
+	/** Use blending? */
+	private boolean _useBlend;
+	
+	/** Use dotted? */
+	private boolean _useDotted;
 	
 	/**
 	 * Initializes the pencil graphics system.
@@ -60,7 +68,7 @@ public final class PencilGraphics
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/09/25
 	 */
-	private PencilGraphics(int __caps, Graphics __software, int __sw, int __sh,
+	private PencilGraphics(long __caps, Graphics __software, int __sw, int __sh,
 		PencilBracket __bracket)
 		throws IllegalArgumentException, NullPointerException
 	{
@@ -99,7 +107,7 @@ public final class PencilGraphics
 		int __dy, int __anchor)
 		throws IllegalArgumentException, IllegalStateException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.COPY_AREA))
+		if (this.__lacksCap(PencilFunction.FUNC_COPY_AREA))
 		{
 			this.software.copyArea(__sx, __sy, __w, __h, __dx, __dy, __anchor);
 			return;
@@ -116,7 +124,7 @@ public final class PencilGraphics
 	public final void drawArc(int __x, int __y, int __w, int __h, int __sa,
 	 int __aa)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_ARC))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_ARC))
 		{
 			this.software.drawArc(__x, __y, __w, __h, __sa, __aa);
 			return;
@@ -134,7 +142,7 @@ public final class PencilGraphics
 		int __x, int __y, int __w, int __h)
 		throws NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_XRGB16_SIMPLE))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_XRGB16_SIMPLE))
 		{
 			this.software.drawARGB16(__data, __off, __scanlen, __x, __y, __w,
 				__h);
@@ -151,7 +159,7 @@ public final class PencilGraphics
 	@Override
 	public final void drawChar(char __s, int __x, int __y, int __anchor)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 		{
 			this.software.drawChar(__s, __x, __y, __anchor);
 			return;
@@ -169,7 +177,7 @@ public final class PencilGraphics
 		int __anchor)
 		throws NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 		{
 			this.software.drawChars(__s, __o, __l, __x, __y, __anchor);
 			return;
@@ -186,7 +194,7 @@ public final class PencilGraphics
 	public final void drawImage(Image __i, int __x, int __y, int __anchor)
 		throws IllegalArgumentException, NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_XRGB32_REGION))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_XRGB32_REGION))
 		{
 			this.software.drawImage(__i, __x, __y, __anchor);
 			return;
@@ -202,7 +210,7 @@ public final class PencilGraphics
 	@Override
 	public final void drawLine(int __x1, int __y1, int __x2, int __y2)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_LINE))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_LINE))
 		{
 			this.software.drawLine(__x1, __y1, __x2, __y2);
 			return;
@@ -220,7 +228,7 @@ public final class PencilGraphics
 		int __y, int __w, int __h, boolean __alpha)
 		throws NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_XRGB32_SIMPLE))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_XRGB32_SIMPLE))
 		{
 			this.software.drawRGB(__data, __off, __scanlen, __x, __y, __w,
 				__h, __alpha);
@@ -239,7 +247,7 @@ public final class PencilGraphics
 		int __x, int __y, int __w, int __h)
 		throws NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_XRGB16_SIMPLE))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_XRGB16_SIMPLE))
 		{
 			this.software.drawRGB16(__data, __off, __scanlen, __x, __y,
 				__w, __h);
@@ -256,7 +264,7 @@ public final class PencilGraphics
 	@Override
 	public final void drawRect(int __x, int __y, int __w, int __h)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_RECT))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_RECT))
 		{
 			this.software.drawRect(__x, __y, __w, __h);
 			return;
@@ -275,7 +283,7 @@ public final class PencilGraphics
 		int __anch)
 		throws IllegalArgumentException, NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_XRGB32_REGION))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_XRGB32_REGION))
 		{
 			this.software.drawRegion(__src, __xsrc, __ysrc, __wsrc, __hsrc,
 				__trans, __xdest, __ydest, __anch);
@@ -295,7 +303,7 @@ public final class PencilGraphics
 		int __anch, int __wdest, int __hdest)
 		throws IllegalArgumentException, NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_XRGB32_REGION))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_XRGB32_REGION))
 		{
 			this.software.drawRegion(__src, __xsrc, __ysrc, __wsrc, __hsrc,
 				__trans, __xdest, __ydest, __anch, __wdest, __hdest);
@@ -313,7 +321,7 @@ public final class PencilGraphics
 	public final void drawRoundRect(int __x, int __y, int __w, int __h,
 		int __aw, int __ah)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.DRAW_ROUND_RECT))
+		if (this.__lacksCap(PencilFunction.FUNC_DRAW_ROUNDRECT))
 		{
 			this.software.drawRoundRect(__x, __y, __w, __h, __aw, __ah);
 			return;
@@ -330,7 +338,7 @@ public final class PencilGraphics
 	public final void drawString(String __s, int __x, int __y, int __anchor)
 		throws NullPointerException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 		{
 			this.software.drawString(__s, __x, __y, __anchor);
 			return;
@@ -348,7 +356,7 @@ public final class PencilGraphics
 		int __x, int __y, int __anchor)
 		throws NullPointerException, StringIndexOutOfBoundsException
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 		{
 			this.software.drawSubstring(__s, __o, __l, __x, __y, __anchor);
 			return;
@@ -364,7 +372,7 @@ public final class PencilGraphics
 	@Override
 	public final void drawText(Text __t, int __x, int __y)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 		{
 			this.software.drawText(__t, __x, __y);
 			return;
@@ -381,7 +389,7 @@ public final class PencilGraphics
 	public final void fillArc(int __x, int __y, int __w, int __h, int __sa,
 	 int __aa)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FILL_ARC))
+		if (this.__lacksCap(PencilFunction.FUNC_FILL_ARC))
 		{
 			this.software.fillArc(__x, __y, __w, __h, __sa, __aa);
 			return;
@@ -397,7 +405,7 @@ public final class PencilGraphics
 	@Override
 	public final void fillRect(int __x, int __y, int __w, int __h)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FILL_RECT))
+		if (this.__lacksCap(PencilFunction.FUNC_FILL_RECT))
 		{
 			this.software.fillRect(__x, __y, __w, __h);
 			return;
@@ -414,7 +422,7 @@ public final class PencilGraphics
 	public final void fillRoundRect(int __x, int __y, int __w, int __h,
 		int __aw, int __ah)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FILL_ROUND_RECT))
+		if (this.__lacksCap(PencilFunction.FUNC_FILL_ROUNDRECT))
 		{
 			this.software.fillRoundRect(__x, __y, __w, __h, __aw, __ah);
 			return;
@@ -431,7 +439,7 @@ public final class PencilGraphics
 	public final void fillTriangle(int __x1, int __y1, int __x2, int __y2,
 		int __x3, int __y3)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FILL_TRIANGLE))
+		if (this.__lacksCap(PencilFunction.FUNC_FILL_TRIANGLE))
 		{
 			this.software.fillTriangle(__x1, __y1, __x2, __y2, __x3, __y3);
 			return;
@@ -547,7 +555,7 @@ public final class PencilGraphics
 	@Override
 	public final Font getFont()
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 			return this.software.getFont();
 		
 		throw Debugging.todo();
@@ -694,7 +702,7 @@ public final class PencilGraphics
 	@Override
 	public final void setFont(Font __font)
 	{
-		if (0 == (this.capabilities & PencilCapabilities.FONT_TEXT))
+		if (this.__lacksCap(PencilFunction.FUNC_FONT_TEXT))
 		{
 			this.software.setFont(__font);
 			return;
@@ -735,6 +743,175 @@ public final class PencilGraphics
 	}
 	
 	/**
+	 * Maps a pencil function to a native capability.
+	 * 
+	 * @param __func The {@link PencilFunction} to map.
+	 * @return The resultant {@link PencilCapabilities}.
+	 * @since 2021/01/04
+	 */
+	private long __funcToCap(int __func)
+	{
+		// Blending used
+		if (this._useBlend)
+		{
+			// Non-Lines
+			switch (__func)
+			{
+				case PencilFunction.FUNC_COPY_AREA:
+					return PencilCapabilities.COPY_AREA_BLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB16_REGION:
+					return PencilCapabilities.DRAW_XRGB16_REGION_BLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB16_SIMPLE:
+					return PencilCapabilities.DRAW_XRGB16_SIMPLE_BLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB32_REGION:
+					return PencilCapabilities.DRAW_XRGB32_REGION_BLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB32_SIMPLE:
+					return PencilCapabilities.DRAW_XRGB32_SIMPLE_BLEND;
+					
+				case PencilFunction.FUNC_FILL_ARC:
+					return PencilCapabilities.FILL_ARC_BLEND;
+					
+				case PencilFunction.FUNC_FILL_RECT:
+					return PencilCapabilities.FILL_RECT_BLEND;
+					
+				case PencilFunction.FUNC_FILL_ROUNDRECT:
+					return PencilCapabilities.FILL_ROUNDRECT_BLEND;
+					
+				case PencilFunction.FUNC_FILL_TRIANGLE:
+					return PencilCapabilities.FILL_TRIANGLE_BLEND;
+					
+				case PencilFunction.FUNC_FONT_TEXT:
+					return PencilCapabilities.FONT_TEXT_BLEND;
+			}
+			
+			// Lines
+			if (this._useDotted)
+				switch (__func)
+				{
+					case PencilFunction.FUNC_DRAW_ARC:
+						return PencilCapabilities.DRAW_ARC_DOT_BLEND;
+						
+					case PencilFunction.FUNC_DRAW_LINE:
+						return PencilCapabilities.DRAW_LINE_DOT_BLEND;
+						
+					case PencilFunction.FUNC_DRAW_RECT:
+						return PencilCapabilities.DRAW_RECT_DOT_BLEND;
+						
+					case PencilFunction.FUNC_DRAW_ROUNDRECT:
+						return PencilCapabilities.DRAW_ROUNDRECT_DOT_BLEND;	
+				}
+			
+			// Solid lines
+			else
+				switch (__func)
+				{
+					case PencilFunction.FUNC_DRAW_ARC:
+						return PencilCapabilities.DRAW_ARC_SOLID_BLEND;
+						
+					case PencilFunction.FUNC_DRAW_LINE:
+						return PencilCapabilities.DRAW_LINE_SOLID_BLEND;
+						
+					case PencilFunction.FUNC_DRAW_RECT:
+						return PencilCapabilities.DRAW_RECT_SOLID_BLEND;
+						
+					case PencilFunction.FUNC_DRAW_ROUNDRECT:
+						return PencilCapabilities.DRAW_ROUNDRECT_SOLID_BLEND;	
+				}
+		}
+		
+		// Blending not used
+		else
+		{
+			// Non-Lines
+			switch (__func)
+			{
+				case PencilFunction.FUNC_COPY_AREA:
+					return PencilCapabilities.COPY_AREA_NOBLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB16_REGION:
+					return PencilCapabilities.DRAW_XRGB16_REGION_NOBLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB16_SIMPLE:
+					return PencilCapabilities.DRAW_XRGB16_SIMPLE_NOBLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB32_REGION:
+					return PencilCapabilities.DRAW_XRGB32_REGION_NOBLEND;
+					
+				case PencilFunction.FUNC_DRAW_XRGB32_SIMPLE:
+					return PencilCapabilities.DRAW_XRGB32_SIMPLE_NOBLEND;
+					
+				case PencilFunction.FUNC_FILL_ARC:
+					return PencilCapabilities.FILL_ARC_NOBLEND;
+					
+				case PencilFunction.FUNC_FILL_RECT:
+					return PencilCapabilities.FILL_RECT_NOBLEND;
+					
+				case PencilFunction.FUNC_FILL_ROUNDRECT:
+					return PencilCapabilities.FILL_ROUNDRECT_NOBLEND;
+					
+				case PencilFunction.FUNC_FILL_TRIANGLE:
+					return PencilCapabilities.FILL_TRIANGLE_NOBLEND;
+					
+				case PencilFunction.FUNC_FONT_TEXT:
+					return PencilCapabilities.FONT_TEXT_NOBLEND;
+			}
+			
+			// Lines
+			if (this._useDotted)
+				switch (__func)
+				{
+					case PencilFunction.FUNC_DRAW_ARC:
+						return PencilCapabilities.DRAW_ARC_DOT_NOBLEND;
+						
+					case PencilFunction.FUNC_DRAW_LINE:
+						return PencilCapabilities.DRAW_LINE_DOT_NOBLEND;
+						
+					case PencilFunction.FUNC_DRAW_RECT:
+						return PencilCapabilities.DRAW_RECT_DOT_NOBLEND;
+						
+					case PencilFunction.FUNC_DRAW_ROUNDRECT:
+						return PencilCapabilities.DRAW_ROUNDRECT_DOT_NOBLEND;	
+				}
+			
+			// Solid lines
+			else
+				switch (__func)
+				{
+					case PencilFunction.FUNC_DRAW_ARC:
+						return PencilCapabilities.DRAW_ARC_SOLID_NOBLEND;
+						
+					case PencilFunction.FUNC_DRAW_LINE:
+						return PencilCapabilities.DRAW_LINE_SOLID_NOBLEND;
+						
+					case PencilFunction.FUNC_DRAW_RECT:
+						return PencilCapabilities.DRAW_RECT_SOLID_NOBLEND;
+						
+					case PencilFunction.FUNC_DRAW_ROUNDRECT:
+						return PencilCapabilities.DRAW_ROUNDRECT_SOLID_NOBLEND;	
+				}
+		}
+		
+		// This should not occur
+		throw Debugging.oops(__func);
+	}
+	
+	/**
+	 * Is this capability not supported?
+	 * 
+	 * @param __func The function to check.
+	 * @return If this capability is not supported.
+	 * @since 2021/01/04
+	 */
+	private boolean __lacksCap(int __func)
+	{
+		return (0 == (this.capabilities & this.__funcToCap(__func)));
+	}
+	
+	/**
 	 * Creates a graphics that is capable of drawing on hardware if it is
 	 * supported, but falling back to software level graphics.
 	 * 
@@ -763,7 +940,7 @@ public final class PencilGraphics
 		
 		// Get the capabilities of the native system, if it is not supported
 		// then operations will purely be implemented in software
-		int caps = PencilShelf.capabilities(__pf); 
+		long caps = PencilShelf.capabilities(__pf); 
 		if ((caps & PencilCapabilities.MINIMUM) == 0)
 			return software;
 		

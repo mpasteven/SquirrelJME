@@ -56,11 +56,25 @@ jint JNICALL forwardCallStaticInteger(JNIEnv* env,
 	const char* const classy, const char* const name, const char* const type,
 	...)
 {
-	int rv;
+	jint rv;
 	
 	SQUEAK_PREF;
 	DEBUG_CALL;
 	rv = env->CallStaticIntMethodV(call.xclass, call.xmeth, vaArgs);
+	SQUEAK_POST;
+	
+	return rv;
+}
+
+jlong JNICALL forwardCallStaticLong(JNIEnv* env,
+	const char* const classy, const char* const name, const char* const type,
+	...)
+{
+	jlong rv;
+	
+	SQUEAK_PREF;
+	DEBUG_CALL;
+	rv = env->CallStaticLongMethodV(call.xclass, call.xmeth, vaArgs);
 	SQUEAK_POST;
 	
 	return rv;

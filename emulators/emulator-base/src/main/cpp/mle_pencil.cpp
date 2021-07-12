@@ -13,19 +13,30 @@
 #define SWINGPENCIL_CLASSNAME "cc/squirreljme/emulator/uiform/SwingPencilShelf"
 
 // Descriptors
-#define SWINGPENCIL_CAPABILITIES_DESC "(I)I"
+#define SWINGPENCIL_CAPABILITIES_DESC "(I)J"
+#define SWINGPENCIL_HARDWAREGFX_DESC "(IIILjava/lang/Object;I[IIIII)Lcc/squirreljme/jvm/mle/brackets/PencilBracket;"
 
-JNIEXPORT jint JNICALL Impl_mle_PencilShelf_capabilities(JNIEnv* env,
+JNIEXPORT jlong JNICALL Impl_mle_PencilShelf_capabilities(JNIEnv* env,
 	jclass classy, jint pixelFormat)
 {
-	return forwardCallStaticInteger(env, SWINGPENCIL_CLASSNAME,
+	return forwardCallStaticLong(env, SWINGPENCIL_CLASSNAME,
 		"capabilities", SWINGPENCIL_CAPABILITIES_DESC,
 		pixelFormat);
+}
+
+JNIEXPORT jobject JNICALL Impl_mle_PencilShelf_hardwareGraphics(JNIEnv* env,
+	jclass classy, jint pf, jint bw, jint bh, jobject buf, jint offset,
+	jobject pal, jint sx, jint sy, jint sw, jint sh)
+{
+	return forwardCallStaticObject(env, SWINGPENCIL_CLASSNAME,
+		"hardwareGraphics", SWINGPENCIL_HARDWAREGFX_DESC,
+		pf, bw, bh, buf, offset, pal, sx, sy, sw, sh);
 }
 
 static const JNINativeMethod mlePencilMethods[] =
 {
 	{"capabilities", SWINGPENCIL_CAPABILITIES_DESC, (void*)Impl_mle_PencilShelf_capabilities},
+	{"hardwareGraphics", SWINGPENCIL_HARDWAREGFX_DESC, (void*)Impl_mle_PencilShelf_hardwareGraphics},
 };
 
 jint JNICALL mlePencilInit(JNIEnv* env, jclass classy)

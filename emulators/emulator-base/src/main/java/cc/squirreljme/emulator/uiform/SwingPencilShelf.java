@@ -14,6 +14,7 @@ import cc.squirreljme.jvm.mle.brackets.PencilBracket;
 import cc.squirreljme.jvm.mle.constants.PencilCapabilities;
 import cc.squirreljme.jvm.mle.constants.UIPixelFormat;
 import cc.squirreljme.jvm.mle.exceptions.MLECallError;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 
 /**
  * Swing implementation of {@link PencilShelf}.
@@ -42,14 +43,14 @@ public final class SwingPencilShelf
 	 * then {@code 0} will be returned.
 	 * @since 2020/09/25
 	 */
-	public static int capabilities(int __pf)
+	public static long capabilities(int __pf)
 		throws MLECallError
 	{
 		if (__pf < 0 || __pf >= UIPixelFormat.NUM_PIXEL_FORMATS)
-			throw new MLECallError("Invalid pixel format.");
+			throw new MLECallError("Invalid pixel format: " + __pf);
 		
-		// Not supported at all
-		return 0;
+		// Fully supported by Swing
+		return PencilCapabilities.ALL;
 	}
 	
 	/**
@@ -75,6 +76,6 @@ public final class SwingPencilShelf
 		int __sw, int __sh)
 		throws MLECallError
 	{
-		throw new MLECallError("Not supported.");
+		throw Debugging.todo();
 	}
 }

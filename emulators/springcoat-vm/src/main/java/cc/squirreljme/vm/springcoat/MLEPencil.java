@@ -23,7 +23,7 @@ public enum MLEPencil
 	implements MLEFunction
 {
 	/** {@link PencilShelf#capabilities(int)}. */
-	CAPABILITIES("capabilities:(I)I")
+	CAPABILITIES("capabilities:(I)J")
 	{
 		/**
 		 * {@inheritDoc}
@@ -37,7 +37,7 @@ public enum MLEPencil
 				throw new SpringMLECallError("Invalid pixel format: " +
 					pf);
 			
-			return 0;
+			return PencilShelf.capabilities(pf);
 		}
 	}, 
 	
