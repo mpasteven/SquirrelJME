@@ -27,18 +27,24 @@ public class SummerCoatVirtualMachine
 	private final List<Thread> _threads =
 		new ArrayList<>();
 	
+	/** The machine state. */
+	protected final MachineState machine;
+	
 	/**
 	 * Initializes the virtual machine.
 	 *
+	 * @param __ms The machine used.
 	 * @param __bootcpu The boot CPU.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/06/30
 	 */
-	public SummerCoatVirtualMachine(NativeCPU __bootcpu)
+	public SummerCoatVirtualMachine(MachineState __ms, NativeCPU __bootcpu)
 		throws NullPointerException
 	{
-		if (__bootcpu == null)
+		if (__ms == null || __bootcpu == null)
 			throw new NullPointerException("NARG");
+		
+		this.machine = __ms;
 		
 		// Add initial thread
 		this._threads.add(new Thread(__bootcpu, "BootCPU"));

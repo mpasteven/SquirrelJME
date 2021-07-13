@@ -119,6 +119,12 @@ public final class TaskInitialization
 			TaskInitialization.task("lib", __sourceSet, __vmType),
 			VMLibraryTask.class, __sourceSet, __vmType);
 		
+		// Is dumping available?
+		if (__vmType.hasDumping())
+			tasks.create(
+				TaskInitialization.task("dump", __sourceSet, __vmType),
+				VMDumpLibraryTask.class, __sourceSet, __vmType, libTask);
+		
 		// Running the target
 		if (__sourceSet.equals(SourceSet.MAIN_SOURCE_SET_NAME))
 			tasks.create(

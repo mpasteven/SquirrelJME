@@ -9,6 +9,9 @@
 
 package cc.squirreljme.jvm.mle.exceptions;
 
+import cc.squirreljme.jvm.SystemCallError;
+import cc.squirreljme.jvm.SystemCallIndex;
+
 /**
  * This is thrown when there was an error made during a MLE call.
  *
@@ -60,5 +63,18 @@ public class MLECallError
 	public MLECallError(Throwable __t)
 	{
 		this.initCause(__t);
+	}
+	
+	/**
+	 * Initializes system call exception.
+	 * 
+	 * @param __callId The {@link SystemCallIndex}.
+	 * @param __code The {@link SystemCallError}.
+	 * @since 2020/11/29
+	 */
+	public MLECallError(int __callId, int __code)
+	{
+		// {@squirreljme.error ZZ4k Failed system call. (The ID; The Error)}
+		super("ZZ4k " + __callId + " " + __code);
 	}
 }

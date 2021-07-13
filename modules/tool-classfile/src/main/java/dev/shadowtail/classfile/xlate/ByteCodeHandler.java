@@ -38,25 +38,25 @@ public interface ByteCodeHandler
 	 * Load from array.
 	 *
 	 * @param __dt The type of data to load.
-	 * @param __in The instance.
+	 * @param __array The instance.
 	 * @param __dx The index.
-	 * @param __v The value.
+	 * @param __val The value.
 	 * @since 2019/04/12
 	 */
-	void doArrayLoad(DataType __dt, JavaStackResult.Input __in,
-		JavaStackResult.Input __dx, JavaStackResult.Output __v);
+	void doArrayLoad(DataType __dt, JavaStackResult.Input __array,
+		JavaStackResult.Input __dx, JavaStackResult.Output __val);
 	
 	/**
 	 * Store into array.
 	 *
 	 * @param __dt The type of data to store.
-	 * @param __in The instance.
+	 * @param __array The instance.
 	 * @param __dx The index.
-	 * @param __v The value.
+	 * @param __val The value.
 	 * @since 2019/04/12
 	 */
-	void doArrayStore(DataType __dt, JavaStackResult.Input __in,
-		JavaStackResult.Input __dx, JavaStackResult.Input __v);
+	void doArrayStore(DataType __dt, JavaStackResult.Input __array,
+		JavaStackResult.Input __dx, JavaStackResult.Input __val);
 	
 	/**
 	 * Check that an object is of a given type or thrown exception.
@@ -122,6 +122,7 @@ public interface ByteCodeHandler
 	/**
 	 * Compares two values and then possibly jumps.
 	 *
+	 * @param __ct The type of comparison to make.
 	 * @param __a The first value.
 	 * @param __b The second value.
 	 * @param __ijt The jump target.
@@ -236,7 +237,7 @@ public interface ByteCodeHandler
 	 * @param __out The output.
 	 * @since 2019/04/12
 	 */
-	void doPoolLoad(Object __v, JavaStackResult.Output __out);
+	void doPoolLoadString(String __v, JavaStackResult.Output __out);
 	
 	/**
 	 * Return of value.

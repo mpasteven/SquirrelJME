@@ -185,8 +185,8 @@ public final class ArrayUtils
 		else if (__a instanceof double[])
 			return ArrayUtils.ARRAY_DOUBLE;
 		
-		// {@squirreljme.error ZZ0d Invalid array type.}
-		throw new IllegalArgumentException("ZZ0d");
+		// {@squirreljme.error ZZ0d Invalid array type. (The type)}
+		throw new IllegalArgumentException("ZZ0d " + __a.getClass().getName());
 	}
 	
 	/**

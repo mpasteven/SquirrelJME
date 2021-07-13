@@ -46,4 +46,16 @@ public final class PlainRegister
 		
 		return new TypedRegister<>(__cl, this.register);
 	}
+	
+	/**
+	 * Creates a register reference.
+	 * 
+	 * @param __r The register to set.
+	 * @return The resultant plain register.
+	 * @since 2021/01/19
+	 */
+	public static PlainRegister of(int __r)
+	{
+		return new PlainRegister(__r);
+	}
 }

@@ -10,6 +10,10 @@
 
 package net.multiphasicapps.tool.manifest.writer;
 
+import cc.squirreljme.jvm.manifest.JavaManifest;
+import cc.squirreljme.jvm.manifest.JavaManifestAttributes;
+import cc.squirreljme.jvm.manifest.JavaManifestException;
+import cc.squirreljme.jvm.manifest.JavaManifestKey;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,10 +25,6 @@ import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import net.multiphasicapps.tool.manifest.JavaManifest;
-import net.multiphasicapps.tool.manifest.JavaManifestAttributes;
-import net.multiphasicapps.tool.manifest.JavaManifestException;
-import net.multiphasicapps.tool.manifest.JavaManifestKey;
 
 /**
  * This is a mutable version of {@link JavaManifest}.

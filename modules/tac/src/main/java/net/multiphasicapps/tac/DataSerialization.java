@@ -11,6 +11,12 @@
 package net.multiphasicapps.tac;
 
 import cc.squirreljme.runtime.cldc.util.BooleanArrayList;
+import cc.squirreljme.runtime.cldc.util.ByteArrayList;
+import cc.squirreljme.runtime.cldc.util.CharacterArrayList;
+import cc.squirreljme.runtime.cldc.util.CollectionUtils;
+import cc.squirreljme.runtime.cldc.util.IntegerArrayList;
+import cc.squirreljme.runtime.cldc.util.LongArrayList;
+import cc.squirreljme.runtime.cldc.util.ShortArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -287,127 +293,82 @@ public final class DataSerialization
 			return sb.toString();
 		}
 		
-		// Byte array
-		else if ((__o instanceof byte[]) || __o instanceof Byte[])
+		// Boxed Number Array
+		else if ((__o instanceof byte[]) || (__o instanceof Byte[]) ||
+			(__o instanceof short[]) || (__o instanceof Short[]) ||
+			(__o instanceof int[]) || (__o instanceof Integer[]) ||
+			(__o instanceof long[]) || (__o instanceof Long[]) ||
+			(__o instanceof char[]) || (__o instanceof Character[]))
 		{
-			// Convert first
-			if (__o instanceof Byte[])
-			{
-				Byte[] a = (Byte[])__o;
-				int n = a.length;
-				byte[] b = new byte[n];
-				for (int i = 0; i < n; i++)
-				{
-					Byte v = a[i];
-					b[i] = (v == null ? 0 : v.byteValue());
-				}
-				__o = b;
-			}
+			// Which wrapper and key is used?
+			List<? extends Number> list;
+			String key;
 			
-			// Print values
-			byte[] a = (byte[])__o;
-			int n = a.length;
-			StringBuilder sb = new StringBuilder(
-				String.format("byte[%d]:", n));
-			for (int i = 0; i < n; i++)
-			{
-				if (i > 0)
-					sb.append(",");
-				sb.append(a[i]);
-			}
-			return sb.toString();
-		}
-		
-		// Short array
-		else if ((__o instanceof short[]) || __o instanceof Short[])
-		{
-			// Convert first
-			if (__o instanceof Short[])
-			{
-				Short[] a = (Short[])__o;
-				int n = a.length;
-				short[] b = new short[n];
-				for (int i = 0; i < n; i++)
-				{
-					Short v = a[i];
-					b[i] = (v == null ? 0 : v.shortValue());
-				}
-				__o = b;
-			}
-			
-			// Print values
-			short[] a = (short[])__o;
-			int n = a.length;
-			StringBuilder sb = new StringBuilder(
-				String.format("short[%d]:", n));
-			for (int i = 0; i < n; i++)
-			{
-				if (i > 0)
-					sb.append(",");
-				sb.append(a[i]);
-			}
-			return sb.toString();
-		}
-		
-		// Character array
-		else if ((__o instanceof char[]) || __o instanceof Character[])
-		{
-			// Convert first
+			// Boxed character array (since not a number)
 			if (__o instanceof Character[])
 			{
-				Character[] a = (Character[])__o;
-				int n = a.length;
-				char[] b = new char[n];
-				for (int i = 0; i < n; i++)
-				{
-					Character v = a[i];
-					b[i] = (v == null ? 0 : v.charValue());
-				}
-				__o = b;
+				key = "char*";
+				list = CollectionUtils.asIntegerList(
+					Arrays.asList((Character[])__o));
+			}
+			
+			// Determine how these values are accessed
+			else if (__o instanceof Number[])
+			{
+				// These are all the same!
+				list = Arrays.asList((Number[])__o);
+				
+				// The key varies
+				if (__o instanceof Byte[])
+					key = "byte*";
+				else if (__o instanceof Short[])
+					key = "short*";
+				else if (__o instanceof Integer[])
+					key = "int*";
+				else
+					key = "long*";
+			}
+			else if (__o instanceof char[])
+			{
+				key = "char";
+				list = CollectionUtils.asIntegerList(
+					new CharacterArrayList((char[])__o));
+			}
+			else if (__o instanceof byte[])
+			{
+				key = "byte";
+				list = new ByteArrayList((byte[])__o);
+			}
+			else if (__o instanceof short[])
+			{
+				key = "short";
+				list = new ShortArrayList((short[])__o);
+			}
+			else if (__o instanceof int[])
+			{
+				key = "int";
+				list = new IntegerArrayList((int[])__o);
+			}
+			else
+			{
+				key = "long";
+				list = new LongArrayList((long[])__o);
 			}
 			
 			// Print values
-			char[] a = (char[])__o;
-			int n = a.length;
+			int n = list.size();
 			StringBuilder sb = new StringBuilder(
-				String.format("char[%d]:", n));
+				String.format("%s[%d]:", key, n));
+			
 			for (int i = 0; i < n; i++)
 			{
 				if (i > 0)
 					sb.append(",");
-				sb.append((int)a[i]);
-			}
-			return sb.toString();
-		}
-		
-		// Integer array
-		else if ((__o instanceof int[]) || __o instanceof Integer[])
-		{
-			// Convert first
-			if (__o instanceof Integer[])
-			{
-				Integer[] a = (Integer[])__o;
-				int n = a.length;
-				int[] b = new int[n];
-				for (int i = 0; i < n; i++)
-				{
-					Integer v = a[i];
-					b[i] = (v == null ? 0 : v.intValue());
-				}
-				__o = b;
+				
+				Number val = list.get(i);
+				sb.append((val == null ? "null" : val.longValue()));
 			}
 			
-			// Print values
-			int[] a = (int[])__o;
-			int n = a.length;
-			StringBuilder sb = new StringBuilder(
-				String.format("int[%d]:", n));
-			for (int i = 0; i < n; i++)
-			{
-				if (i > 0)
-					sb.append(",");
-				sb.append(a[i]);
-			}
 			return sb.toString();
 		}
 		

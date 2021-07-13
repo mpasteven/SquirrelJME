@@ -10,11 +10,11 @@
 
 package cc.squirreljme.runtime.launcher.ui;
 
+import cc.squirreljme.jvm.launch.Application;
+import cc.squirreljme.jvm.launch.SuiteScanListener;
+import cc.squirreljme.jvm.launch.SuiteScanner;
 import cc.squirreljme.jvm.mle.brackets.TaskBracket;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
-import cc.squirreljme.runtime.swm.launch.Application;
-import cc.squirreljme.runtime.swm.launch.SuiteScanListener;
-import cc.squirreljme.runtime.swm.launch.SuiteScanner;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

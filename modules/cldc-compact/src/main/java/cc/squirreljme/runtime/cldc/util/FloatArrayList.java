@@ -10,6 +10,7 @@
 package cc.squirreljme.runtime.cldc.util;
 
 import java.util.AbstractList;
+import java.util.RandomAccess;
 
 /**
  * Provides a list view of a {@code float} array.
@@ -18,6 +19,7 @@ import java.util.AbstractList;
  */
 public class FloatArrayList
 	extends AbstractList<Float>
+	implements RandomAccess
 {
 	/** The backing array. */
 	protected final float[] array;

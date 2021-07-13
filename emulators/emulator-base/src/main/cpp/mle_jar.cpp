@@ -12,9 +12,17 @@
 // The class to forward to
 #define JARSHELF_CLASSNAME "cc/squirreljme/emulator/EmulatedJarPackageShelf"
 
+#define JARSHELF_CLASSPATH_DESC "()[Lcc/squirreljme/jvm/mle/brackets/JarPackageBracket;"
 #define JARSHELF_LIBRARIES_DESC "()[Lcc/squirreljme/jvm/mle/brackets/JarPackageBracket;"
 #define JARSHELF_LIBRARYPATH_DESC "(Lcc/squirreljme/jvm/mle/brackets/JarPackageBracket;)Ljava/lang/String;"
 #define JARSHELF_OPENRESOURCE_DESC "(Lcc/squirreljme/jvm/mle/brackets/JarPackageBracket;Ljava/lang/String;)Ljava/io/InputStream;"
+
+JNIEXPORT jobject JNICALL Impl_mle_JarShelf_classPath(JNIEnv* env,
+	jclass classy)
+{
+	return forwardCallStaticObject(env, JARSHELF_CLASSNAME,
+		"classPath", JARSHELF_CLASSPATH_DESC);
+}
 
 JNIEXPORT jobject JNICALL Impl_mle_JarShelf_libraries(JNIEnv* env,
 	jclass classy)
@@ -41,6 +49,7 @@ JNIEXPORT jobject JNICALL Impl_mle_JarShelf_openResource(JNIEnv* env,
 
 static const JNINativeMethod mleJarMethods[] =
 {
+	{"classPath", JARSHELF_CLASSPATH_DESC, (void*)Impl_mle_JarShelf_classPath},
 	{"libraries", JARSHELF_LIBRARIES_DESC, (void*)Impl_mle_JarShelf_libraries},
 	{"libraryPath", JARSHELF_LIBRARYPATH_DESC, (void*)Impl_mle_JarShelf_libraryPath},
 	{"openResource", JARSHELF_OPENRESOURCE_DESC, (void*)Impl_mle_JarShelf_openResource},

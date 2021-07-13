@@ -10,7 +10,6 @@
 
 package java.lang;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.security.BasicPermission;
 
 /**

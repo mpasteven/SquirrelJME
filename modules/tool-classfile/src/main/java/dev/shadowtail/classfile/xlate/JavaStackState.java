@@ -10,14 +10,18 @@
 package dev.shadowtail.classfile.xlate;
 
 import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.runtime.cldc.util.IntegerArrayList;
 import dev.shadowtail.classfile.nncc.NativeCode;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.multiphasicapps.classfile.InvalidClassFormatException;
 import net.multiphasicapps.classfile.JavaType;
 import net.multiphasicapps.classfile.StackMapTableEntry;
@@ -27,7 +31,8 @@ import net.multiphasicapps.classfile.StackMapTableState;
  * This class contains the state of the Java stack, it is mostly used in
  * the generation of the register code as it handles caching as well.
  *
- * This class is immutable.
+ * This class is immutable, all operations create new copies of this class
+ * with the appropriate changes.
  *
  * @since 2019/03/30
  */
@@ -41,6 +46,7 @@ public final class JavaStackState
 	public final int stacktop;
 	
 	/** Number of used registers. */
+	@Deprecated
 	public final int usedregisters;
 	
 	/** The local variables defined. */
@@ -572,15 +578,12 @@ public final class JavaStackState
 				
 				// Copy the value from the local to the stack entry's true
 				// register
-				ops.add(new StateOperation((sst.isWide() ?
-					StateOperation.Type.WIDE_COPY : StateOperation.Type.COPY),
-					bumpreg, ssreg));
+				ops.add(StateOperation.copy(sst.isWide(), bumpreg, ssreg));
 				
 				// If the local is counted, then the destination spot on the
 				// stack needs to be counted
 				if (sst.isObject() && !olddest.nocounting)
-					ops.add(new StateOperation(StateOperation.Type.COUNT,
-						ssreg));
+					ops.add(StateOperation.count(ssreg));
 				
 				// Then this slot on the stack becomes just a non-cached direct
 				// value
@@ -732,9 +735,13 @@ public final class JavaStackState
 		List<Info> popped = new ArrayList<>();
 		for (int i = 0; i < __n; i++)
 		{
-			// {@squirreljme.error JC1n Stack underflow.}
+			// {@squirreljme.error JC1n Stack underflow. (Origin state;
+			// The number of items to op; Not reference counted?; The push
+			// types.)}
 			if (stacktop <= 0)
-				throw new IllegalArgumentException("JC1n");
+				throw new IllegalArgumentException(String.format(
+					"JC1n %s (%d, %b, %s)",
+					this, __n, __nc, Arrays.asList(__pts)));
 			
 			// Read top most entry, handle tops accordingly
 			Info inf = stack[--stacktop];
@@ -813,35 +820,165 @@ public final class JavaStackState
 		
 		// Input stack properties
 		Info[] stack = this._stack;
-		int stacktop = this.stacktop;
+		int stackTop = this.stacktop;
 		
 		// Find function
 		JavaStackShuffleType.Function func = this.findShuffleFunction(__t);
 		
-		// Determine stack properties of the pop
-		int maxpop = func.in.max,
-			basetop = stacktop - maxpop;
+		// Debug
+		if (__Debug__.ENABLED)
+			Debugging.debugNote("Shuffle with: %s -> %s", __t, func);
 		
-		// Load section of stack to be popped
-		List<Info> pops = new ArrayList<>(maxpop);
-		for (int i = basetop; i < stacktop; i++)
+		// Alternative implementation that uses the existing stack methods much
+		// more
+		if (true)
+		{
+			// Debug
+			if (__Debug__.ENABLED)
+				Debugging.debugNote(">>>>>>>> PRE-DETERMINE");
+			
+			// Determine all of the types that should be pushed to the target
+			// operation
+			JavaType[] pushTypes = this.__shuffleCalcType(func,
+				this.doStack(func.in.logicalMax));
+				
+			// Debug
+			if (__Debug__.ENABLED)
+				Debugging.debugNote("@@PUSHTYPE: %s -> %s",
+					func, Arrays.asList(pushTypes));
+			
+			// Perform the push and pop operation all at once to determine
+			// what the resultant state of the stack is
+			JavaStackResult pushPop = this.doStack(func.in.logicalMax,
+				pushTypes);
+				
+			// Debug
+			if (__Debug__.ENABLED)
+				Debugging.debugNote("<<<<<<<< POST-DETERMINE");
+			
+			// Debug
+			if (__Debug__.ENABLED)
+				Debugging.debugNote("@@PUSHPOP: %s -> %s",
+					func, pushPop);
+			
+			// Get the original enqueues, if a value is used it will get
+			// dropped off this list
+			Set<Integer> enqs = new LinkedHashSet<>(
+				IntegerArrayList.asList(pushPop.enqueue().registers()));
+			Set<Integer> dropEnq = new HashSet<>();
+			
+			// State operations that will be done first on copies and otherwise
+			// when reading/writing, done before copies and after copies
+			Set<StateOperation> preStateOps = new LinkedHashSet<>();
+			Set<StateOperation> postStateOps = new LinkedHashSet<>();
+			
+			// Pre-determine soft register ids for temporarily copied inputs
+			JavaStackResult.Input[] ins = pushPop.in();
+			SoftRegister[] softCopy = new SoftRegister[ins.length];
+			for (int i = 0; i < ins.length; i++)
+				softCopy[i] = SoftRegister.of(true, i);
+			
+			// Perform respective copies for the inputs and outputs
+			JavaStackResult.Output[] outs = pushPop.out();
+			for (int i = 0, n = outs.length; i < n; i++)
+			{
+				// Ignore any wides in the output
+				JavaStackResult.Output out = outs[i];
+				if (out.type.isTop())
+					continue;
+				
+				// Get the input variable associated with the given output
+				int inSlot = func.in.logicalSlot(func.in.findVariableSlot(
+					func.out.logicalVariable(i)));
+				JavaStackResult.Input in = ins[inSlot];
+				
+				// Debug
+				if (__Debug__.ENABLED)
+					Debugging.debugNote("@@INOUT: %s -> %s", in, out);
+				
+				// If these point to the same register, we do not need to
+				// make a defensive copy at all
+				if (in.register == out.register)
+				{
+					// Drop garbage collection on this register so that it is
+					// not destroyed in value at all
+					dropEnq.add(in.register);
+					
+					continue;
+				}
+				
+				// Is this a wide operation?
+				boolean isWide = in.type.isWide();
+				
+				// This register is eligible for garbage collection
+				if (enqs.contains(in.register))
+				{
+					// We are going to copy this register, so add an additional
+					// count to it
+					preStateOps.add(StateOperation.count(
+						SoftRegister.of(false, in.register)));
+					
+					// Drop garbage collection on this, since it is used
+					dropEnq.add(in.register);
+				}
+				
+				// Copy to temporary register
+				preStateOps.add(StateOperation.copy(isWide,
+					SoftRegister.of(false, in.register),
+					softCopy[inSlot]));
+				
+				// Copy from temporary to target
+				postStateOps.add(StateOperation.copy(isWide,
+					softCopy[inSlot],
+					SoftRegister.of(false, out.register)));
+			}
+			
+			// Combine state operations into one
+			List<StateOperation> stateOps = new ArrayList<>();
+			stateOps.addAll(preStateOps);
+			stateOps.addAll(postStateOps);
+			
+			// Remove any enqueues we want to drop out
+			for (Integer i : dropEnq)
+				enqs.remove(i);
+			
+			// Build resultant stack operation
+			return new JavaStackResult(this,
+				new JavaStackState(this._locals,
+					pushPop.after._stack, pushPop.after.stacktop),
+				new JavaStackEnqueueList(enqs.size(), enqs),
+				new StateOperations(stateOps));
+		}
+		
+		// Determine stack properties of the pop
+		int maxPop = func.in.max;
+		int maxPush = func.out.max;
+		int baseTop = stackTop - maxPop;
+		
+		// Load section of stack to be popped 
+		List<Info> pops = new ArrayList<>(maxPop);
+		for (int i = baseTop; i < stackTop; i++)
 			pops.add(stack[i]);
 		
+		// Debug
+		if (__Debug__.ENABLED)
+			Debugging.debugNote("Popped: %s", pops);
+		
 		// Input and output slots
-		JavaStackShuffleType.Slots sin = func.in,
-			sout = func.out;
+		JavaStackShuffleType.Slots inSlots = func.in;
+		JavaStackShuffleType.Slots outSlots = func.out;
 		
 		// Map virtual variables to entries on the input so we know what is
 		// what. Also include the register values are stored at for caching.
 		Map<Integer, Info> source = new LinkedHashMap<>();
-		Map<Integer, Integer> storedat = new LinkedHashMap<>();
-		for (int ldx = 0; ldx < maxpop; ldx++)
+		Map<Integer, Integer> storedAt = new LinkedHashMap<>();
+		for (int ldx = 0; ldx < maxPop; ldx++)
 		{
-			int var = sin._var[ldx];
+			int var = inSlots._var[ldx];
 			if (var >= 0)
 			{
 				source.put(var, pops.get(ldx));
-				storedat.put(var, -1);
+				storedAt.put(var, -1);
 			}
 		}
 		
@@ -850,32 +987,32 @@ public final class JavaStackState
 			Debugging.debugNote("Source map: %s", source);
 		
 		// Number of entries to push
-		int pushcount = sout.max;
+		int pushCount = outSlots.max;
 		
 		// Initialize new stack
-		Info[] newstack = stack.clone();
-		int newstacktop = basetop + pushcount;
+		Info[] newStack = stack.clone();
+		int newStackTop = baseTop + pushCount;
 		
 		// Any enqueues and operations to perform
 		List<Integer> enqs = new ArrayList<>();
-		List<StateOperation> sops = new ArrayList<>();
+		List<StateOperation> stateOps = new ArrayList<>();
 		
 		// For registers which have a value collision, they must be
 		// pre-copied to temporary space
 		int tempbase = this.usedregisters;
-		Map<Integer, Integer> precopy = new LinkedHashMap<>();
+		Map<Integer, Integer> preCopy = new LinkedHashMap<>();
 		
 		// Setup the new stack by pushing around
-		for (int at = basetop, ldx = 0; ldx < pushcount; at++, ldx++)
+		for (int at = baseTop, ldx = 0; ldx < pushCount; at++, ldx++)
 		{
 			// Pushing a top type?
-			int vardx = sout._var[ldx];
+			int vardx = outSlots._var[ldx];
 			if (vardx < 0)
 			{
 				// Set the current to the appropriate top type of the entry
 				// before this one
-				Info prev = newstack[at - 1];
-				newstack[at] = newstack[at].newTypeValue(prev.type.topType(),
+				Info prev = newStack[at - 1];
+				newStack[at] = newStack[at].newTypeValue(prev.type.topType(),
 					prev.value + 1, false);
 				
 				continue;
@@ -883,63 +1020,78 @@ public final class JavaStackState
 			
 			// Get the source info to use for this slot
 			// Also the original destination
-			Info ssl = source.get(vardx),
-				ods = newstack[at];
-				
+			Info ssl = source.get(vardx);
+			Info ods = newStack[at];
+			
 			// Is this type wide?
-			boolean iswide = ssl.type.isWide();
+			boolean isWide = ssl.type.isWide();
 			
 			// If the value was never used before, try to use the original
 			// register for it
-			int useval = storedat.get(vardx);
-			if (useval < 0)
-				useval = ssl.value;
+			int useVal = storedAt.get(vardx);
+			if (useVal < 0)
+				useVal = ssl.value;
 			
 			// Using the value position would violate the strict no-aliasing
 			// of future registers
-			if (useval > ods.register)
+			boolean collision = useVal > ods.register;
+			
+			if (collision)
 			{
+				// Debug
+				if (__Debug__.ENABLED)
+					Debugging.debugNote("Collide " +
+					"origUseVal=%d ssl.value=%d useVal=%d ods.register=%d",
+					storedAt.get(vardx), ssl.value, useVal, ods.register);
+				
 				// Try to use an already copied value, if it has not yet had
 				// a pre-copy then map it to the copied source instead
-				Integer pre = precopy.get(useval);
+				Integer pre = preCopy.get(useVal);
 				if (pre == null)
 				{
-					precopy.put(useval,
-						(pre = (iswide ? -tempbase : tempbase)));
-					tempbase += (iswide ? 2 : 1);
+					preCopy.put(useVal,
+						(pre = (isWide ? -tempbase : tempbase)));
+					tempbase += (isWide ? 2 : 1);
 				}
 				
 				// The value to use is the destination register because it
 				// will be copied
-				useval = ods.register;
-				sops.add(StateOperation.copy(iswide, Math.abs(pre), useval));
+				useVal = ods.register;
+				StateOperation stateOp = StateOperation.copy(isWide,
+					Math.abs(pre), useVal);
+				stateOps.add(stateOp);
 				
 				// Debug
 				if (__Debug__.ENABLED)
-					Debugging.debugNote("Pre %d -> %d", pre, useval);
+					Debugging.debugNote("Pre %d -> %d (%s)",
+						pre, useVal, stateOp);
 			}
 			
 			// Set value as being stored here
-			storedat.put(vardx, useval);
+			storedAt.put(vardx, useVal);
 			
 			// Setup slot
-			newstack[at] = newstack[at].newTypeValue(ssl.type, useval,
+			newStack[at] = newStack[at].newTypeValue(ssl.type, useVal,
 				ssl.nocounting);
 		}
 		
 		// Pre-copies which are needed, but make sure that the original
-		// link order is maintained, negative premaps are treated as
+		// link order is maintained, negative pre-maps are treated as
 		// being wide
 		int vdat = 0;
-		for (Map.Entry<Integer, Integer> e : precopy.entrySet())
-			sops.add(vdat++, StateOperation.copy(
+		for (Map.Entry<Integer, Integer> e : preCopy.entrySet())
+			stateOps.add(vdat++, StateOperation.copy(
 				e.getValue() < 0, e.getKey(), Math.abs(e.getValue())));
+				
+		// Debug
+		if (__Debug__.ENABLED)
+			Debugging.debugNote("Pre-copies: %s", preCopy);
 		
 		// Build
 		return new JavaStackResult(this,
-			new JavaStackState(this._locals, newstack, newstacktop),
+			new JavaStackState(this._locals, newStack, newStackTop),
 			new JavaStackEnqueueList(enqs.size(), enqs),
-			new StateOperations(sops));
+			new StateOperations(stateOps));
 	}
 	
 	/**
@@ -1412,6 +1564,38 @@ public final class JavaStackState
 		}
 		
 		return rv;
+	}
+	
+	/**
+	 * Determines the types that are used to push to the stack for when the
+	 * stack shuffles are being calculated.
+	 * 
+	 * @param __func The function used.
+	 * @param __popOnly The stack to check.
+	 * @return The calculated Java Types of the entries to push.
+	 * @since 2021/07/04
+	 */
+	private JavaType[] __shuffleCalcType(JavaStackShuffleType.Function __func,
+		JavaStackResult __popOnly)
+		throws NullPointerException
+	{
+		if (__func == null || __popOnly == null)
+			throw new NullPointerException("NARG");
+		
+		// {@squirreljme.error JC50 Initial stack has output, it should have
+		// no output.}
+		if (__popOnly.outCount() != 0)
+			throw new IllegalArgumentException("JC50");
+		
+		JavaStackResult.Input[] in = __popOnly.in();
+		int inLen = in.length;
+		
+		// Read the input types
+		JavaType[] inType = new JavaType[inLen];
+		for (int i = 0; i < inLen; i++)
+			inType[i] = in[i].type;
+		
+		return __func.layerTypes(inType);
 	}
 	
 	/**

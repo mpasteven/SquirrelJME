@@ -16,6 +16,7 @@ dependencies
 	api project(":modules:tool-classfile")
 	api project(":modules:tool-jarfile")
 	api project(":modules:tool-packfile")
+	api project(":modules:io")
 	api project(":modules:debug-jdwp")
 }
 

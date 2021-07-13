@@ -11,7 +11,6 @@ package cc.squirreljme.jvm.aot.summercoat;
 
 import cc.squirreljme.jvm.aot.CompileSettings;
 import cc.squirreljme.jvm.aot.LinkGlob;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.vm.InMemoryClassLibrary;
 import dev.shadowtail.jarfile.JarMinimizer;
 import java.io.ByteArrayOutputStream;
@@ -94,7 +93,7 @@ public class SummerCoatLinkGlob
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(avail))
 		{
 			// Copy buffer
-			byte[] buf = new byte[4096];
+			byte[] buf = new byte[16384];
 			for (;;)
 			{
 				int rc = __data.read(buf);

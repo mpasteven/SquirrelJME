@@ -10,6 +10,8 @@
 
 package javax.microedition.swm;
 
+import cc.squirreljme.runtime.cldc.debug.Debugging;
+
 /**
  * This represents the status of a task.
  *
@@ -47,7 +49,8 @@ public enum TaskStatus
 	 */
 	static final TaskStatus __of(int __i)
 	{
-		switch (__i)
+		throw Debugging.todo();
+		/*switch (__i)
 		{
 			case 0: return TaskStatus.EXITED_FATAL;
 			case 1: return TaskStatus.EXITED_REGULAR;
@@ -58,7 +61,7 @@ public enum TaskStatus
 			
 			default:
 				return TaskStatus.EXITED_FATAL;
-		}
+		}*/
 	}
 }
 

@@ -9,7 +9,6 @@
 
 package lang;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.util.Arrays;
 import java.util.Objects;
 import net.multiphasicapps.tac.TestConsumer;

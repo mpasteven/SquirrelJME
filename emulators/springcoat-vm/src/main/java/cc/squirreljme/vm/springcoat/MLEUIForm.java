@@ -350,6 +350,23 @@ public enum MLEUIForm
 		}
 	},
 	
+	/** {@link UIFormShelf#injector()}. */
+	INJECTOR("injector:()Lcc/squirreljme/jvm/mle/callbacks/" +
+		"UIFormCallback;")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/02/25
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			// Use a proxy to call from SpringCoat to the real machine
+			return new UIFormCallbackProxy(__thread.machine,
+				UIFormShelf.injector());
+		}
+	},
+	
 	/** {@link UIFormShelf#itemDelete(UIItemBracket)}. */
 	ITEM_DELETE("itemDelete:(Lcc/squirreljme/jvm/mle/brackets/" +
 		"UIItemBracket;)V")

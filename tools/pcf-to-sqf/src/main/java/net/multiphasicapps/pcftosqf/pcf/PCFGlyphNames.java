@@ -10,11 +10,11 @@
 
 package net.multiphasicapps.pcftosqf.pcf;
 
+import cc.squirreljme.runtime.cldc.util.SortedTreeMap;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import  cc.squirreljme.runtime.cldc.util.SortedTreeMap;
 import net.multiphasicapps.collections.UnmodifiableMap;
 
 /**

@@ -24,6 +24,4 @@ dependencies
 
 	api project(":modules:collections")
 	api project(":modules:meep-midlet")
-	api project(":modules:strings")
-	api project(":modules:tool-manifest-reader")
 }

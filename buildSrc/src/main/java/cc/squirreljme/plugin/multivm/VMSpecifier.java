@@ -32,6 +32,29 @@ import org.gradle.api.tasks.SourceSet;
 public interface VMSpecifier
 {
 	/**
+	 * Dumps the library.
+	 * 
+	 * @param __task The task running this, may be used to launch a VM.
+	 * @param __isTest Is this a test run?
+	 * @param __in The input data, this may be a JAR or otherwise.
+	 * @param __out The destination output file.
+	 * @throws IOException On read/write errors.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/05/16
+	 */
+	void dumpLibrary(Task __task, boolean __isTest, InputStream __in,
+		OutputStream __out)
+		throws IOException, NullPointerException;
+	
+	/**
+	 * Can this be dumped?
+	 * 
+	 * @return If this can be dumped.
+	 * @since 2021/05/16
+	 */
+	boolean hasDumping();
+	
+	/**
 	 * Is there a ROM task for the VM?
 	 * 
 	 * @return If a ROM is available.
@@ -96,7 +119,7 @@ public interface VMSpecifier
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/11/21
 	 */
-	Iterable<Task> processLibraryDependencies(VMLibraryTask __task)
+	Iterable<Task> processLibraryDependencies(VMExecutableTask __task)
 		throws NullPointerException;
 	
 	/**
@@ -118,6 +141,7 @@ public interface VMSpecifier
 	 *
 	 * @param __task The task used as a latch to obtain the needed virtual
 	 * machine and other details.
+	 * @param __debugEligible Is this eligible for debug?
 	 * @param __execSpec The execution spec to fill.
 	 * @param __mainClass The main class to execute.
 	 * @param __sysProps The system properties to define.
@@ -127,8 +151,9 @@ public interface VMSpecifier
 	 * @throws NullPointerException On null arguments.
 	 * @since 2020/08/15
 	 */
-	void spawnJvmArguments(Task __task, JavaExecSpecFiller __execSpec,
-		String __mainClass, Map<String, String> __sysProps, Path[] __libPath,
+	void spawnJvmArguments(Task __task, boolean __debugEligible,
+		JavaExecSpecFiller __execSpec, String __mainClass,
+		Map<String, String> __sysProps, Path[] __libPath,
 		Path[] __classPath, String... __args)
 		throws NullPointerException;  
 	

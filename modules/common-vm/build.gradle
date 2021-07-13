@@ -21,6 +21,5 @@ dependencies
 	api project(":modules:midp-lcdui")
 	api project(":modules:meep-swm")
 	api project(":modules:meep-midlet")
-	api project(":modules:tool-manifest-reader")
 	api project(":modules:zip")
 }

@@ -15,7 +15,6 @@ dependencies
 	api project(":modules:common-vm")
 	api project(":modules:meep-swm")
 	api project(":modules:tool-classfile")
-	api project(":modules:tool-manifest-reader")
 	api project(":modules:debug-jdwp")
 }
 

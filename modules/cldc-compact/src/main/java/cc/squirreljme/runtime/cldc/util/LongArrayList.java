@@ -11,6 +11,7 @@ package cc.squirreljme.runtime.cldc.util;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * Provides a list view of a {@code long} array.
@@ -19,6 +20,7 @@ import java.util.List;
  */
 public class LongArrayList
 	extends AbstractList<Long>
+	implements RandomAccess
 {
 	/** The backing array. */
 	protected final long[] array;

@@ -9,15 +9,6 @@
 
 package cc.squirreljme.emulator;
 
-import cc.squirreljme.emulator.fb.NativeFramebuffer;
-import cc.squirreljme.jvm.SystemCallError;
-import cc.squirreljme.jvm.SystemCallIndex;
-import cc.squirreljme.jvm.config.ConfigRomKey;
-import cc.squirreljme.jvm.config.ConfigRomType;
-import cc.squirreljme.jvm.mle.constants.LineEndingType;
-import java.io.IOException;
-import java.io.OutputStream;
-
 /**
  * This contains the implementation of some system calls in the event that the
  * JNI emulation layer does not have a C-based implementation of a method.

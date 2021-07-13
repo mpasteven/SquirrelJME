@@ -10,10 +10,7 @@
 
 package javax.microedition.io.file;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import javax.microedition.io.StreamConnection;

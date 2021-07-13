@@ -9,8 +9,10 @@
 
 package cc.squirreljme.runtime.cldc.util;
 
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.util.AbstractList;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * Provides a list view of a {@code char} array.
@@ -19,6 +21,7 @@ import java.util.List;
  */
 public class CharacterArrayList
 	extends AbstractList<Character>
+	implements RandomAccess
 {
 	/** The backing array. */
 	protected final char[] array;

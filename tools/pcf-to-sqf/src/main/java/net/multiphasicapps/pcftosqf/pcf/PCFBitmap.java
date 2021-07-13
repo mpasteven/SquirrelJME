@@ -10,6 +10,7 @@
 
 package net.multiphasicapps.pcftosqf.pcf;
 
+import cc.squirreljme.runtime.cldc.util.SortedTreeSet;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import  cc.squirreljme.runtime.cldc.util.SortedTreeSet;
 
 /**
  * This represents the bitmap from within a PCF file.

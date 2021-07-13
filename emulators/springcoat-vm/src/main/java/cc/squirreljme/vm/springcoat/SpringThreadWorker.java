@@ -21,6 +21,7 @@ import cc.squirreljme.jdwp.trips.JDWPTripBreakpoint;
 import cc.squirreljme.jdwp.trips.JDWPTripClassStatus;
 import cc.squirreljme.jdwp.trips.JDWPTripField;
 import cc.squirreljme.jdwp.trips.JDWPTripThread;
+import cc.squirreljme.jvm.Assembly;
 import cc.squirreljme.jvm.mle.constants.VerboseDebugFlag;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.vm.springcoat.brackets.TypeObject;
@@ -798,12 +799,20 @@ public final class SpringThreadWorker
 			// value on the stack
 			blank = thread.enterBlankFrame();
 			
-			// Enter the method we really want to execute
-			framelimit = thread.numFrames();
-			execframe = thread.enterFrame(method, __args);
+			// Executing a proxy method?
+			if (!__static && __args[0] instanceof SpringProxyObject)
+				this.__invokeProxy(method.nameAndType(), __args);
 			
-			// Execute this method
-			this.run(framelimit);
+			// Normal call
+			else
+			{
+				// Enter the method we really want to execute
+				framelimit = thread.numFrames();
+				execframe = thread.enterFrame(method, __args);
+				
+				// Execute this method
+				this.run(framelimit);
+			}
 		}
 		
 		// Exception when running which was not caught
@@ -835,7 +844,11 @@ public final class SpringThreadWorker
 		// Wrap the exception if there is one
 		Object rv = blank.tossedException();
 		if (rv != null)
-			rv = new MethodInvokeException((SpringObject)rv);
+			rv = new MethodInvokeException(String.format(
+				"Exception in %s %s:%s(%s)",
+				(__static ? "static" : "instance"), __cl, __nat,
+				Arrays.asList(__args)), (SpringObject)rv,
+				thread.getStackTrace());
 		
 		// Read return value from the blank frame
 		else if (__nat.type().hasReturnValue())
@@ -1037,22 +1050,40 @@ public final class SpringThreadWorker
 		// All low-level calls are considered invalid in SpringCoat because
 		// it does not have the given functionality.
 		if (__class.toString().startsWith("cc/squirreljme/jvm/Assembly") ||
-			__class.toString().startsWith("cc/squirreljme/jvm/mle/lle/"))
+			__class.toString().startsWith("cc/squirreljme/jvm/summercoat/lle/"))
+		{
+			// The only exception is made for packing/unpacking longs
+			if (__class.toString().startsWith("cc/squirreljme/jvm/Assembly"))
+				switch (__method.name().toString())
+				{
+					case "longPack":
+						return Assembly.longPack(
+							(int)__args[0], (int)__args[1]);
+					
+					case "longUnpackHigh":
+						return Assembly.longUnpackHigh((long)__args[0]);
+					
+					case "longUnpackLow":
+						return Assembly.longUnpackLow((long)__args[0]);
+				}
+			
+			// Otherwise fail
 			throw new SpringVirtualMachineException(String.format(
-				"Invalid LLE native call: %s %s", __class,
+				"Invalid LLE native call: %s:%s %s", __class, __method,
 				Arrays.asList(__args)));
+		}
 		
 		// Do not allow the older SpringCoat "asm" classes to be called as
 		// the interfaces are very different with the MLE layer.
 		if (__class.toString().startsWith("cc/squirreljme/runtime/cldc/asm/"))
 			throw new SpringVirtualMachineException(String.format(
-				"Old-SpringCoat native call: %s %s", __class,
+				"Old-SpringCoat native call: %s:%s %s", __class, __method,
 				Arrays.asList(__args)));
 		
 		// Only allow mid-level native calls
 		if (!__class.toString().startsWith("cc/squirreljme/jvm/mle/"))
 			throw new SpringVirtualMachineException(String.format(
-				"Non-MLE native call: %s %s", __class,
+				"Non-MLE native call: %s:%s %s", __class, __method,
 				Arrays.asList(__args)));
 		
 		// Debug
@@ -1461,6 +1492,54 @@ public final class SpringThreadWorker
 			// Handle at this address
 			return useeh.handlerAddress();
 		}
+	}
+	
+	/**
+	 * Invokes the given proxy method.
+	 * 
+	 * @param __method The method to invoke.
+	 * @param __args The arguments to the proxy call.
+	 * @return The result of the method call.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/02/25
+	 */
+	private Object __invokeProxy(MethodNameAndType __method, Object... __args)
+		throws NullPointerException
+	{
+		if (__method == null || __args == null)
+			throw new NullPointerException("NARG");
+		
+		// Must be a proxy object
+		if (!(__args[0] instanceof SpringProxyObject))
+			throw new SpringVirtualMachineException("Not a proxy object.");
+		
+		SpringProxyObject instance = (SpringProxyObject)__args[0];
+		
+		// Used for context and return value handling
+		SpringThread thread = this.thread;
+		SpringThread.Frame frame = thread.currentFrame();
+		
+		// Invoke the exception
+		Object rv;
+		try
+		{
+			// Call proxy handler
+			rv = instance.invokeProxy(this, __method,
+				Arrays.copyOfRange(__args, 1, __args.length));
+			
+			// Is this pushed to the stack?
+			if (__method.type().hasReturnValue())
+				frame.pushToStack(rv);
+		}
+		
+		// Wrap any exceptions
+		catch (RuntimeException e)
+		{
+			throw new SpringVirtualMachineException(String.format(
+				"Could not proxy invoke %s.", __method));
+		}
+		
+		return rv;
 	}
 	
 	/**
@@ -3231,14 +3310,33 @@ public final class SpringThreadWorker
 								Integer.class);
 						
 						// Call method within the class library since it is
-						// easier, becuse this is one super complex
+						// easier, because this is one super complex
 						// instruction
-						frame.pushToStack(
-							this.invokeMethod(true, new ClassName(
-							"cc/squirreljme/runtime/cldc/lang/ArrayUtils"),
+						Object rv = this.invokeMethod(true,
+							new ClassName(
+								"cc/squirreljme/runtime/cldc/lang" +
+								 "/ArrayUtils"),
 							new MethodNameAndType("multiANewArray",
 								"(Ljava/lang/Class;I[I)Ljava/lang/Object;"),
-							this.asVMObject(ccl), 0, this.asVMObject(pops)));
+							this.asVMObject(ccl), 0,
+							this.asVMObject(pops));
+						
+						// Did this call fail?
+						if (rv instanceof MethodInvokeException)
+						{
+							// Emit the exception
+							((MethodInvokeException)rv).printStackTrace();
+							((MethodInvokeException)rv).printVmTrace(
+								System.err);
+							
+							// Toss it, due to the failure
+							frame.tossException(
+								((MethodInvokeException)rv).exception);
+						}
+						
+						// Otherwise push the result to the stack
+						else
+							frame.pushToStack(rv);
 						
 						// Exception to be handled?
 						if (this.__checkException())
@@ -3501,7 +3599,7 @@ public final class SpringThreadWorker
 	 * @throws NullPointerException On null arguments.
 	 * @since 2018/09/19
 	 */
-	private final void __vmInvokeInterface(Instruction __i, SpringThread __t,
+	private void __vmInvokeInterface(Instruction __i, SpringThread __t,
 		SpringThread.Frame __f)
 		throws NullPointerException
 	{
@@ -3530,21 +3628,26 @@ public final class SpringThreadWorker
 			
 		// {@squirreljme.error BK31 Instance object for interface invoke is
 		// null.}
-		SpringObject onthis = (SpringObject)args[0];
-		if (onthis == null || onthis == SpringNullObject.NULL)
+		SpringObject instance = (SpringObject)args[0];
+		if (instance == null || instance == SpringNullObject.NULL)
 			throw new SpringNullPointerException("BK31");
 			
 		// {@squirreljme.error BK32 Cannot invoke the method in the object
 		// because it is of the wrong type. (The reference class; The class
 		// of the target object; The first argument)}
-		SpringClass objclass = onthis.type();
-		if (objclass == null || !refclass.isAssignableFrom(objclass))
+		SpringClass objClass = instance.type();
+		if (objClass == null || !refclass.isAssignableFrom(objClass))
 			throw new SpringClassCastException(
-				String.format("BK32 %s %s %s", refclass, objclass, args[0]));
+				String.format("BK32 %s %s %s", refclass, objClass, args[0]));
+				
+		// Executing a proxy method?
+		if (instance instanceof SpringProxyObject)
+			this.__invokeProxy(ref.memberNameAndType(), args);
 		
 		// Re-lookup the method since we need to the right one! Then invoke it
-		__t.enterFrame(objclass.lookupMethod(false,
-			ref.memberNameAndType()), args);
+		else
+			__t.enterFrame(objClass.lookupMethod(false,
+				ref.memberNameAndType()), args);
 	}
 	
 	/**
@@ -3556,7 +3659,7 @@ public final class SpringThreadWorker
 	 * @throws NullPointerException On null arguments.
 	 * @since 2018/09/15
 	 */
-	private final void __vmInvokeSpecial(Instruction __i, SpringThread __t,
+	private void __vmInvokeSpecial(Instruction __i, SpringThread __t,
 		SpringThread.Frame __f)
 		throws NullPointerException
 	{
@@ -3567,18 +3670,18 @@ public final class SpringThreadWorker
 			0, MethodReference.class);
 		
 		// Resolve the method reference
-		SpringClass refclass = this.loadClass(ref.className());
-		SpringMethod refmethod = refclass.lookupMethod(false,
+		SpringClass refClass = this.loadClass(ref.className());
+		SpringMethod refMethod = refClass.lookupMethod(false,
 			ref.memberNameAndType());
 		
 		// {@squirreljme.error BK34 Could not access the target
 		// method for special invoke. (The target method)}
-		if (!this.checkAccess(refmethod))
+		if (!this.checkAccess(refMethod))
 			throw new SpringIncompatibleClassChangeException(
 				String.format("BK34 %s", ref));
 		
 		// Load arguments
-		int nargs = refmethod.nameAndType().type().
+		int nargs = refMethod.nameAndType().type().
 			argumentCount() + 1;
 		Object[] args = new Object[nargs];
 		for (int i = nargs - 1; i >= 0; i--)
@@ -3586,7 +3689,7 @@ public final class SpringThreadWorker
 		
 		// Get the class of the current method being executed, lookup depends
 		// on it
-		SpringClass currentclass = this.loadClass(
+		SpringClass currentClass = this.loadClass(
 			this.thread.currentFrame().method().inClass());
 		
 		// {@squirreljme.error BK35 Instance object for special invoke is
@@ -3596,24 +3699,33 @@ public final class SpringThreadWorker
 			throw new SpringNullPointerException("BK35");
 		
 		// These modify the action to be performed
-		boolean insame = (currentclass == refclass),
-			insuper = currentclass.isSuperClass(refclass),
-			isinit = refmethod.name().isInstanceInitializer(),
-			isprivate = refmethod.flags().isPrivate();
-		
-		// {@squirreljme.error BK36 Cannot call private method that is not
-		// in the same class. (The method reference)}
-		if (isprivate && !insame)
-			throw new SpringIncompatibleClassChangeException(
-				String.format("BK36 %s", ref));
+		boolean inSameClass = (currentClass == refClass);
+		boolean inSuper = currentClass.isSuperClass(refClass);
+		boolean isInit = refMethod.name().isInstanceInitializer();
+		boolean isPrivate = refMethod.flags().isPrivate();
+		boolean isPackagePrivate = refMethod.flags().isPackagePrivate();
 		
 		// Call superclass method instead?
-		else if (!isprivate && insuper && !isinit)
-			refmethod = currentclass.superClass().lookupMethod(false,
-				ref.memberNameAndType());
+		if ((!isPrivate && !isPackagePrivate) && inSuper && !isInit)
+			try
+			{
+				refMethod = currentClass.superClass()
+					.lookupMethod(false, ref.memberNameAndType());
+			}
+			catch (SpringNoSuchMethodException e)
+			{
+				throw new SpringIncompatibleClassChangeException(
+					String.format("No ref %s from %s", ref, currentClass), e);
+			}
+		
+		// {@squirreljme.error BK36 Cannot call private method that is not
+		// in the same class. (The method reference; Our current class)}
+		else if ((isPrivate || (isPackagePrivate && !isInit)) && !inSameClass)
+			throw new SpringIncompatibleClassChangeException(
+				String.format("BK36 %s %s", ref, currentClass));
 		
 		// Invoke this method
-		__t.enterFrame(refmethod, args);
+		__t.enterFrame(refMethod, args);
 	}
 	
 	/**
@@ -3741,16 +3853,21 @@ public final class SpringThreadWorker
 		
 		// {@squirreljme.error BK39 Instance object for virtual invoke is
 		// null.}
-		SpringObject onthis = (SpringObject)args[0];
-		if (onthis == null || onthis == SpringNullObject.NULL)
+		SpringObject instance = (SpringObject)args[0];
+		if (instance == null || instance == SpringNullObject.NULL)
 			throw new SpringNullPointerException("BK39");
 		
 		// Re-resolve method for this object's class
-		refmethod = onthis.type().lookupMethod(false,
+		refmethod = instance.type().lookupMethod(false,
 			ref.memberNameAndType());
+			
+		// Calling onto a proxy?
+		if (instance instanceof SpringProxyObject)
+			this.__invokeProxy(refmethod.nameAndType(), args);
 		
-		// Enter frame for static method
-		__t.enterFrame(refmethod, args);
+		// Enter frame as like a static method
+		else
+			__t.enterFrame(refmethod, args);
 	}
 	
 	/**

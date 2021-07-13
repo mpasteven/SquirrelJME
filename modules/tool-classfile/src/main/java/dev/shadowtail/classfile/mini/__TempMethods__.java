@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.multiphasicapps.classfile.ClassName;
 import net.multiphasicapps.classfile.InvalidClassFormatException;
-import net.multiphasicapps.io.TableSectionOutputStream;
+import net.multiphasicapps.io.ChunkSection;
+import net.multiphasicapps.io.ChunkWriter;
 
 /**
  * Contains temporary method information.
@@ -31,6 +32,10 @@ final class __TempMethods__
 	/** The methods in this table. */
 	final List<MinimizedMethod> _methods =
 		new ArrayList<>();
+	
+	/** Written chunks. */
+	final List<ChunkSection> _codeChunks =
+		new ArrayList<>(); 
 	
 	/** The number of methods that are available. */
 	int _count;
@@ -87,7 +92,7 @@ final class __TempMethods__
 			throw new NullPointerException("NARG");
 		
 		// Build into sections
-		TableSectionOutputStream output = new TableSectionOutputStream();
+		ChunkWriter output = new ChunkWriter();
 		
 		// Write
 		MinimizedMethod current = null;
@@ -97,7 +102,7 @@ final class __TempMethods__
 			List<MinimizedMethod> methods = this._methods;
 			
 			// Table of contents which represents each method
-			TableSectionOutputStream.Section toc = output.addSection();
+			ChunkSection toc = output.addSection();
 			
 			// Format every method
 			for (int i = 0, n = methods.size(); i < n; i++)
@@ -106,25 +111,28 @@ final class __TempMethods__
 				current = methods.get(i);
 				
 				// Write all of the method code into its own section
-				TableSectionOutputStream.Section codesection = null;
+				ChunkSection codesection = null;
 				byte[] rawcode = current._code;
 				if (rawcode != null)
 				{
 					// Add aligned section for this code
 					codesection = output.addSection(
-						TableSectionOutputStream.VARIABLE_SIZE, 4);
+						ChunkWriter.VARIABLE_SIZE, 4);
 					
 					// Write all of the code here
 					codesection.write(rawcode);
 				}
 				
+				// Write where the code is
+				this._codeChunks.add(codesection);
+				
 				// Flags, name, and type
-				toc.writeInt(current.flags);
-				toc.writeUnsignedShortChecked(current.index);
+				toc.writeInt(current.flagBits());
+				toc.writeUnsignedShortChecked(current.instanceIndex());
 				toc.writeUnsignedShortChecked(
-					__pool.add(false, current.name.toString()).index);
+					__pool.add(false, current.name().toString()).index);
 				toc.writeUnsignedShortChecked(
-					__pool.add(false, current.type).index);
+					__pool.add(false, current.type()).index);
 				
 				// Code section if one exists
 				if (codesection != null)

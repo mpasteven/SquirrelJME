@@ -15,7 +15,7 @@ package java.lang;
  *
  * @since 2018/12/04
  */
-public class VirtualMachineError
+public abstract class VirtualMachineError
 	extends Error
 {
 	/**

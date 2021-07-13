@@ -10,7 +10,9 @@
 package dev.shadowtail.classfile.pool;
 
 import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.runtime.cldc.util.ShortArrayList;
 import dev.shadowtail.classfile.mini.MinimizedPoolEntryType;
+import java.util.Objects;
 
 /**
  * Represents an entry within the constant pool.
@@ -30,6 +32,9 @@ public final class BasicPoolEntry
 	
 	/** The parts. */
 	private final short[] _parts;
+	
+	/** Cached hashcode. */
+	private int _hash;
 	
 	/**
 	 * Initializes a new entry.
@@ -100,7 +105,17 @@ public final class BasicPoolEntry
 	@Override
 	public final int hashCode()
 	{
-		throw Debugging.todo();
+		int rv = this._hash;
+		if (rv != 0)
+			return rv;
+		
+		rv = this.index ^
+			this.offset ^
+			Objects.hashCode(this.value) ^
+			ShortArrayList.asList(this._parts).hashCode();
+		
+		this._hash = rv;
+		return rv;
 	}
 	
 	/**
@@ -126,6 +141,17 @@ public final class BasicPoolEntry
 	public final short[] parts()
 	{
 		return this._parts.clone();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/01/13
+	 */
+	@Override
+	public String toString()
+	{
+		return String.format("#%d(%s):%s",
+			this.index, this.type(), this.value);
 	}
 	
 	/**

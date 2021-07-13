@@ -11,7 +11,6 @@
 package java.nio.file;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 public interface Path
 	extends Comparable<Path>, Iterable<Path>

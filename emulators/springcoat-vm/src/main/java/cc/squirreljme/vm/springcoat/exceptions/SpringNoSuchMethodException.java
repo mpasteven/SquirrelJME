@@ -10,8 +10,6 @@
 
 package cc.squirreljme.vm.springcoat.exceptions;
 
-import cc.squirreljme.vm.springcoat.exceptions.SpringIncompatibleClassChangeException;
-
 /**
  * This is thrown when a method in a class does not exist.
  *

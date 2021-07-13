@@ -10,7 +10,6 @@
 package cc.squirreljme.runtime.lcdui.mle.headless;
 
 import cc.squirreljme.runtime.cldc.debug.Debugging;
-import cc.squirreljme.runtime.lcdui.mle.UIBackend;
 import cc.squirreljme.runtime.lcdui.mle.fb.FBAttachment;
 
 /**

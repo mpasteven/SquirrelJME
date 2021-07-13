@@ -10,13 +10,18 @@
 package dev.shadowtail.classfile.nncc;
 
 import dev.shadowtail.classfile.summercoat.register.ExecutablePointer;
-import dev.shadowtail.classfile.summercoat.register.InterfaceOfObject;
-import dev.shadowtail.classfile.summercoat.register.InterfaceVTIndex;
+import dev.shadowtail.classfile.summercoat.register.IntValueRegister;
+import dev.shadowtail.classfile.summercoat.register.MemHandleRegister;
 import dev.shadowtail.classfile.summercoat.register.RuntimePoolPointer;
 import dev.shadowtail.classfile.summercoat.register.TypedRegister;
 import dev.shadowtail.classfile.summercoat.register.Volatile;
+import dev.shadowtail.classfile.summercoat.register.WideRegister;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import net.multiphasicapps.classfile.InvalidClassFormatException;
 
 /**
  * This is a stack which is used to manage which volatile registers are used.
@@ -66,27 +71,27 @@ public final class VolatileRegisterStack
 	}
 	
 	/**
-	 * Returns a volatile to represent this as an interface of an object.
+	 * Obtains an integer value register.
 	 * 
-	 * @return Interface of object register.
-	 * @since 2020/11/24
+	 * @return An integer value register.
+	 * @since 2020/11/28
 	 */
-	public Volatile<InterfaceOfObject> getInterfaceOfObject()
+	public Volatile<IntValueRegister> getIntValue()
 	{
 		return new Volatile<>(this,
-			new InterfaceOfObject(this.getUnmanaged()));
+			new IntValueRegister(this.getUnmanaged()));
 	}
 	
 	/**
-	 * Returns a register to store an interface virtual table index.
+	 * Returns a memory handle register.
 	 * 
-	 * @return Volatile to store an interface vtable index.
-	 * @since 2020/11/24
+	 * @return The memory handle register.
+	 * @since 2021/01/24
 	 */
-	public Volatile<InterfaceVTIndex> getInterfaceVTIndex()
+	protected Volatile<MemHandleRegister> getMemHandle()
 	{
 		return new Volatile<>(this,
-			new InterfaceVTIndex(this.getUnmanaged()));
+			new MemHandleRegister(this.getUnmanaged()));
 	}
 	
 	/**
@@ -138,13 +143,61 @@ public final class VolatileRegisterStack
 			at++;
 		
 		// {@squirreljme.error JC4l Exceeded maximum permitted registers.
-		// (The base register)}
+		// (The base register; The current count)}
 		if (at >= NativeCode.MAX_REGISTERS)
-			throw new IllegalStateException("JC4l " + this.base);
+			throw new InvalidClassFormatException(
+				String.format("JC4l %d %d", this.base, at));
 		
 		// Record it
 		used.add(at);
 		return at;
+	}
+	
+	/**
+	 * Returns a wide register.
+	 * 
+	 * @return A wide register.
+	 * @since 2021/04/08
+	 */
+	public final Volatile<WideRegister> getWide()
+	{
+		// Get a few registers to find a linked pair
+		List<Integer> ints = new ArrayList<>();
+		for (int i = 0; i < 3; i++)
+			ints.add(this.getUnmanaged());
+		
+		// Sort in register order
+		Collections.sort(ints);
+		
+		// Try to find a register set
+		WideRegister rv = null;
+		for (int i = 0, n = ints.size() - 1; i < n; i++)
+		{
+			int a = ints.get(i);
+			int b = ints.get(i + 1);
+			
+			if (a + 1 == b)
+				rv = new WideRegister(IntValueRegister.of(a),
+					IntValueRegister.of(b));
+		}
+		
+		// {@squirreljme.error JC4y Could not find wide register allocation.}
+		if (rv == null)
+			throw new IllegalStateException("JC4y");
+		
+		// Clear other unused registers
+		for (Iterator<Integer> it = ints.iterator(); it.hasNext();)
+		{
+			int reg = it.next();
+			
+			// If not used at all, clear it
+			if (rv.low.register != reg && rv.high.register != reg)
+				this.removeUnmanaged(reg);
+			
+			it.remove();
+		}
+		
+		return new Volatile<>(this, rv);
 	}
 	
 	/**

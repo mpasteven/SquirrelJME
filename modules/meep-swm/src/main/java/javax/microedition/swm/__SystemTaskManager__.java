@@ -10,13 +10,11 @@
 
 package javax.microedition.swm;
 
-import cc.squirreljme.runtime.cldc.asm.TaskAccess;
-import cc.squirreljme.runtime.cldc.lang.ApiLevel;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.runtime.swm.ExtendedTaskManager;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -188,6 +186,8 @@ final class __SystemTaskManager__
 		// Debug
 		todo.DEBUG.note("Suites: %s", Arrays.<String>asList(names));
 		
+		throw Debugging.todo();
+		/*
 		// SquirrelJME 0.3.0 allows system properties and alternative output
 		// streams to be specified as well
 		int tid;
@@ -232,6 +232,7 @@ final class __SystemTaskManager__
 		
 		// Otherwise use cached form
 		return this.__getTask(tid, __s, __cn);
+		 */
 	}
 	
 	/**

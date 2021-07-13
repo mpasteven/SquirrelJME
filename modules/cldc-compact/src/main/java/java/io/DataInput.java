@@ -27,10 +27,10 @@ public interface DataInput
 	float readFloat()
 		throws IOException;
 	
-	void readFully(byte[] __a)
+	void readFully(byte[] __b)
 		throws IOException;
 	
-	void readFully(byte[] __a, int __b, int __c)
+	void readFully(byte[] __b, int __o, int __l)
 		throws IOException;
 	
 	int readInt()
@@ -51,7 +51,7 @@ public interface DataInput
 	int readUnsignedShort()
 		throws IOException;
 	
-	int skipBytes(int __a)
+	int skipBytes(int __n)
 		throws IOException;
 }
 

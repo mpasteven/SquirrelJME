@@ -9,11 +9,8 @@
 
 package cc.squirreljme.vm.springcoat;
 
-import cc.squirreljme.jdwp.JDWPState;
 import cc.squirreljme.jdwp.views.JDWPViewThreadGroup;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.vm.springcoat.exceptions.SpringMachineExitException;
-import java.lang.ref.Reference;
 import net.multiphasicapps.classfile.ClassName;
 
 /**
@@ -24,22 +21,14 @@ import net.multiphasicapps.classfile.ClassName;
 public class DebugViewThreadGroup
 	implements JDWPViewThreadGroup
 {
-	/** The state of the debugger. */
-	protected final Reference<JDWPState> state;
-	
 	/**
 	 * Initializes the thread group viewer.
 	 * 
-	 * @param __state The state.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2021/04/10
 	 */
-	public DebugViewThreadGroup(Reference<JDWPState> __state)
+	public DebugViewThreadGroup()
 	{
-		if (__state == null)
-			throw new NullPointerException("NARG");
-		
-		this.state = __state;
 	}
 	
 	/**

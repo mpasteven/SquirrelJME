@@ -139,10 +139,12 @@ public final class UnsignedInteger
 	 *
 	 * @param __a The first value.
 	 * @param __b The second value.
-	 * @return The resulting comparison.
+	 * @return The resulting comparison, {@code 0} if equal or a
+	 * positive/negative value.
 	 * @since 2018/11/03
 	 */
-	public static final int compareUnsigned(int __a, int __b)
+	@SuppressWarnings("MagicNumber")
+	public static int compareUnsigned(int __a, int __b)
 	{
 		// Quick shortcut if they are the same number
 		if (__a == __b)

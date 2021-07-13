@@ -118,7 +118,7 @@ public class VMFullSuiteTaskAction
 		ExecResult exitResult = __task.getProject().javaexec(__spec ->
 			{
 				// Use filled JVM arguments
-				this.vmType.spawnJvmArguments(__task,
+				this.vmType.spawnJvmArguments(__task, false,
 					new GradleJavaExecSpecFiller(__spec),
 					"javax.microedition.midlet.__MainHandler__",
 					new LinkedHashMap<String, String>(),

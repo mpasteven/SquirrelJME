@@ -10,10 +10,10 @@
 package dev.shadowtail.classfile.pool;
 
 import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.runtime.cldc.util.UnmodifiableIterator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import net.multiphasicapps.collections.UnmodifiableIterator;
 
 /**
  * This class is used to store and contain the basic constant pool which

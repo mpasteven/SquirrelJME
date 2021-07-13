@@ -45,4 +45,14 @@ public interface JDWPTripThread
 	 * @since 2021/04/18
 	 */
 	void suspension(Object __thread, boolean __isSuspended);
+	
+	/**
+	 * Causes an unconditional breakpoint to fire, forcing execution for this
+	 * thread to stop. This can be used to debug in the event of fatal
+	 * debugging errors and otherwise.
+	 * 
+	 * @param __thread The thread to unconditionally breakpoint in.
+	 * @since 2021/07/05
+	 */
+	void unconditionalBreakpoint(Object __thread);
 }

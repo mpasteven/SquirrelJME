@@ -882,25 +882,27 @@ public class Text
 	{
 		if (!this._dirty)
 			return;
+			
+		// Undirty state
+		__TextUndirtyState__ ts = new __TextUndirtyState__();
 		
-		// Using this gobal stuff
-		Font defaultfont = this._defaultfont;
-		int width = this._width;
-		int height = this._height;
-		int spaceabove = this._spaceabove;
-		int spacebelow = this._spacebelow;
-		int align = this._align;
-		int indentation = this._indentation;
-		int direction = this._direction;
-		int scrolloffset = this._scrolloffset;
+		// Using this global stuff
+		ts.defaultfont = this._defaultfont;
+		ts.width = this._width;
+		ts.spaceabove = this._spaceabove;
+		ts.spacebelow = this._spacebelow;
+		ts.align = this._align;
+		ts.indentation = this._indentation;
+		ts.direction = this._direction;
+		ts.scrolloffset = this._scrolloffset;
 		
 		// If the direction is neutral, this just becomes the locale default
 		// For now just treat it as LTR
-		if (direction == Text.DIRECTION_NEUTRAL)
-			direction = Text.DIRECTION_LTR;
+		if (ts.direction == Text.DIRECTION_NEUTRAL)
+			ts.direction = Text.DIRECTION_LTR;
 		
 		// Are we going right to left?
-		boolean dortl = (direction == Text.DIRECTION_RTL);
+		boolean dortl = (ts.direction == Text.DIRECTION_RTL);
 		
 		// Will use this storage stuff
 		TextStorage storage = this._storage;
@@ -913,25 +915,25 @@ public class Text
 		// The starting X and Y position is always zero, when other alignments
 		// and such are used they are calculated when the line ends
 		// X is offset by the indentation and Y is offset by the scrolling
-		int y = -scrolloffset + spaceabove,
+		int y = -ts.scrolloffset + ts.spaceabove,
 			nexty = y;
 		
 		// X starts with indentation, but that might be modified in right
 		// to left mode
-		int x = (dortl ? width : indentation),
+		int x = (dortl ? ts.width : ts.indentation),
 			startx = x;
 		
 		// Cache parameters of font
 		Font lastfont = null;
-		int fontheight = 0,
-			fontascent = 0,
-			fontdescent = 0;
+		int fontheight = 0;
+		int fontascent = 0;
+		int fontdescent = 0;
 		
 		// For the end of line calculator, these are the indexes which are
 		// used for each character
-		int linedxstart = 0,
-			linedxend = 0;
-			
+		int linedxstart = 0;
+		int linedxend = 0;
+		
 		// Redo handling of the current character, this will happen if
 		// the line overflows
 		boolean redo = false;
@@ -940,10 +942,10 @@ public class Text
 		// handling alignment and justification
 		// The line height is calculated so that if different fonts of
 		// different sizes are on the same line, they all are on the baseline
-		int linecount = 0,
-			linemaxheight = 0,
-			linemaxascent = 0,
-			linemaxdescent = 0;
+		int linecount = 0;
+		int linemaxheight = 0;
+		int linemaxascent = 0;
+		int linemaxdescent = 0;
 		for (int i = 0, n = storage.size; i <= n; i++)
 		{
 			// Since we need to handle line indentation, justification and
@@ -960,7 +962,7 @@ public class Text
 				char ch = chars[i];
 				Font f = font[i];
 				if (f == null)
-					f = defaultfont;
+					f = ts.defaultfont;
 				
 				// Font has changed?
 				if (lastfont != f)
@@ -1023,8 +1025,8 @@ public class Text
 					// Additionally if the X coordinate is at the start and
 					// cannot even fit in the width just force it to be
 					// placed
-					if ((nx >= 0 && nx <= width) ||
-						(x <= startx && x + chw <= width))
+					if ((nx >= 0 && nx <= ts.width) ||
+						(x <= startx && x + chw <= ts.width))
 					{
 						// Store current X position, this may change due to
 						// right to left mode
@@ -1073,8 +1075,8 @@ public class Text
 				// for this line.
 				// An extra space above is only added if this was a newline,
 				// so that way the next line has the actual space above
-				nexty = y + linemaxheight + spacebelow +
-					(wasnewlinech ? spaceabove : 0);
+				nexty = y + linemaxheight + ts.spacebelow +
+					(wasnewlinech ? ts.spaceabove : 0);
 				
 				// Calculate the correct Y position for each character
 				for (int q = linedxstart; q < linedxend; q++)
@@ -1088,8 +1090,8 @@ public class Text
 				}
 				
 				// Handle non-default alignments
-				if ((dortl && align != Text.ALIGN_RIGHT) ||
-					(!dortl && align != Text.ALIGN_LEFT))
+				if ((dortl && ts.align != Text.ALIGN_RIGHT) ||
+					(!dortl && ts.align != Text.ALIGN_LEFT))
 				{
 					throw new todo.TODO();
 				}

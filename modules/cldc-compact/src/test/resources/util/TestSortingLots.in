@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+result: NoResult
+thrown: NoExceptionThrown
+secondary-ints: true
+secondary-objects: true

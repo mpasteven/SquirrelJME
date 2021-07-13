@@ -9,13 +9,17 @@
 
 package dev.shadowtail.jarfile;
 
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
+import cc.squirreljme.jvm.summercoat.constants.JarProperty;
+import cc.squirreljme.jvm.summercoat.constants.JarTocFlag;
+import cc.squirreljme.jvm.summercoat.constants.JarTocProperty;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.vm.VMClassLibrary;
 import dev.shadowtail.classfile.mini.DualPoolEncodeResult;
 import dev.shadowtail.classfile.mini.DualPoolEncoder;
 import dev.shadowtail.classfile.mini.Minimizer;
+import dev.shadowtail.classfile.pool.DualClassRuntimePool;
 import dev.shadowtail.classfile.pool.DualClassRuntimePoolBuilder;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +27,10 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import net.multiphasicapps.classfile.ClassFile;
 import net.multiphasicapps.classfile.ClassName;
-import net.multiphasicapps.classfile.MethodName;
-import net.multiphasicapps.io.TableSectionOutputStream;
+import net.multiphasicapps.io.ChunkDataType;
+import net.multiphasicapps.io.ChunkForwardedFuture;
+import net.multiphasicapps.io.ChunkSection;
+import net.multiphasicapps.io.ChunkWriter;
 
 /**
  * This class is responsible for creating minimized Jar files which will then
@@ -38,11 +44,17 @@ public final class JarMinimizer
 	 * {@squirreljme.property dev.shadowtail.jarfile.debug=boolean
 	 * Should debugging text be printed for the JAR minimizer?}
 	 */
+	@Deprecated
 	static final boolean _ENABLE_DEBUG =
 		Boolean.getBoolean("dev.shadowtail.jarfile.debug");
 	
-	/** The state of the bootstrap. */
-	protected final BootstrapState bootstrap;
+	/** The boot class. */
+	private static final String _BOOT_CLASS_RC =
+		"cc/squirreljme/jvm/summercoat/Bootstrap.class";
+	
+	/** The version to use for the JAR. */
+	private static final short _USE_VERSION =
+		ClassInfoConstants.CLASS_VERSION_20201129;
 	
 	/** Is this a boot JAR? */
 	protected final boolean boot;
@@ -51,10 +63,10 @@ public final class JarMinimizer
 	protected final VMClassLibrary input;
 	
 	/** The dual-combined constant pool. */
-	protected final DualClassRuntimePoolBuilder dualpool;
+	protected final DualClassRuntimePoolBuilder dualPool;
 	
 	/** Are we using our own dual pool? */
-	protected final boolean owndualpool;
+	protected final boolean isOurDualPool;
 	
 	/** The resulting JAR header. */
 	private MinimizedJarHeader _jheader;
@@ -81,259 +93,203 @@ public final class JarMinimizer
 		
 		// Use the passed pool if it was passed, but otherwise just use one
 		// in the event one was not passed through (uses our own pool)
-		boolean owndualpool = (!__boot && (__dp == null));
-		this.dualpool = (__boot ? null : (owndualpool ?
-			new DualClassRuntimePoolBuilder() : __dp));
-		this.owndualpool = owndualpool;
-		
-		// Setup bootstrap, but only if booting
-		this.bootstrap = (__boot ? new BootstrapState() : null);
+		boolean ownDualPool = (__dp == null);
+		this.dualPool = (ownDualPool ?
+			new DualClassRuntimePoolBuilder() : __dp);
+		this.isOurDualPool = ownDualPool;
 	}
 	
 	/**
 	 * Processes the input JAR.
 	 *
-	 * @param __sout The output.
+	 * @param __out The output.
 	 * @throws IOException On read/write errors.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/04/27
 	 */
-	private final void __process(OutputStream __sout)
+	private void __process(OutputStream __out)
 		throws IOException, NullPointerException
 	{
-		if (__sout == null)
+		if (__out == null)
 			throw new NullPointerException("NARG");
-		
-		// The current state of the bootstrap
-		BootstrapState bootstrap = this.bootstrap;
-		Initializer initializer = (bootstrap == null ? null :
-			bootstrap.initializer);
 		
 		// This is processed for all entries
 		VMClassLibrary input = this.input;
 		
-		// Need list of resources to determine
-		String[] rcnames = input.listResources();
-		int numrc = rcnames.length;
+		// Obtain all of the resources in the JAR so we can process them
+		// accordingly
+		String[] rcNames = input.listResources();
+		int numRc = rcNames.length;
 		
 		// Sort all the resources so that it is faster to find the entries
-		Arrays.sort(rcnames);
-		
-		// Manifest offset and length
-		int manifestoff = 0,
-			manifestlen = 0;
+		Arrays.sort(rcNames);
 		
 		// Table of the entire JAR for writing
-		TableSectionOutputStream out = new TableSectionOutputStream();
+		ChunkWriter out = new ChunkWriter();
 		
-		// Start the header and table of contents
-		// These are fixed size because the bootstrapper needs to know the
-		// true pointer of the minified class file in the JAR
-		TableSectionOutputStream.Section header = out.addSection(
-			MinimizedJarHeader.HEADER_SIZE_WITH_MAGIC, 4);
-		TableSectionOutputStream.Section toc = out.addSection(
-			numrc * 16, 4);
+		// Start the header and table of contents, these will be written to
+		// accordingly as needed
+		ChunkSection header = out.addSection(
+			ChunkWriter.VARIABLE_SIZE, 4);
 		
-		// Write base header and contents information
-		header.writeInt(MinimizedJarHeader.MAGIC_NUMBER);
-		header.writeInt(numrc);
-		header.writeSectionAddressInt(toc);
+		// Magic number and minimized format, since about November 2020 there
+		// is a new version format
+		header.writeInt(ClassInfoConstants.JAR_MAGIC_NUMBER);
+		header.writeShort(JarMinimizer._USE_VERSION);
 		
-		// The global dual-constant pool if one is available
-		DualClassRuntimePoolBuilder dualpool = this.dualpool;
+		// The number of properties used, is always constant for now
+		ChunkForwardedFuture[] properties = new ChunkForwardedFuture[
+			JarProperty.NUM_JAR_PROPERTIES];
+		header.writeUnsignedShortChecked(properties.length);
+		
+		// Initialize empty properties
+		for (int i = 0; i < JarProperty.NUM_JAR_PROPERTIES; i++)
+		{
+			// Initialize the future that will later be used to initialize
+			// the value.
+			ChunkForwardedFuture future = new ChunkForwardedFuture();
+			properties[i] = future;
+			
+			// This property is written here
+			header.writeFuture(ChunkDataType.INTEGER, future);
+		}
+		
+		// This value is currently meaningless so for now it is always zero
+		properties[JarProperty.INT_JAR_VERSION_ID].setInt(0);
+		
+		// Table of contents that represents the JAR
+		ChunkSection toc = out.addSection(ChunkWriter.VARIABLE_SIZE, 4);
+		properties[JarProperty.COUNT_TOC].setInt(numRc);
+		properties[JarProperty.OFFSET_TOC].set(toc.futureAddress());
+		properties[JarProperty.SIZE_TOC].set(toc.futureSize());
+		
+		// Start the table of contents off with the number of entries and the
+		// ints per entry
+		toc.writeUnsignedShortChecked(numRc);
+		toc.writeUnsignedShortChecked(JarTocProperty.NUM_JAR_TOC_PROPERTIES);
+		
+		// The global dual-constant pool if one is available, this is used to
+		// share pool entries between classes and JARs accordingly
+		DualClassRuntimePoolBuilder dualPool = this.dualPool;
+		
+		// Is this a boot JAR?
+		boolean isBoot = this.boot;
+		BootState bootState = (isBoot ? new BootState() : null);
+		int bootClassDx = -1;
 		
 		// Buffer for byte copies
-		byte[] copybuf = new byte[512];
+		byte[] buf = new byte[16384];
 		
-		// Go through and add every resource
-		for (int i = 0; i < numrc; i++)
+		// Go through every resource, process them to be added to the JAR or
+		// pipe them directly through
+		ChunkForwardedFuture[] tocFill = new ChunkForwardedFuture[
+			JarTocProperty.NUM_JAR_TOC_PROPERTIES];
+		for (int i = 0; i < numRc; i++)
 		{
+			// Reset the table of contents fill
+			for (int q = 0; q < JarTocProperty.NUM_JAR_TOC_PROPERTIES; q++)
+				tocFill[q] = new ChunkForwardedFuture();
+			
 			// Resource to encode/copy
-			String rc = rcnames[i];
+			String rc = rcNames[i];
+			tocFill[JarTocProperty.INT_NAME_HASHCODE].setInt(rc.hashCode());
+			
+			// Spill in name
+			ChunkSection utfName = out.addSection(
+				ChunkWriter.VARIABLE_SIZE, 4);
+			utfName.writeUTF(rc);
+			tocFill[JarTocProperty.OFFSET_NAME].set(utfName.futureAddress());
+			tocFill[JarTocProperty.SIZE_NAME].set(utfName.futureSize());
+			
+			// Is this a class or manifest?
+			boolean isClass = (rc.endsWith(".class") &&
+				ClassName.isValidClassName(rc.substring(0, rc.length() - 6)));
+			boolean isManifest = rc.equals("META-INF/MANIFEST.MF");
+			boolean isBootClass = (isBoot && isClass &&
+				JarMinimizer._BOOT_CLASS_RC.equals(rc));
+			
+			// The manifest is at this index
+			if (isManifest)
+				properties[JarProperty.RCDX_MANIFEST].setInt(i);
+			if (isBootClass)
+			{
+				properties[JarProperty.RCDX_START_CLASS].setInt(i);
+				bootClassDx = i;
+			}
+			
+			// Flags for this entry
+			tocFill[JarTocProperty.INT_FLAGS].setInt((isClass ?
+				JarTocFlag.EXECUTABLE_CLASS : JarTocFlag.RESOURCE) |
+				(isManifest ? JarTocFlag.MANIFEST : 0) |
+				(isBootClass ? JarTocFlag.BOOT : 0));
 			
 			// Section to contain the data for this resource
-			TableSectionOutputStream.Section rcdata = out.addSection(
-				TableSectionOutputStream.VARIABLE_SIZE, 4);
+			ChunkSection rcData = out.addSection(
+				ChunkWriter.VARIABLE_SIZE, 4);
+			tocFill[JarTocProperty.OFFSET_DATA].set(rcData.futureAddress());
+			tocFill[JarTocProperty.SIZE_DATA].set(rcData.futureSize());
 			
-			// Process the resource
+			// Process the resources
 			try (InputStream in = input.resourceAsStream(rc))
 			{
-				// Minimizing class file if it is a valid class
-				if (rc.endsWith(".class") && ClassName.isValidClassName(
-					rc.substring(0, rc.length() - 6)))
+				// Minimize directly to the JARs
+				if (isClass)
 				{
-					// Minimize the class
-					byte[] bytes = Minimizer.minimize(dualpool,
-						ClassFile.decode(in));
+					Minimizer.minimize(dualPool, ClassFile.decode(in), rcData);
 					
-					// Write to ROM!
-					rcdata.write(bytes);
-					
-					// Load class file if booting
-					if (bootstrap != null)
-						bootstrap.loadClassFile(bytes,
-							out.sectionAddress(rcdata));
+					// If we are setting up the boot state, add this class for
+					// later processing
+					if (isBoot)
+					{
+						bootState.addClass(
+							new ClassName(rc.substring(0, rc.length() - 6)),
+							rcData, isBootClass);
+					}
 				}
 				
-				// Plain resource copy
+				// Otherwise perform a plain copy operation
 				else
-				{
 					for (;;)
 					{
-						int ll = in.read(copybuf);
+						int ll = in.read(buf);
 						
 						// EOF?
 						if (ll < 0)
 							break;
 						
-						// Write
-						rcdata.write(copybuf);
+						rcData.write(buf, 0, ll);
 					}
-				}
 			}
 			
-			// Write the hash code of the entry name
-			toc.writeInt(rc.hashCode());
-			
-			// Write name of the resource
-			TableSectionOutputStream.Section rcname = out.addSection(
-				TableSectionOutputStream.VARIABLE_SIZE, 4);
-			rcname.writeUTF(rc);
-			toc.writeSectionAddressInt(rcname);
-			
-			// Write position and size of the data
-			toc.writeSectionAddressInt(rcdata);
-			toc.writeSectionSizeInt(rcdata);
+			// Store the TOC fill accordingly
+			for (int q = 0; q < JarTocProperty.NUM_JAR_TOC_PROPERTIES; q++)
+				toc.writeFuture(ChunkDataType.INTEGER, tocFill[q]);
 		}
 		
-		// Uncompressed and copied manifest?
-		try (InputStream in = input.resourceAsStream("META-INF/MANIFEST.MF"))
-		{
-			// There is a manifest
-			if (in != null)
-			{
-				TableSectionOutputStream.Section manifest = out.addSection(
-					TableSectionOutputStream.VARIABLE_SIZE, 4);
-				
-				// Copy the manifest to an uncompressed section
-				for (;;)
-				{
-					int ll = in.read(copybuf);
-					
-					// EOF?
-					if (ll < 0)
-						break;
-					
-					// Write
-					manifest.write(copybuf);
-				}
-				
-				// Manifest offset and length
-				header.writeSectionAddressInt(manifest);
-				header.writeSectionSizeInt(manifest);
-			}
-			
-			// There is none
-			else
-			{
-				header.writeInt(0);
-				header.writeInt(0);
-			}
-		}
-		
-		// Doing bootstrapping?
-		if (bootstrap != null)
-		{
-			// The class being booted
-			LoadedClassInfo booting = bootstrap.findClass(
-				"cc/squirreljme/jvm/boot/Bootstrap");
-			
-			// Get all the bootstrap information before it is written!
-			int bootpool = booting.poolPointer();
-			int bootsfbp = bootstrap.staticFieldAreaAddress();
-			int bootmeth = booting.methodCodeAddress(
-				new MethodName("__start"), null);
-			int bootidba = bootstrap.findClass("[B").infoPointer();
-			int bootidbd = bootstrap.findClass("[[B").infoPointer();
-			
-			// Get the handler for system calls and such
-			LoadedClassInfo tshclass = bootstrap.findClass(
-				"cc/squirreljme/jvm/boot/task/TaskSysCallHandler");
-			int scmeth = tshclass.methodCodeAddress(
-				new MethodName("taskSysCall"), null),
-				scpool = tshclass.poolPointer();
-			
-			// Setup the BootRAM
-			TableSectionOutputStream.Section bootram = out.addSection(
-				bootstrap.initializer.toByteArray(), 4);
-			
-			// Boot memory offset, size
-			header.writeSectionAddressInt(bootram);
-			header.writeSectionSizeInt(bootram);
-			
-			// Pool, sfa, code
-			header.writeInt(bootpool);
-			header.writeInt(bootsfbp);
-			header.writeInt(bootmeth);
-			
-			// System call SFP, handler, and pool
-			header.writeInt(bootsfbp);
-			header.writeInt(scmeth);
-			header.writeInt(scpool);
-			
-			// classidba, classidbaa
-			header.writeInt(bootidba);
-			header.writeInt(bootidbd);
-			
-			// Debug
-			if (JarMinimizer._ENABLE_DEBUG)
-				Debugging.debugNote("Boot entry: %d/0x%08x", bootmeth, bootmeth);
-		}
-		
-		// No bootstrapping being done
-		else
-		{
-			// Boot memory offset, size
-			header.writeInt(0);
-			header.writeInt(0);
-			
-			// Pool, sfa, code
-			header.writeInt(0);
-			header.writeInt(0);
-			header.writeInt(0);
-			
-			// System call SFP, handler, and pool
-			header.writeInt(0);
-			header.writeInt(0);
-			header.writeInt(0);
-			
-			// classidba, classidbaa
-			header.writeInt(0);
-			header.writeInt(0);
-		}
-		
-		// Debug
-		if (JarMinimizer._ENABLE_DEBUG)
-			Debugging.debugNote("Own pool=%s, dualpool=%s",
-				this.owndualpool, dualpool);
+		// Class has no manifest?
+		if (!properties[JarProperty.RCDX_MANIFEST].isSet())
+			properties[JarProperty.RCDX_MANIFEST].setInt(-1);
 		
 		// We are using our own dual pool, so write it out as if it were
 		// in the pack file. It is only local to this JAR.
-		if (this.owndualpool && dualpool != null)
+		ChunkSection lpd = null;
+		if (isBoot || this.isOurDualPool)
 		{
-			// Where our pools are going
-			TableSectionOutputStream.Section lpd = out.addSection();
-			
-			// Encode the pools
-			DualPoolEncodeResult der = DualPoolEncoder.encode(dualpool, lpd);
+			// Encode pool into a new section
+			lpd = out.addSection(ChunkWriter.VARIABLE_SIZE, 4);
+			DualPoolEncodeResult der = DualPoolEncoder.encode(dualPool, lpd);
 			
 			// Static pool
-			header.writeSectionAddressInt(lpd, der.staticpooloff);
-			header.writeInt(der.staticpoolsize);
+			properties[JarProperty.OFFSET_STATIC_POOL]
+				.set(lpd.futureAddress(der.staticpooloff));
+			properties[JarProperty.SIZE_STATIC_POOL]
+				.setInt(der.staticpoolsize);
 			
 			// Run-time pool
-			header.writeSectionAddressInt(lpd, der.runtimepooloff);
-			header.writeInt(der.runtimepoolsize);
+			properties[JarProperty.OFFSET_RUNTIME_POOL]
+				.set(lpd.futureAddress(der.runtimepooloff));
+			properties[JarProperty.SIZE_RUNTIME_POOL]
+				.setInt(der.runtimepoolsize);
 		}
 		
 		// We are using the global pack pool, so set special indicators
@@ -342,23 +298,88 @@ public final class JarMinimizer
 		else
 		{
 			// Static pool offset and size
-			header.writeInt(-1);
-			header.writeInt(-1);
+			properties[JarProperty.OFFSET_STATIC_POOL].setInt(-1);
+			properties[JarProperty.SIZE_STATIC_POOL].setInt(-1);
 			
 			// Runtime pool offset and size
-			header.writeInt(-1);
-			header.writeInt(-1);
+			properties[JarProperty.OFFSET_RUNTIME_POOL].setInt(-1);
+			properties[JarProperty.SIZE_RUNTIME_POOL].setInt(-1);
 		}
 		
-		// Since we need the header we need the byte array for the JAR
-		byte[] jardata = out.toByteArray();
+		// Doing bootstrapping?
+		if (isBoot)
+		{
+			// Make sure all the addresses and otherwise are filled so we know
+			// our own offsets and otherwise.
+			out.undirty();
+			
+			// Load the pool we just created for the JAR, since we need to
+			// use it for processing
+			byte[] poolBytes = lpd.currentBytes();
+			int lpdStart = lpd.futureAddress().get();
+			DualClassRuntimePool decPool = DualPoolEncoder.decode(poolBytes,
+				properties[JarProperty.OFFSET_STATIC_POOL].get() -
+					lpdStart, properties[JarProperty.SIZE_STATIC_POOL].get(),
+				properties[JarProperty.OFFSET_RUNTIME_POOL].get() -
+					lpdStart, properties[JarProperty.SIZE_RUNTIME_POOL].get());
+			
+			// Tell the state to actually boot the system and record the
+			// contents into the target bootstrap section
+			ChunkSection bootstrap = out.addSection(
+				ChunkWriter.VARIABLE_SIZE, 4);
+			int[] startPoolHandleId = new int[1];
+			int[] vmAttribHandleId = new int[1];
+			bootState.boot(decPool, lpd, bootstrap, startPoolHandleId,
+				vmAttribHandleId);
+			
+			// Use the properties of the bootstrap which will be read on
+			// virtual machine initialization
+			properties[JarProperty.OFFSET_BOOT_INIT]
+				.set(bootstrap.futureAddress());
+			properties[JarProperty.SIZE_BOOT_INIT]
+				.set(bootstrap.futureSize());
+			properties[JarProperty.MEMHANDLEID_START_POOL]
+				.setInt(startPoolHandleId[0]);
+			properties[JarProperty.RCDX_START_CLASS]
+				.setInt(bootClassDx);
+			properties[JarProperty.MEMHANDLEID_VM_ATTRIBUTES]
+				.setInt(vmAttribHandleId[0]);
+			
+			// Base array size
+			properties[JarProperty.SIZE_BASE_ARRAY]
+				.setInt(bootState.__baseArraySize());
+		}
 		
-		// Get header for returning
-		this._jheader = MinimizedJarHeader.decode(
-			new ByteArrayInputStream(jardata));
+		// No bootstrapping to be done
+		else
+		{
+			// No boot properties are valid here
+			properties[JarProperty.OFFSET_BOOT_INIT].setInt(0);
+			properties[JarProperty.SIZE_BOOT_INIT].setInt(0);
+			properties[JarProperty.MEMHANDLEID_START_POOL].setInt(0);
+			properties[JarProperty.RCDX_START_CLASS].setInt(0);
+			properties[JarProperty.MEMHANDLEID_VM_ATTRIBUTES].setInt(0);
+			
+			// No known array base size
+			properties[JarProperty.SIZE_BASE_ARRAY].setInt(0);
+		}
 		
-		// Write to output
-		__sout.write(jardata);
+		// Verify values are set
+		for (int i = 0; i < JarProperty.NUM_JAR_PROPERTIES; i++)
+			if (!properties[i].isSet())
+				throw Debugging.oops(i);
+		
+		// Write the resultant JAR to the output
+		out.writeTo(__out);
+		
+		// We can use the property details and the futures to determine the
+		// values that would be read from the JAR header from a byte stream
+		int numProps = properties.length;
+		int[] headerProps = new int[numProps];
+		for (int i = 0; i < numProps; i++)
+			headerProps[i] = properties[i].get();
+		this._jheader = new MinimizedJarHeader(
+			JarMinimizer._USE_VERSION, headerProps);
 	}
 	
 	/**

@@ -10,7 +10,6 @@
 package squirreljme.mle.errors;
 
 import cc.squirreljme.jvm.mle.JarPackageShelf;
-import cc.squirreljme.jvm.mle.brackets.JarPackageBracket;
 import cc.squirreljme.jvm.mle.exceptions.MLECallError;
 
 /**

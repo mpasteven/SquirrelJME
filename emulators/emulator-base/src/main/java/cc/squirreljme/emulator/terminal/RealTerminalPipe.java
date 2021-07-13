@@ -10,7 +10,6 @@
 package cc.squirreljme.emulator.terminal;
 
 import cc.squirreljme.emulator.MLECallWouldFail;
-import cc.squirreljme.jvm.mle.exceptions.MLECallError;
 import java.io.IOException;
 import java.io.OutputStream;
 

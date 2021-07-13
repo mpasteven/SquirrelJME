@@ -49,6 +49,34 @@ public final class FieldNameAndType
 	}
 	
 	/**
+	 * Initializes the field name and type.
+	 *
+	 * @param __n The name of the field.
+	 * @param __t The type of the field.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/01/12
+	 */
+	public FieldNameAndType(String __n, String __t)
+		throws NullPointerException
+	{
+		this(new FieldName(__n), new FieldDescriptor(__t));
+	}
+	
+	/**
+	 * Initializes the field name and type.
+	 *
+	 * @param __n The name of the field.
+	 * @param __t The type of the field.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/01/12
+	 */
+	public FieldNameAndType(String __n, FieldDescriptor __t)
+		throws NullPointerException
+	{
+		this(new FieldName(__n), __t);
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 * @since 2017/10/12
 	 */

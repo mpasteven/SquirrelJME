@@ -10,10 +10,12 @@
 
 package javax.microedition.swm;
 
-import cc.squirreljme.runtime.cldc.io.ResourceInputStream;
-import cc.squirreljme.runtime.swm.DependencyInfo;
-import cc.squirreljme.runtime.swm.MatchResult;
-import cc.squirreljme.runtime.swm.SuiteInfo;
+import cc.squirreljme.jvm.manifest.JavaManifest;
+import cc.squirreljme.jvm.manifest.JavaManifestAttributes;
+import cc.squirreljme.jvm.suite.DependencyInfo;
+import cc.squirreljme.jvm.suite.MatchResult;
+import cc.squirreljme.jvm.suite.SuiteInfo;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
@@ -23,8 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import net.multiphasicapps.collections.EmptyIterator;
-import net.multiphasicapps.tool.manifest.JavaManifest;
-import net.multiphasicapps.tool.manifest.JavaManifestAttributes;
 
 /**
  * This represents an application suite.
@@ -516,7 +516,7 @@ public class Suite
 		
 		// Could exist, hopefully it does
 		else
-			try (InputStream in = ResourceInputStream.open(this._name,
+			try (InputStream in = Debugging.<InputStream>todoObject(
 				"META-INF/MANIFEST.MF"))
 			{
 				// Will keep trying to open resources, so just prevent

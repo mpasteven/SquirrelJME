@@ -11,7 +11,6 @@
 package java.nio.file;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Set;
 
 public abstract class FileSystem

@@ -83,6 +83,16 @@ public class GradleJavaExecSpecFiller
 	
 	/**
 	 * {@inheritDoc}
+	 * @since 2021/06/18
+	 */
+	@Override
+	public void setJvmArgs(Collection<String> __args)
+	{
+		this.spec.setJvmArgs(__args);
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 * @since 2020/12/26
 	 */
 	@Override

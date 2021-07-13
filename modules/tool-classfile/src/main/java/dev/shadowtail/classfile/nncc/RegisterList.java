@@ -11,6 +11,7 @@
 package dev.shadowtail.classfile.nncc;
 
 import dev.shadowtail.classfile.summercoat.register.Register;
+import dev.shadowtail.classfile.xlate.JavaStackResult;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -70,6 +71,24 @@ public final class RegisterList
 	 * @since 2020/11/27
 	 */
 	public RegisterList(Register... __args)
+		throws NullPointerException
+	{
+		int n = (__args == null ? 0 : __args.length);
+		int[] regs = new int[n];
+		for (int i = 0; i < n; i++)
+			regs[i] = __args[i].register;
+		
+		this._registers = regs;
+	}
+	
+	/**
+	 * Initializes the register list via the stack result inputs.
+	 * 
+	 * @param __args The arguments.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2020/11/29
+	 */
+	public RegisterList(JavaStackResult.Input... __args)
 		throws NullPointerException
 	{
 		int n = (__args == null ? 0 : __args.length);

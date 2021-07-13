@@ -66,5 +66,9 @@ public interface OperatingSystemType
 	/** Windows NT. */
 	int WINDOWS_NT =
 		11;
+	
+	/** An Unknown windows system. */
+	int WINDOWS_UNKNOWN =
+		12;
 }
 

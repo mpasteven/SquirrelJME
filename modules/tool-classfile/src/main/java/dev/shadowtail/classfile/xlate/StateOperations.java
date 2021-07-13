@@ -9,13 +9,13 @@
 
 package dev.shadowtail.classfile.xlate;
 
+import cc.squirreljme.runtime.cldc.util.UnmodifiableIterator;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import net.multiphasicapps.collections.UnmodifiableIterator;
 
 /**
  * This represents multiple state operations.

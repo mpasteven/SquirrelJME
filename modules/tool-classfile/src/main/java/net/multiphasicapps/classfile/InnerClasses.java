@@ -11,13 +11,13 @@
 package net.multiphasicapps.classfile;
 
 import cc.squirreljme.runtime.cldc.debug.Debugging;
+import cc.squirreljme.runtime.cldc.util.UnmodifiableIterator;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import net.multiphasicapps.collections.UnmodifiableIterator;
 
 /**
  * This contains the table of inner class references.

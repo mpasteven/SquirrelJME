@@ -1,2 +1,8 @@
 result: NoResult
 thrown: NoExceptionThrown
+multi-parameters: ByteDeque.data
+  InflaterInputStream.data
+  __LinkedListListIterator__.data
+  AbstractReadableMemory.data
+  TestDupXTwoJI.data
+only-in: javase

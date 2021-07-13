@@ -1,2 +1,3 @@
 result: NoResult
 thrown: NoExceptionThrown
+only-in: javase

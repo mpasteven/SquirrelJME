@@ -53,6 +53,9 @@ public final class Method
 	/** Does this method have code? */
 	protected final boolean hascode;
 	
+	/** The method index. */
+	protected final int methodIndex;
+	
 	/** Annotated values. */
 	private final AnnotationTable annotations;
 	
@@ -84,12 +87,13 @@ public final class Method
 	 * @param __mc An optional byte array representing the code attribute, the
 	 * value is used directly.
 	 * @param __avs Annotations associated with this method.
+	 * @param __index The method index.
 	 * @throws NullPointerException On null arguments except for {@code __mc}.
 	 * @since 2017/09/30
 	 */
 	Method(ClassVersion __ver, ClassFlags __cf, ClassName __tn, Pool __pool,
 		MethodFlags __mf, MethodName __mn, MethodDescriptor __mt, byte[] __mc,
-		AnnotationTable __avs)
+		AnnotationTable __avs, int __index)
 		throws NullPointerException
 	{
 		if (__ver == null || __cf == null || __tn == null || __pool == null ||
@@ -107,6 +111,7 @@ public final class Method
 		this.annotations = __avs;
 		this._rawcodeattr = __mc;
 		this.hascode = !__mf.isNative() && !__mf.isAbstract();
+		this.methodIndex = __index;
 	}
 	
 	/**
@@ -209,6 +214,17 @@ public final class Method
 	}
 	
 	/**
+	 * The method index.
+	 * 
+	 * @return The method index.
+	 * @since 2021/07/06
+	 */
+	public final int methodIndex()
+	{
+		return this.methodIndex;
+	}
+	
+	/**
 	 * Returns the name of the method.
 	 *
 	 * @return The method name.
@@ -240,10 +256,11 @@ public final class Method
 	 * Returns the code of this method in a register based format that is
 	 * more efficient than pure Java byte code.
 	 *
+	 * @param __sourceFile The source file used for translation.
 	 * @return The code of this method in a register based format.
 	 * @since 2019/03/09
 	 */
-	public final NativeCode nativeCode()
+	public final NativeCode nativeCode(String __sourceFile)
 	{
 		// Abstract and native methods have no code
 		if (!this.hascode)
@@ -261,7 +278,8 @@ public final class Method
 			try
 			{
 				NearNativeByteCodeHandler nnbc =
-					new NearNativeByteCodeHandler(bc);
+					new NearNativeByteCodeHandler(bc, __sourceFile,
+						this.methodIndex);
 				new ByteCodeProcessor(bc, nnbc).process();
 				
 				// Cache the result of it
@@ -328,7 +346,7 @@ public final class Method
 		Method[] rv = new Method[nm];
 		Set<NameAndType> dup = new HashSet<>();
 		
-		// Parse fields
+		// Parse methods
 		for (int i = 0; i < nm; i++)
 		{
 			// Read the flags but do not initialize them yet
@@ -374,7 +392,7 @@ public final class Method
 			
 			// Create
 			rv[i] = new Method(__ver, __cf, __tn, __pool, flags, name, type,
-				code, annotations);
+				code, annotations, i);
 		}
 		
 		// All done!

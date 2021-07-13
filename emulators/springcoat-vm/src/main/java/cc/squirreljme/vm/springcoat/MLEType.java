@@ -247,6 +247,24 @@ public enum MLEType
 		}
 	},
 	
+	/** {@link TypeShelf#isAssignableFrom(TypeBracket, TypeBracket)}. */
+	IS_ASSIGNABLE_FROM("isAssignableFrom:(Lcc/squirreljme/jvm/mle/" +
+		"brackets/TypeBracket;Lcc/squirreljme/jvm/mle/brackets/TypeBracket;)Z")
+	{
+		/**
+		 * {@inheritDoc}
+		 * @since 2021/02/07
+		 */
+		@Override
+		public Object handle(SpringThreadWorker __thread, Object... __args)
+		{
+			if (MLEType.__type(__args[0]).getSpringClass().isAssignableFrom(
+				MLEType.__type(__args[1]).getSpringClass()))
+				return 1;
+			return 0;
+		}
+	},
+	
 	/** {@link TypeShelf#isEnum(TypeBracket)}. */
 	IS_ENUM("isEnum:(Lcc/squirreljme/jvm/mle/brackets/TypeBracket;)Z")
 	{

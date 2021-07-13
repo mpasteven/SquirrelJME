@@ -12,6 +12,7 @@ package cc.squirreljme.jdwp;
 import cc.squirreljme.jdwp.trips.JDWPTripThread;
 import cc.squirreljme.jdwp.views.JDWPViewFrame;
 import cc.squirreljme.jdwp.views.JDWPViewThread;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.lang.ref.Reference;
 
 /**
@@ -84,5 +85,24 @@ final class __TripThreadAlive__
 	public void suspension(Object __thread, boolean __isSuspended)
 	{
 		// There are currently no triggers on this at all
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 2021/07/05
+	 */
+	@Override
+	public void unconditionalBreakpoint(Object __thread)
+	{
+		if (JDWPController._DEBUG)
+			Debugging.debugNote("UNCONDITIONAL BREAKPOINT!");
+		
+		JDWPController controller = this.__controller();
+		
+		// Make sure this thread is registered
+		controller.state.items.put(__thread);
+		
+		// Send the signal
+		controller.signal(__thread, EventKind.UNCONDITIONAL_BREAKPOINT);
 	}
 }

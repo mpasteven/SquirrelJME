@@ -318,7 +318,8 @@ public class DebugViewType
 		if (byteCode != null)
 			return byteCode.instructionCount();
 		
-		return 0;
+		// No locations are valid!
+		return -1;
 	}
 	
 	/**

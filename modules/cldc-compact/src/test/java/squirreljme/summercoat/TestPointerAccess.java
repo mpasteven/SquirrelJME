@@ -31,7 +31,7 @@ public class TestPointerAccess
 		Object object = new Object();
 		
 		// This object cannot be null
-		long pointer = Assembly.objectToPointer(object);
+		int pointer = Assembly.objectToPointer(object);
 		this.secondary("otpnotnull", pointer != 0); 
 		
 		// Reversing this operation should return the original object

@@ -22,6 +22,12 @@ out/
 ratufacoat/.idea/workspace.xml
 file-*
 
+# IntelliJ Dependency Matrix
+emulators/*/out/production/
+emulators/*/out/test/
+modules/*/out/production/
+modules/*/out/test/
+
 # Contributions
 *.diff
 *.gdiff

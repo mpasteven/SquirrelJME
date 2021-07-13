@@ -106,6 +106,7 @@ public final class CallTraceUtils
 		// We do not want any IOExceptions to cause stack trace printing to
 		// fail, since this could potentially lead to a very nasty infinite
 		// exception loop
+		int lockStep = 0;
 		try
 		{
 			// If there is no actual trace then just print that this is the
@@ -120,6 +121,9 @@ public final class CallTraceUtils
 			CallTraceUtils.__appendIndent(__out, __indentLevel);
 			__out.append("EXCEPTION ");
 			
+			// Count step
+			lockStep++;
+			
 			// And that message could be blank!
 			if (__message != null)
 				__out.append(__message);
@@ -127,6 +131,9 @@ public final class CallTraceUtils
 			
 			// Set sub-indentation level
 			int subLevel = __indentLevel + 1;
+			
+			// Count step
+			lockStep++;
 			
 			// Print each element in the trace, the start of the trace is
 			// always the top-most entry
@@ -160,7 +167,13 @@ public final class CallTraceUtils
 				__out.append(current.toAtLineString());
 				
 				LineEndingUtils.append(__out);
+				
+				// Count step
+				lockStep++;
 			}
+			
+			// Count step
+			lockStep++;
 			
 			// Print the exception cause, if any
 			if (__cause != null)
@@ -174,6 +187,9 @@ public final class CallTraceUtils
 				CallTraceUtils.printStackTrace(__out, __cause,
 					subLevel + 1);
 			}
+			
+			// Count step
+			lockStep++;
 			
 			// Then print any suppressed exceptions
 			if (__suppressed != null)
@@ -205,6 +221,15 @@ public final class CallTraceUtils
 			// Give up
 			catch (Throwable ignored)
 			{
+				try
+				{
+					__out.append('%');
+					__out.append((char)('0' + lockStep));
+					__out.append('%');
+				}
+				catch (Throwable ignored2)
+				{
+				}
 			}
 			
 			// Just report that this happened

@@ -3,11 +3,9 @@
 
 dependencies
 {
-	// Need TestNG to run our tests
-	testImplementation "org.testng:testng:7.1.0"
-
 	// Needed to access all of the testing framework details
 	testImplementation project(":modules:cldc-compact")
+	testImplementation project(":modules:common-vm")
 	testImplementation project(":modules:tac")
 	testImplementation project(":modules:meep-midlet")
 	testImplementation project(":emulators:emulator-base")

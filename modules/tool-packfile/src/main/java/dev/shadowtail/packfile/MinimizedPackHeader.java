@@ -9,6 +9,17 @@
 
 package dev.shadowtail.packfile;
 
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
+import cc.squirreljme.jvm.summercoat.constants.PackProperty;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import net.multiphasicapps.classfile.InvalidClassFormatException;
+
 /**
  * This represents the header for a minimized pack file, it mostly just
  * represents a number of JAR files which are combined into one.
@@ -17,102 +28,166 @@ package dev.shadowtail.packfile;
  */
 public final class MinimizedPackHeader
 {
-	/** Magic number for the pack file. */
-	public static final int MAGIC_NUMBER =
-		0x58455223;
+	/** The format version of the JAR. */
+	protected final short formatVersion;
 	
-	/** The size of the header without the magic number. */
-	public static final int HEADER_SIZE_WITHOUT_MAGIC =
-		52;
-	
-	/** The size of the header with the magic number. */
-	public static final int HEADER_SIZE_WITH_MAGIC =
-		56;
-	
-	/** The offset to the BootJAR offset (which has BootRAM), with magic. */
-	public static final int OFFSET_OF_BOOTJAROFFSET =
-		16;
-	
-	/** The offset to the BootJAR size, with magic. */
-	public static final int OFFSET_OF_BOOTJARSIZE =
-		20;
-	
-	/** Size of individual table of contents entry. */
-	public static final int TOC_ENTRY_SIZE =
-		20;
-	
-	/** The number of jars in this packfile. (4) */
-	public final int numjars;
-	
-	/** The offset to the table of contents. (8) */
-	public final int tocoffset;
-	
-	/** The index of the JAR which should be the boot point. (12) */
-	public final int bootjarindex;
-	
-	/** The offset into the packfile where the boot entry is. (16) */
-	public final int bootjaroffset;
-	
-	/** The size of the boot jar. (20) */
-	public final int bootjarsize;
-	
-	/** Initial class path library indexes. (24) */
-	public final int booticpoffset;
-	
-	/** Initial class path library index count. (28) */
-	public final int booticpsize;
-	
-	/** Initial main class to boot. (32) */
-	public final int bootmainclass;
-	
-	/** Initial main entry type. (36) */
-	public final int bootmaintype;
-	
-	/** Static constant pool offset. */
-	public final int staticpooloff;
-	
-	/** Static constant pool size. */
-	public final int staticpoolsize;
-	
-	/** Runtime constant pool offset. */
-	public final int runtimepooloff;
-	
-	/** Runtime constant pool size. */
-	public final int runtimepoolsize;
+	/** The properties of the class. */
+	private final int[] _properties;
 	
 	/**
-	 * Initializes the pack header.
-	 *
-	 * @param __fs Fields.
+	 * Initializes the Pack header.
+	 * 
+	 * @param __fV The format version of the JAR header.
+	 * @param __properties The properties for the JAR.
 	 * @throws NullPointerException On null arguments.
-	 * @since 2019/05/28
+	 * @since 2020/12/09
 	 */
-	public MinimizedPackHeader(int... __fs)
-		throws NullPointerException
+	public MinimizedPackHeader(short __fV, int... __properties)
 	{
-		if (__fs == null)
+		this.formatVersion = __fV;
+		this._properties = Arrays.copyOf(__properties,
+			PackProperty.NUM_PACK_PROPERTIES);
+	}
+	
+	/**
+	 * Changes a property of the pack header and returns a new one.
+	 * 
+	 * @param __property The property to change.
+	 * @param __val The new value.
+	 * @return A new header with the changed property.
+	 * @throws IllegalArgumentException If the property is not valid.
+	 * @since 2021/02/21
+	 */
+	public final MinimizedPackHeader change(int __property, int __val)
+		throws IllegalArgumentException
+	{
+		// {@squirreljme.error BI02 Invalid Pack property. (The property)}
+		if (__property < 0 ||
+			__property >= PackProperty.NUM_PACK_PROPERTIES)
+			throw new IllegalArgumentException("BI02 " + __property);
+		
+		// Build new properties
+		int[] newProperties = this._properties.clone();
+		newProperties[__property] = __val;
+		
+		// Create a new one that is changed
+		return new MinimizedPackHeader(this.formatVersion, newProperties);
+	}
+	
+	/**
+	 * Gets the specified property.
+	 * 
+	 * @param __property The {@link PackProperty} to get.
+	 * @return The property value.
+	 * @throws IllegalArgumentException If the property is not valid.
+	 * @since 2020/12/09
+	 */
+	public final int get(int __property)
+		throws IllegalArgumentException
+	{
+		// {@squirreljme.error BI03 Invalid Pack property. (The property)}
+		if (__property < 0 ||
+			__property >= PackProperty.NUM_PACK_PROPERTIES)
+			throw new IllegalArgumentException("BI03 " + __property);
+		
+		return this._properties[__property];
+	}
+	
+	/**
+	 * Returns this header as a byte array.
+	 * 
+	 * @return The byte array of the given header.
+	 * @since 2021/02/21
+	 */
+	public final byte[] toByteArray()
+	{
+		// Where does it go?
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(
+			ClassInfoConstants.PACK_MAXIMUM_HEADER_SIZE))
+		{
+			// Use standard writing
+			this.writeTo(baos);
+			
+			return baos.toByteArray();
+		}
+		
+		// {@squirreljme.error BI06 Could not write the pack header.}
+		catch (IOException __e)
+		{
+			throw new RuntimeException("Bi06", __e);
+		}
+	}
+	
+	/**
+	 * Writes the header to the given output.
+	 * 
+	 * @param __out The stream to write to.
+	 * @throws IOException On write errors.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/02/21
+	 */
+	@SuppressWarnings("resource")
+	public final void writeTo(OutputStream __out)
+		throws IOException, NullPointerException
+	{
+		if (__out == null)
 			throw new NullPointerException("NARG");
 		
-		int at = 0;
+		// We need to write specific data
+		DataOutputStream out = new DataOutputStream(__out);
+		int[] properties = this._properties;
 		
-		// Jar and table of contents
-		this.numjars = __fs[at++];
-		this.tocoffset = __fs[at++];
+		// Write header
+		out.writeInt(ClassInfoConstants.PACK_MAGIC_NUMBER);
+		out.writeShort(ClassInfoConstants.CLASS_VERSION_20201129);
 		
-		// Boot JAR that may be specified
-		this.bootjarindex = __fs[at++];
-		this.bootjaroffset = __fs[at++];
-		this.bootjarsize = __fs[at++];
-		this.booticpoffset = __fs[at++];
-		this.booticpsize = __fs[at++];
-		this.bootmainclass = __fs[at++];
-		this.bootmaintype = __fs[at++];
+		// Write property count
+		int n = properties.length;
+		out.writeShort(n);
 		
-		// Static and run-time constant pool
-		this.staticpooloff = __fs[at++];
-		this.staticpoolsize = __fs[at++];
-		this.runtimepooloff = __fs[at++];
-		this.runtimepoolsize = __fs[at++];
+		// Write all the various properties
+		for (int i = 0; i < n; i++)
+			out.writeInt(properties[i]);
+	}
+	
+	/**
+	 * Decodes the input pack header.
+	 * 
+	 * @param __in The stream to decode from.
+	 * @return The resultant header.
+	 * @throws IOException On read errors.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2020/12/09
+	 */
+	public static MinimizedPackHeader decode(InputStream __in)
+		throws IOException, NullPointerException
+	{
+		if (__in == null)
+			throw new NullPointerException("NARG");
+		
+		DataInputStream dis = new DataInputStream(__in);
+		
+		// {@squirreljme.error BI04 Invalid minimized Jar magic number.
+		// (The magic number)}
+		int magic;
+		if (ClassInfoConstants.PACK_MAGIC_NUMBER != (magic = dis.readInt()))
+			throw new InvalidClassFormatException(String.format("BI04 %08x",
+				magic));
+		
+		// {@squirreljme.error BI05 Cannot decode pack file because the version
+		// identifier is not known. (The format version of the pack file)}
+		int formatVersion = dis.readUnsignedShort();
+		if (formatVersion != ClassInfoConstants.CLASS_VERSION_20201129)
+			throw new RuntimeException("BI05 " + formatVersion);
+		
+		// Read in all the data
+		int numProperties = dis.readUnsignedShort();
+		int[] properties = new int[numProperties];
+		for (int i = 0; i < numProperties; i++)
+			properties[i] = dis.readInt();
+		
+		// Setup finalized pack
+		return new MinimizedPackHeader((short)formatVersion, properties);
 	}
 }
 

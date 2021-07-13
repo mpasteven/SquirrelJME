@@ -10,12 +10,12 @@
 
 package net.multiphasicapps.tool.manifest.writer;
 
+import cc.squirreljme.jvm.manifest.JavaManifestAttributes;
+import cc.squirreljme.jvm.manifest.JavaManifestKey;
 import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import net.multiphasicapps.tool.manifest.JavaManifestAttributes;
-import net.multiphasicapps.tool.manifest.JavaManifestKey;
 
 /**
  * This is a mutable set of attributes which exist within a manifest.

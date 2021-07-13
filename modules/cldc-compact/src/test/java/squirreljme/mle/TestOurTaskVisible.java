@@ -11,7 +11,6 @@ package squirreljme.mle;
 
 import cc.squirreljme.jvm.mle.TaskShelf;
 import cc.squirreljme.jvm.mle.brackets.TaskBracket;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import net.multiphasicapps.tac.TestBoolean;
 
 /**

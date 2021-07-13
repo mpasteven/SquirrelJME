@@ -9,8 +9,8 @@
 
 package cc.squirreljme.runtime.launcher.ui;
 
-import cc.squirreljme.runtime.swm.launch.Application;
-import cc.squirreljme.runtime.swm.launch.SuiteScanListener;
+import cc.squirreljme.jvm.launch.Application;
+import cc.squirreljme.jvm.launch.SuiteScanListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;

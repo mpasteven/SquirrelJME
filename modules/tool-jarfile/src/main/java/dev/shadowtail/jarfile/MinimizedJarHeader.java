@@ -9,9 +9,13 @@
 
 package dev.shadowtail.jarfile;
 
+import cc.squirreljme.jvm.summercoat.constants.ClassInfoConstants;
+import cc.squirreljme.jvm.summercoat.constants.JarProperty;
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import net.multiphasicapps.classfile.InvalidClassFormatException;
 
 /**
@@ -21,116 +25,110 @@ import net.multiphasicapps.classfile.InvalidClassFormatException;
  */
 public final class MinimizedJarHeader
 {
-	/** Magic number for the JAR. */
-	public static final int MAGIC_NUMBER =
-		0x00456570;
+	/** The format version of the JAR. */
+	protected final short formatVersion;
 	
-	/** The size of the header without the magic number. */
-	public static final int HEADER_SIZE_WITHOUT_MAGIC =
-		72;
-	
-	/** The size of the header with the magic number. */
-	public static final int HEADER_SIZE_WITH_MAGIC =
-		76;
-	
-	/** Size of table of contents entries. */
-	public static final int TOC_ENTRY_SIZE =
-		16;
-	
-	/** Number of resources. */
-	public final int numrc;
-	
-	/** Table of contents offset. */
-	public final int tocoffset;
-	
-	/** Manifest offset. */
-	public final int manifestoff;
-	
-	/** Manifest length. */
-	public final int manifestlen;
-	
-	/** Boot initializer offset. */
-	public final int bootoffset;
-	
-	/** Boot initializer size. */
-	public final int bootsize;
-	
-	/** The boot pool offset. */
-	public final int bootpool;
-	
-	/** Static field basein RAM. */
-	public final int bootsfieldbase;
-	
-	/** The start method offset. */
-	public final int bootstart;
-	
-	/** System call static field pointer. */
-	public final int syscallsfp;
-	
-	/** System call handler code address .*/
-	public final int syscallhandler;
-	
-	/** System call pool address. */
-	public final int syscallpool;
-	
-	/** The ClassInfo for {@code byte[]}. */
-	public final int bootclassidba;
-	
-	/** The ClassInfo for {@code byte[][]}. */
-	public final int bootclassidbaa;
-	
-	/** Static constant pool offset. */
-	public final int staticpooloff;
-	
-	/** Static constant pool size. */
-	public final int staticpoolsize;
-	
-	/** Runtime constant pool offset. */
-	public final int runtimepooloff;
-	
-	/** Runtime constant pool size. */
-	public final int runtimepoolsize;
+	/** The properties of the class. */
+	private final int[] _properties;
 	
 	/**
-	 * Initializes the Jar header.
-	 *
-	 * @param __fs Fields.
+	 * Initializes the JAR header.
+	 * 
+	 * @param __fV The format version of the JAR header.
+	 * @param __properties The properties for the JAR.
 	 * @throws NullPointerException On null arguments.
-	 * @since 2019/04/27
+	 * @since 2020/12/08
 	 */
-	public MinimizedJarHeader(int... __fs)
-		throws NullPointerException
+	public MinimizedJarHeader(short __fV, int... __properties)
 	{
-		if (__fs == null)
-			throw new NullPointerException("NARG");
+		this.formatVersion = __fV;
+		this._properties = Arrays.copyOf(__properties,
+			JarProperty.NUM_JAR_PROPERTIES);
+	}
+	
+	/**
+	 * Gets the specified property.
+	 * 
+	 * @param __property The {@link JarProperty} to get.
+	 * @return The property value.
+	 * @throws IllegalArgumentException If the property is not valid.
+	 * @since 2020/11/29
+	 */
+	public final int get(int __property)
+		throws IllegalArgumentException
+	{
+		// {@squirreljme.error BC09 Invalid Jar property. (The property)}
+		if (__property < 0 ||
+			__property >= JarProperty.NUM_JAR_PROPERTIES)
+			throw new IllegalArgumentException("BC09 " + __property);
 		
-		int at = 0;
-		
-		// Table of contents
-		this.numrc = __fs[at++];
-		this.tocoffset = __fs[at++];
-		
-		// The offset to the manifest and its length
-		this.manifestoff = __fs[at++];
-		this.manifestlen = __fs[at++];
-		
-		// Boot initializer
-		this.bootoffset = __fs[at++];
-		this.bootsize = __fs[at++];
-		this.bootpool = __fs[at++];
-		this.bootsfieldbase = __fs[at++];
-		this.bootstart = __fs[at++];
-		this.syscallsfp = __fs[at++];
-		this.syscallhandler = __fs[at++];
-		this.syscallpool = __fs[at++];
-		this.bootclassidba = __fs[at++];
-		this.bootclassidbaa = __fs[at++];
-		
-		// Static and run-time constant pool
-		this.staticpooloff = __fs[at++];
-		this.staticpoolsize = __fs[at++];
-		this.runtimepooloff = __fs[at++];
-		this.runtimepoolsize = __fs[at++];
+		return this._properties[__property];
+	}
+	
+	/** The ClassInfo for {@code byte[]}. */
+	public int getBootclassidba()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** Boot initializer offset. */
+	public int getBootoffset()
+	{
+		return this.get(JarProperty.OFFSET_BOOT_INIT);
+	}
+	
+	/** The boot pool offset. */
+	public int getBootpool()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** Static field basein RAM. */
+	public int getBootsfieldbase()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** Boot initializer size. */
+	public int getBootsize()
+	{
+		return this.get(JarProperty.SIZE_BOOT_INIT);
+	}
+	
+	/** The start method offset. */
+	public int getBootstart()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** Manifest length. */
+	public int getManifestlen()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** Manifest offset. */
+	public int getManifestoff()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** System call handler code address .*/
+	public int getSyscallhandler()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** System call pool address. */
+	public int getSyscallpool()
+	{
+		throw Debugging.todo();
+	}
+	
+	/** System call static field pointer. */
+	public int getSyscallsfp()
+	{
+		throw Debugging.todo();
 	}
 	
 	/**
@@ -148,42 +146,29 @@ public final class MinimizedJarHeader
 		if (__in == null)
 			throw new NullPointerException("NARG");
 		
-		// Need to read fields
-		DataInputStream din = new DataInputStream(__in);
+		DataInputStream dis = new DataInputStream(__in);
 		
-		// {@squirreljme.error BC0a Invalid minimized Jar magic number.
-		// (The read magic number; The expected magic number)}
-		int wasmagic;
-		if (MinimizedJarHeader.MAGIC_NUMBER != (wasmagic = din.readInt()))
+		// {@squirreljme.error BC06 Invalid minimized Jar magic number.
+		// (The magic number; The expected magic number)}
+		int magic;
+		if (ClassInfoConstants.JAR_MAGIC_NUMBER != (magic = dis.readInt()))
 			throw new InvalidClassFormatException(String.format(
-				"BC0a %08x %08x", wasmagic, MinimizedJarHeader.MAGIC_NUMBER));
+				"BC06 %08x %08x", magic, ClassInfoConstants.JAR_MAGIC_NUMBER));
 		
-		// Build
-		return new MinimizedJarHeader(
-			/* numrc */ din.readInt(),
-			/* tocoffset */ din.readInt(),
-			
-			// Manifest
-			/* manifestoff */ din.readInt(),
-			/* manifestlen */ din.readInt(),
-			
-			// Boot initializer
-			/* bootoffset */ din.readInt(),
-			/* bootsize */ din.readInt(),
-			/* bootpool */ din.readInt(),
-			/* bootsfieldbase */ din.readInt(),
-			/* bootstart */ din.readInt(),
-			/* syscallsfp */ din.readInt(),
-			/* syscallhandler */ din.readInt(),
-			/* syscallpool */ din.readInt(),
-			/* bootclassidba */ din.readInt(),
-			/* bootclassidbaa */ din.readInt(),
-			
-			// Static and runtime pool
-			/* staticpooloff */ din.readInt(),
-			/* staticpoolsize */ din.readInt(),
-			/* runtimepooloff */ din.readInt(),
-			/* runtimepoolsize */ din.readInt());
+		// {@squirreljme.error BC0g Cannot decode class because the version
+		// identifier is not known. (The format version of the class)}
+		int formatVersion = dis.readUnsignedShort();
+		if (formatVersion != ClassInfoConstants.CLASS_VERSION_20201129)
+			throw new RuntimeException("BC0g " + formatVersion);
+		
+		// Read in all the data
+		int numProperties = dis.readUnsignedShort();
+		int[] properties = new int[numProperties];
+		for (int i = 0; i < numProperties; i++)
+			properties[i] = dis.readInt();
+		
+		// Setup finalized class
+		return new MinimizedJarHeader((short)formatVersion, properties);
 	}
 }
 

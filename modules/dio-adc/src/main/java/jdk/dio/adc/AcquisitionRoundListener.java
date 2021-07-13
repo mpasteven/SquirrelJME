@@ -12,7 +12,6 @@ package jdk.dio.adc;
 
 import java.nio.IntBuffer;
 import jdk.dio.InputRoundListener;
-import jdk.dio.RoundCompletionEvent;
 
 public interface AcquisitionRoundListener
 	extends InputRoundListener<ADCChannel, IntBuffer>

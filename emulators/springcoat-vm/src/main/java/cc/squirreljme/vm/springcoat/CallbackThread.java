@@ -9,8 +9,6 @@
 
 package cc.squirreljme.vm.springcoat;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
-
 /**
  * Represents a callback thread.
  *

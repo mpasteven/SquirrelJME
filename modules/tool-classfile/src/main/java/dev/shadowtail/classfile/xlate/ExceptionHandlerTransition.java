@@ -9,8 +9,8 @@
 
 package dev.shadowtail.classfile.xlate;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import net.multiphasicapps.classfile.ExceptionHandlerTable;
 
 /**
@@ -99,7 +99,15 @@ public final class ExceptionHandlerTransition
 	@Override
 	public final String toString()
 	{
-		throw Debugging.todo();
+		String rv;
+		
+		Reference<String> ref = this._string;
+		if (ref == null || null == (rv = ref.get()))
+			this._string = new WeakReference<>((rv = String.format(
+				"{handled=%s, notHandled=%s, table=%s",
+				this.handled, this.nothandled, this.table)));
+		
+		return rv;
 	}
 }
 

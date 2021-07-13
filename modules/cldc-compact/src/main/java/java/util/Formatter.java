@@ -412,11 +412,11 @@ public final class Formatter
 		// the precision (byte:-2 becomes 0xFE)
 		long input;
 		if (__n instanceof Byte)
-			input = __n.byteValue() & 0xFF;
+			input = __n.byteValue() & 0xFFL;
 		else if (__n instanceof Short)
-			input = __n.shortValue() & 0xFFFF;
+			input = __n.shortValue() & 0xFFFFL;
 		else if (__n instanceof Integer)
-			input = __n.intValue() & 0xFFFFFFFF;
+			input = __n.intValue() & 0xFFFFFFFFL;
 		else
 			input = __n.longValue();
 		

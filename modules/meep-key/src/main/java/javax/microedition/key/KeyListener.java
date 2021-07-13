@@ -91,7 +91,7 @@ public interface KeyListener
 	int MODIFIER_ALT =
 		65536;
 		
-	/** Ctrl key modifier. */
+	/** Function (Fn/Chr) key modifier. */
 	int MODIFIER_CHR =
 		8388608;
 	

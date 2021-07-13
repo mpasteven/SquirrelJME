@@ -9,7 +9,7 @@
 
 package cc.squirreljme.plugin.multivm;
 
-import cc.squirreljme.plugin.util.GradleJavaExecSpecFiller;
+import cc.squirreljme.plugin.SquirrelJMEPluginConfiguration;
 import cc.squirreljme.plugin.util.JavaExecSpecFiller;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,20 +20,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.jvm.tasks.Jar;
-import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
-import org.gradle.process.JavaExecSpec;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
@@ -145,10 +141,38 @@ public class VMTestTaskAction
 		if (Boolean.getBoolean("java.awt.headless"))
 			sysProps.put("java.awt.headless", "true");
 		
+		// If debugging, do not run in parallel
+		if (null != System.getProperty("squirreljme.xjdwp",
+			System.getProperty("squirreljme.jdwp")))
+			maxParallel = 1;
+		
+		// Any specific changes to how tests run
+		SquirrelJMEPluginConfiguration config =
+			SquirrelJMEPluginConfiguration.configurationOrNull(
+				__task.getProject());
+		if (config != null)
+		{
+			// If we define any system properties specifically for tests then
+			// use them here. Could be used for debugging.
+			sysProps.putAll(config.testSystemProperties);
+			
+			// Disable parallelism for these tests?
+			if (config.noParallelTests)
+				maxParallel = 1;
+		}
+		
 		// Can we directly refer to the emulator library already?
 		Path emuLib = VMHelpers.findEmulatorLib(__task);
 		if (emuLib != null && Files.exists(emuLib))
 			sysProps.put("squirreljme.emulator.libpath", emuLib.toString());
+		
+		// We only need to set the classpath once
+		Path[] classPath = VMHelpers.runClassPath(
+			(VMExecutableTask)__task, sourceSet, vmType);
+		
+		// Debug
+		__task.getLogger().debug("Testing ClassPath: {}",
+			Arrays.asList(classPath));
 		
 		// Execute the tests concurrently but up to the limit, as testing is
 		// very intense on CPU
@@ -158,9 +182,7 @@ public class VMTestTaskAction
 		{
 			// Determine the arguments that are used to spawn the JVM
 			JavaExecSpecFiller execSpec = specFactory.get();
-			Path[] classPath = VMHelpers.runClassPath(
-				(VMExecutableTask)__task, sourceSet, vmType);
-			vmType.spawnJvmArguments(__task, execSpec,
+			vmType.spawnJvmArguments(__task, true, execSpec,
 				VMHelpers.SINGLE_TEST_RUNNER, sysProps, classPath, classPath,
 				testName);
 			

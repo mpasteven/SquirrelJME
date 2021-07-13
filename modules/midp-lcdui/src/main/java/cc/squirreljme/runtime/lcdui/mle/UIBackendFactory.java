@@ -82,8 +82,15 @@ public final class UIBackendFactory
 			// Use a headless interface? This is if we have no framebuffer
 			// and the only have to have graphics is to fake it
 			if (forceHeadless)
+			{
+				// Emit a notice
+				Debugging.notice("Framebuffer either does not exist " +
+					"or is disabled, attaching without a head.");
+				
+				// Create it
 				rv = new FBUIBackend(new HeadlessAttachment(
 					UIPixelFormat.INT_RGB888, 240, 320));
+			}
 			
 			// Use a method that uses the backing framebuffer here instead
 			else

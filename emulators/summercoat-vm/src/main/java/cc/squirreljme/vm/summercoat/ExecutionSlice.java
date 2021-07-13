@@ -211,15 +211,16 @@ public final class ExecutionSlice
 		// Print call arguments, if any
 		if (callargs != null)
 		{
-			__ps.print("  - CallA: (");
+			__ps.print("  - CallA: [");
 			for (int i = 0, n = callargs.length; i < n; i++)
 			{
 				if (i > 0)
 					__ps.print(", ");
 				
-				__ps.printf("%xh", callargs[i]);
+				__ps.printf("%xh (%d/%#x)", callargs[i],
+					cpuregs[callargs[i]], cpuregs[callargs[i]]);
 			}
-			__ps.println(")");
+			__ps.println("]");
 		}
 		
 		/*
@@ -368,15 +369,14 @@ public final class ExecutionSlice
 	 * @since 2019/10/27
 	 */
 	public static final ExecutionSlice of(CallTraceElement __cte,
-		NativeCPU.Frame __nf, int __op, int[] __args, int __argslen,
+		CPUFrame __nf, int __op, int[] __args, int __argslen,
 		int[] __reglist)
 		throws NullPointerException
 	{
 		if (__nf == null || __args == null)
 			throw new NullPointerException("NARG");
 		
-		return new ExecutionSlice(__cte,
-			__nf._registers,
+		return new ExecutionSlice(__cte, __nf.getRegisters(),
 			__op,
 			__args,
 			__argslen,

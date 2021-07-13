@@ -21,7 +21,6 @@ dependencies
 {
 	api project(":modules:cldc-compact")
 
-	api project(":modules:tool-manifest-reader")
 	api project(":modules:midp-lcdui")
 	api project(":modules:meep-midlet")
 }

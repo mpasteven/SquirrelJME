@@ -28,14 +28,14 @@ public class SoftDouble
 	/**
 	 * Adds two values.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static double add(int __ah, int __al, int __bh, int __bl)
+	public static double add(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -44,14 +44,14 @@ public class SoftDouble
 	/**
 	 * Compares two values.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static int cmpl(int __ah, int __al, int __bh, int __bl)
+	public static int cmpl(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -60,14 +60,14 @@ public class SoftDouble
 	/**
 	 * Compares two values.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static int cmpg(int __ah, int __al, int __bh, int __bl)
+	public static int cmpg(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -76,14 +76,14 @@ public class SoftDouble
 	/**
 	 * Divides two values.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static double div(int __ah, int __al, int __bh, int __bl)
+	public static double div(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -92,14 +92,14 @@ public class SoftDouble
 	/**
 	 * Multiplies two values.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static double mul(int __ah, int __al, int __bh, int __bl)
+	public static double mul(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -108,12 +108,12 @@ public class SoftDouble
 	/**
 	 * Negates a value.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
+	 * @param __ah A high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static double neg(int __ah, int __al)
+	public static double neg(int __al, int __ah)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -122,29 +122,29 @@ public class SoftDouble
 	/**
 	 * ORs value, used for constants.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/27
 	 */
-	public static double or(int __ah, int __al, int __bh, int __bl)
+	public static double or(int __al, int __ah, int __bl, int __bh)
 	{
-		return Assembly.doublePack(__ah | __bh, __al | __bl);
+		return Assembly.doublePack(__al | __bl, __ah | __bh);
 	}
 	
 	/**
 	 * Remainders a value.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static double rem(int __ah, int __al, int __bh, int __bl)
+	public static double rem(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -153,14 +153,14 @@ public class SoftDouble
 	/**
 	 * Subtracts values.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
-	 * @param __bh B high.
+	 * @param __ah A high.
 	 * @param __bl B low.
+	 * @param __bh B high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static double sub(int __ah, int __al, int __bh, int __bl)
+	public static double sub(int __al, int __ah, int __bl, int __bh)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -169,12 +169,12 @@ public class SoftDouble
 	/**
 	 * Converts to float.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
+	 * @param __ah A high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static float toFloat(int __ah, int __al)
+	public static float toFloat(int __al, int __ah)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -183,12 +183,12 @@ public class SoftDouble
 	/**
 	 * Converts to integer.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
+	 * @param __ah A high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static int toInteger(int __ah, int __al)
+	public static int toInteger(int __al, int __ah)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();
@@ -197,12 +197,12 @@ public class SoftDouble
 	/**
 	 * Converts to long.
 	 *
-	 * @param __ah A high.
 	 * @param __al A low.
+	 * @param __ah A high.
 	 * @return The result.
 	 * @since 2019/05/24
 	 */
-	public static long toLong(int __ah, int __al)
+	public static long toLong(int __al, int __ah)
 	{
 		Assembly.breakpoint();
 		throw new todo.TODO();

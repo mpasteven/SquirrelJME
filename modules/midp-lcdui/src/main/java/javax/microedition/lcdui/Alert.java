@@ -66,7 +66,7 @@ public class Alert
 		// Set titles
 		this._userTitle = __title;
 		if (__title != null)
-			this.__displayTitle = __title;
+			this._displayTitle = __title;
 	}
 	
 	@Override

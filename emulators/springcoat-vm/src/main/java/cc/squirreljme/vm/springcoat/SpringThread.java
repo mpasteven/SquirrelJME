@@ -205,7 +205,7 @@ public final class SpringThread
 			__args = new Object[0];
 		
 		// Debug
-		/*todo.DEBUG.note("enterFrame(%s::%s, %s)", __m.inClass(),
+		/*Debugging.debugNote("enterFrame(%s::%s, %s)", __m.inClass(),
 			__m.nameAndType(), Arrays.<Object>asList(__args));*/
 		
 		// {@squirreljme.error BK1k Cannot enter the frame for a method which

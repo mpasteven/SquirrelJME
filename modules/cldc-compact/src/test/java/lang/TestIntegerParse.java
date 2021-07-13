@@ -9,7 +9,6 @@
 
 package lang;
 
-import cc.squirreljme.runtime.cldc.debug.Debugging;
 import net.multiphasicapps.tac.TestRunnable;
 
 /**

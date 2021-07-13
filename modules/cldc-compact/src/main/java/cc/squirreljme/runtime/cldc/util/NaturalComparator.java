@@ -30,7 +30,7 @@ public final class NaturalComparator<V>
 	 *
 	 * @since 2017/11/30
 	 */
-	private NaturalComparator()
+	public NaturalComparator()
 	{
 	}
 	

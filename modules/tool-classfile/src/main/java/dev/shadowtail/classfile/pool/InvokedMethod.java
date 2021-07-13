@@ -161,6 +161,17 @@ public final class InvokedMethod
 	}
 	
 	/**
+	 * Returns the outer class.
+	 * 
+	 * @return The outer class.
+	 * @since 2021/02/04
+	 */
+	public final ClassName outerClass()
+	{
+		return this.handle.outerClass();
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 * @since 2019/03/21
 	 */

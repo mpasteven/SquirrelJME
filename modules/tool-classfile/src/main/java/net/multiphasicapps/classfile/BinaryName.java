@@ -34,6 +34,9 @@ public final class BinaryName
 	/** The package this is in. */
 	private Reference<BinaryName> _package;
 	
+	/** The hash code. */
+	private int _hashCode;
+	
 	/**
 	 * Initializes the binary name.
 	 *
@@ -67,6 +70,34 @@ public final class BinaryName
 		
 		this._identifiers = id.<ClassIdentifier>toArray(
 			new ClassIdentifier[id.size()]);
+	}
+	
+	/**
+	 * Initializes the binary name by identifiers.
+	 * 
+	 * @param __ids The identifiers.
+	 * @throws IllegalArgumentException If there are no identifiers.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2020/11/28
+	 */
+	public BinaryName(ClassIdentifier... __ids)
+		throws IllegalArgumentException, NullPointerException
+	{
+		if (__ids == null)
+			throw new NullPointerException("NARG");
+		
+		// {@squirreljme.error JC0h A binary name cannot have zero identifier
+		// fragments.}
+		if (__ids.length <= 0)
+			throw new IllegalArgumentException("JC0h");
+		
+		// There cannot be any nulls here
+		__ids = __ids.clone();
+		for (ClassIdentifier id : __ids)
+			if (id == null)
+				throw new NullPointerException("NARG");
+		
+		this._identifiers = __ids;
 	}
 	
 	/**
@@ -122,9 +153,14 @@ public final class BinaryName
 	@Override
 	public int hashCode()
 	{
-		int rv = 0;
-		for (ClassIdentifier i : this._identifiers)
-			rv ^= i.hashCode();
+		int rv = this._hashCode;
+		if (rv != 0)
+			return rv;
+		
+		// Calculate the hash, do a bunch of operations on it to try to
+		// prevent potential collisions
+		this._hashCode = (rv = ((Arrays.asList(this._identifiers).hashCode()
+			/* - this._identifiers.length) ^ this.toString().hashCode(*/)));
 		return rv;
 	}
 	
@@ -156,6 +192,52 @@ public final class BinaryName
 		}
 		
 		return rv;
+	}
+	
+	/**
+	 * Resolves a class within a given package.
+	 * 
+	 * @param __name The identifier to resolve on top.
+	 * @return The binary name with the resolved identifier.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2020/11/28
+	 */
+	public BinaryName resolve(ClassIdentifier __name)
+		throws NullPointerException
+	{
+		if (__name == null)
+			throw new NullPointerException("NARG");
+		
+		ClassIdentifier[] current = this._identifiers;
+		int n = current.length;
+		
+		// Build new binary name with this identifier on top
+		ClassIdentifier[] rv = Arrays.copyOf(current, n + 1);
+		rv[n] = __name;
+		return new BinaryName(rv);
+	}
+	
+	/**
+	 * Returns the simple name of the class.
+	 * 
+	 * @return The simple name.
+	 * @since 2020/11/28
+	 */
+	public ClassIdentifier simpleName()
+	{
+		ClassIdentifier[] idents = this._identifiers;
+		return idents[idents.length - 1];
+	}
+	
+	/**
+	 * Converts this binary name to a class.
+	 * 
+	 * @return This as a class.
+	 * @since 2020/11/28
+	 */
+	public ClassName toClass()
+	{
+		return new ClassName(this.toString());
 	}
 	
 	/**

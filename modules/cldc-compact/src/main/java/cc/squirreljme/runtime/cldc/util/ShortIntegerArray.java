@@ -12,6 +12,7 @@ package cc.squirreljme.runtime.cldc.util;
 /**
  * Wraps a short array to provide integer access to it.
  *
+ * @see UnsignedShortIntegerArray
  * @since 2019/05/09
  */
 public final class ShortIntegerArray

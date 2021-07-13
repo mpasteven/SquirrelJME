@@ -16,8 +16,10 @@ import cc.squirreljme.plugin.swm.JavaMEMidletType;
 import cc.squirreljme.plugin.swm.JavaMEProfile;
 import cc.squirreljme.plugin.swm.JavaMEStandard;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.gradle.api.Project;
 import org.gradle.api.UnknownDomainObjectException;
@@ -76,6 +78,13 @@ public class SquirrelJMEPluginConfiguration
 	
 	/** Is this a bootloader? */
 	public boolean isBootLoader;
+	
+	/** System properties to be used by tests only. */
+	public Map<String, String> testSystemProperties =
+		new LinkedHashMap<>();
+	
+	/** Do not run these tests in parallel. */
+	public boolean noParallelTests;
 	
 	/**
 	 * Initializes the configuration with the contained project.

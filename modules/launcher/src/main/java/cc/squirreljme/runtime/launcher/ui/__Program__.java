@@ -10,14 +10,13 @@
 
 package cc.squirreljme.runtime.launcher.ui;
 
+import cc.squirreljme.jvm.manifest.JavaManifest;
 import cc.squirreljme.jvm.mle.JarPackageShelf;
 import cc.squirreljme.jvm.mle.brackets.JarPackageBracket;
-import cc.squirreljme.runtime.cldc.debug.Debugging;
-import cc.squirreljme.runtime.swm.EntryPoint;
+import cc.squirreljme.jvm.suite.EntryPoint;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.microedition.lcdui.Image;
-import net.multiphasicapps.tool.manifest.JavaManifest;
 
 /**
  * Stores the program information which is mapped to what is displayed.

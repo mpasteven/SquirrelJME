@@ -30,12 +30,36 @@ import java.util.Objects;
  */
 public final class EmulatedJarPackageShelf
 {
-	/** Library path property. */
-	private static final String LIB_PATH_PROPERTY =
-		"squirreljme.hosted.libraries";
+	/** Cache of our own classpath. */
+	private static JarPackageBracket[] _CLASSPATH_CACHE;
 	
 	/** Cache of loaded libraries. */
 	private static JarPackageBracket[] _LIB_CACHE;
+	
+	/**
+	 * Returns our classpath.
+	 * 
+	 * @return Our classpath.
+	 * @since 2021/06/24
+	 */
+	public static JarPackageBracket[] classPath()
+	{
+		// Use single cache for it, if available
+		JarPackageBracket[] rv = EmulatedJarPackageShelf._CLASSPATH_CACHE;
+		if (rv != null)
+			return rv.clone();
+		
+		// Use the system property to know our true classpath
+		String paths = System.getProperty(EmulatedTaskShelf.RUN_CLASSPATH);
+		if (paths != null)
+			rv = EmulatedJarPackageShelf.__loadPaths(paths);
+		else
+			rv = new JarPackageBracket[0];
+			
+		// Store cache for later usages
+		EmulatedJarPackageShelf._CLASSPATH_CACHE = rv;
+		return rv.clone();
+	}
 	
 	/**
 	 * Returns the libraries which are available to the virtual machine.
@@ -53,36 +77,11 @@ public final class EmulatedJarPackageShelf
 		// For hosted VMs, the libraries are stored in a system property so
 		// that they can be accessed.
 		String paths = System.getProperty(
-			EmulatedJarPackageShelf.LIB_PATH_PROPERTY);
+			EmulatedTaskShelf.AVAILABLE_LIBRARIES);
 		if (paths != null)
-		{
-			List<JarPackageBracket> fill = new ArrayList<>();
-			for (int at = 0, next;; at = next + 1)
-			{
-				// Get the segment from this section
-				next = paths.indexOf(File.pathSeparatorChar, at + 1);
-				String segment = (next < 0 ? paths.substring(at) :
-					paths.substring(at, next));
-				Path segPath = Paths.get(segment);
-				
-				// Are we filling a JAR or filling random file data?
-				VMClassLibrary vmLib;
-				if (JarClassLibrary.isJar(segment))
-					vmLib = new JarClassLibrary(segPath);
-				else
-					vmLib = new DataContainerLibrary(segPath);
-				
-				// Wrap class library container
-				fill.add(new EmulatedJarPackageBracket(vmLib));
-				
-				// Processing no more
-				if (next < 0)
-					break;
-			}
-			
-			// Store them all
-			rv = fill.toArray(new JarPackageBracket[fill.size()]);
-		}
+			rv = EmulatedJarPackageShelf.__loadPaths(paths);
+		else
+			rv = new JarPackageBracket[0];
 		
 		// Store cache for later usages
 		EmulatedJarPackageShelf._LIB_CACHE = rv;
@@ -126,5 +125,42 @@ public final class EmulatedJarPackageShelf
 			throw new MLECallError("No JAR or resource.");
 		
 		return ((EmulatedJarPackageBracket)__jar).openResource(__rc);
+	}
+	
+	/**
+	 * Loads paths from the given JAR set.
+	 * 
+	 * @param __paths The paths to load.
+	 * @return Loaded JAR brackets for the given paths.
+	 * @since 2021/06/24
+	 */
+	private static JarPackageBracket[] __loadPaths(String __paths)
+	{
+		List<JarPackageBracket> fill = new ArrayList<>();
+		for (int at = 0, next;; at = next + 1)
+		{
+			// Get the segment from this section
+			next = __paths.indexOf(File.pathSeparatorChar, at + 1);
+			String segment = (next < 0 ? __paths.substring(at) :
+				__paths.substring(at, next));
+			Path segPath = Paths.get(segment);
+			
+			// Are we filling a JAR or filling random file data?
+			VMClassLibrary vmLib;
+			if (JarClassLibrary.isJar(segment))
+				vmLib = new JarClassLibrary(segPath);
+			else
+				vmLib = new DataContainerLibrary(segPath);
+			
+			// Wrap class library container
+			fill.add(new EmulatedJarPackageBracket(vmLib));
+			
+			// Processing no more
+			if (next < 0)
+				break;
+		}
+		
+		// Store them all
+		return fill.toArray(new JarPackageBracket[fill.size()]);
 	}
 }

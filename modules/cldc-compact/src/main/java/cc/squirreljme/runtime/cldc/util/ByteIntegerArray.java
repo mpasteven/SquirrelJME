@@ -12,6 +12,7 @@ package cc.squirreljme.runtime.cldc.util;
 /**
  * Wraps a byte array to provide integer access to it.
  *
+ * @see UnsignedByteIntegerArray
  * @since 2019/05/09
  */
 public final class ByteIntegerArray

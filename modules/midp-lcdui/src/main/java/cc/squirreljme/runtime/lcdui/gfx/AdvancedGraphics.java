@@ -1456,42 +1456,42 @@ public class AdvancedGraphics
 			__y -= (ts.texth >> 1);
 		
 		// Get clipping region
-		int clipsx = this.clipsx,
-			clipsy = this.clipsy,
-			clipex = this.clipex - 1,
-			clipey = this.clipey - 1;
+		ts.clipsx = this.clipsx;
+		ts.clipsy = this.clipsy;
+		ts.clipex = this.clipex - 1;
+		ts.clipey = this.clipey - 1;
 		
 		// Wanting to draw a bunch of text completely out of the clip? Ignore
-		if (__x >= clipex || __y >= clipey)
+		if (__x >= ts.clipex || __y >= ts.clipey)
 			return;
 		
 		// Trying to draw the text completely out of the clip as well?
 		ts.tex = __x + ts.textw;
 		ts.tey = __y + ts.texth;
-		if (ts.tex < clipsx || ts.tey < clipsy)
+		if (ts.tex < ts.clipsx || ts.tey < ts.clipsy)
 			return;
 		
 		// The text box acts as an extra clip, so force everything to clip
 		// in there
-		if (__x > clipsx)
-			clipsx = __x;
-		if (ts.tex < clipex)
-			clipex = ts.tex;
-		if (__y > clipsy)
-			clipsy = __y;
-		if (ts.tey < clipey)
-			clipey = ts.tey;
+		if (__x > ts.clipsx)
+			ts.clipsx = __x;
+		if (ts.tex < ts.clipex)
+			ts.clipex = ts.tex;
+		if (__y > ts.clipsy)
+			ts.clipsy = __y;
+		if (ts.tey < ts.clipey)
+			ts.clipey = ts.tey;
 		
 		// Cache the default font in the event it is never changed ever
-		Font lastfont = __t.getFont();
-		SQFFont sqf = SQFFont.cacheFont(lastfont);
-		byte[] bmp = new byte[sqf.charbitmapsize];
-		int pixelheight = sqf.pixelheight,
-			bitsperscan = sqf.bitsperscan;
+		ts.lastfont = __t.getFont();
+		ts.sqf = SQFFont.cacheFont(ts.lastfont);
+		ts.bmp = new byte[ts.sqf.charbitmapsize];
+		ts.pixelheight = ts.sqf.pixelheight;
+		ts.bitsperscan = ts.sqf.bitsperscan;
 		
 		// Background color to use
-		int bgcol = __t.getBackgroundColor();
-		boolean hasbg = ((bgcol & 0xFF_000000) != 0);
+		ts.bgcol = __t.getBackgroundColor();
+		ts.hasbg = ((ts.bgcol & 0xFF_000000) != 0);
 		
 		// Need to store the properties since drawing of the text will
 		// change how characters are drawn
@@ -1512,13 +1512,13 @@ public class AdvancedGraphics
 				
 				// Need to find the SQF for this font again?
 				Font drawfont = __t.getFont(i);
-				if (drawfont != lastfont)
+				if (drawfont != ts.lastfont)
 				{
-					lastfont = drawfont;
-					sqf = SQFFont.cacheFont(lastfont);
-					bmp = new byte[sqf.charbitmapsize];
-					pixelheight = sqf.pixelheight;
-					bitsperscan = sqf.bitsperscan;
+					ts.lastfont = drawfont;
+					ts.sqf = SQFFont.cacheFont(ts.lastfont);
+					ts.bmp = new byte[ts.sqf.charbitmapsize];
+					ts.pixelheight = ts.sqf.pixelheight;
+					ts.bitsperscan = ts.sqf.bitsperscan;
 				}
 				
 				// Get the metrics for the character
@@ -1540,49 +1540,49 @@ public class AdvancedGraphics
 				char mc = SQFFont.mapChar(c);
 				
 				// Base scan offsets and such
-				int scanoff = 0,
-					scanlen = sqf.charWidth(mc),
-					lineoff = 0,
-					linelen = pixelheight;
+				int scanoff = 0;
+				int scanlen = ts.sqf.charWidth(mc);
+				int lineoff = 0;
+				int linelen = ts.pixelheight;
 				
 				// Off the left side?
-				if (dsx < clipsx)
+				if (dsx < ts.clipsx)
 				{
-					int diff = clipsx - dsx;
+					int diff = ts.clipsx - dsx;
 					scanoff += diff;
 					scanlen -= diff;
 					
 					// Reset to clip bound
-					dsx = clipsx;
+					dsx = ts.clipsx;
 				}
 				
 				// Off the right side
-				if (dex > clipex)
-					scanlen -= (dex - clipex);
+				if (dex > ts.clipex)
+					scanlen -= (dex - ts.clipex);
 				
 				// Off the top?
-				if (dsy < clipsy)
+				if (dsy < ts.clipsy)
 				{
-					int diff = clipsy - dsy;
+					int diff = ts.clipsy - dsy;
 					lineoff += diff;
 					linelen -= diff;
 					
 					// Reset to clip bound
-					dsy = clipsy;
+					dsy = ts.clipsy;
 				}
 				
 				// Off the bottom
-				if (dey > clipey)
-					linelen -= (dey - clipey);
+				if (dey > ts.clipey)
+					linelen -= (dey - ts.clipey);
 				
 				// Load the character bitmap
-				int bps = sqf.loadCharBitmap(mc, bmp);
+				int bps = ts.sqf.loadCharBitmap(mc, ts.bmp);
 				
 				// Draw background?
-				if (hasbg)
+				if (ts.hasbg)
 				{
 					// Set needed color
-					this.setAlphaColor(bgcol);
+					this.setAlphaColor(ts.bgcol);
 					
 					// Perform draw operation
 					this.funcfillrect.function(this, ts.loadIntArgs(dsx, dsy,
@@ -1596,7 +1596,7 @@ public class AdvancedGraphics
 				// Setup the draw and do it
 				this.funccharbmp.function(this, ts.loadIntArgs(this.color, dsx, dsy,
 					bps, scanoff, scanlen, lineoff, linelen),
-					ts.loadObject(bmp));
+					ts.loadObject(ts.bmp));
 			}
 		}
 		

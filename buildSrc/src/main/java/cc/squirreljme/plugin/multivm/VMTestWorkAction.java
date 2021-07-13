@@ -53,12 +53,19 @@ public abstract class VMTestWorkAction
 		int count = parameters.getCount().get();
 		int total = parameters.getTotal().get();
 		
+		// If we are debugging, we do not want to kill the test by a timeout
+		// if it takes forever because we might be very slow at debugging
+		String jdwpProp = System.getProperty("squirreljme.xjdwp",
+			System.getProperty("squirreljme.jdwp"));
+		boolean isDebugging = (jdwpProp != null && !jdwpProp.isEmpty());
+		
 		// The process might not be able to execute
 		Process process = null;
 		try
 		{
 			// Note this is running
 			System.err.printf("???? %s (%d/%d)%n", testName, count, total);
+			System.err.flush();
 			
 			// Clock the starting time
 			long clockStart = System.currentTimeMillis();
@@ -88,16 +95,20 @@ public abstract class VMTestWorkAction
 			for (;;)
 				try
 				{
-					// Has the test run expired?
-					long nsDur = System.nanoTime() - nsStart;
-					if (nsDur >= VMTestWorkAction._TEST_TIMEOUT)
+					// Has the test run expired? Only when not debugging
+					if (!isDebugging)
 					{
-						// Note it
-						System.err.printf("TIME %s (%d/%d)%n", testName,
-							count, total);
-						
-						// The logic for interrupts is the same
-						throw new InterruptedException("Test Timeout");
+						long nsDur = System.nanoTime() - nsStart;
+						if (nsDur >= VMTestWorkAction._TEST_TIMEOUT)
+						{
+							// Note it
+							System.err.printf("TIME %s (%d/%d)%n", testName,
+								count, total);
+							System.err.flush();
+							
+							// The logic for interrupts is the same
+							throw new InterruptedException("Test Timeout");
+						}
 					}
 					
 					// Wait for completion
@@ -111,6 +122,7 @@ public abstract class VMTestWorkAction
 				{
 					// Add note that this happened
 					System.err.printf("INTR %s%n", testName);
+					System.err.flush();
 					
 					// Stop the processes that are running
 					process.destroy();
@@ -128,6 +140,7 @@ public abstract class VMTestWorkAction
 			VMTestResult testResult = VMTestResult.valueOf(exitCode);
 			System.err.printf("%4s %s (%d/%d)%n", testResult, testName,
 				count, total);
+			System.err.flush();
 			
 			// Write the XML file
 			try (PrintStream out = new PrintStream(Files.newOutputStream(

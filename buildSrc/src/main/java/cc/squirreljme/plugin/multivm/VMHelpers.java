@@ -802,7 +802,7 @@ public final class VMHelpers
 				return Collections.unmodifiableMap(singles);
 			
 			// If the test has no matching file, then just ignore it
-			__project.getLogger().info("Could not find test {}, ignoring.",
+			__project.getLogger().warn("Could not find test {}, ignoring.",
 				singleTest);
 		}
 		
@@ -930,13 +930,19 @@ public final class VMHelpers
 		
 		// If the test does not have a multi-parameter match it exactly.
 		// However if we requested a specific multi-parameter then match that
-		// as well
+		// as well.
+		// Convert slashes to dots as well for binary name usage
 		int la = __key.indexOf('@');
 		if (la < 0 || __singleTest.indexOf('@') >= 0)
-			return __key.equals(__singleTest);
+			return __key.equals(__singleTest) ||
+				__key.equals(__singleTest.replace('/', '.'));
 		
 		// Only match by the basename, if multi-parameter assume all of them
-		return __key.substring(0, la).equals(__singleTest);
+		// But also convert all slashes to dots in the event binary names
+		// are used.
+		return __key.substring(0, la).equals(__singleTest) ||
+			__key.substring(0, la).equals(
+				__singleTest.replace('/', '.'));
 	}
 	
 	/**

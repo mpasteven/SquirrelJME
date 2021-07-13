@@ -12,6 +12,8 @@ package cc.squirreljme.jdwp;
 import cc.squirreljme.jdwp.event.EventFilter;
 import cc.squirreljme.runtime.cldc.debug.Debugging;
 import cc.squirreljme.runtime.cldc.util.EnumTypeMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,6 +36,24 @@ public final class EventManager
 	/** Event mapping by Id. */
 	private final Map<Integer, EventRequest> _eventById =
 		new HashMap<>();
+	
+	/** Unconditional events. */
+	private final Map<EventKind, EventRequest> _unconditional =
+		new EnumTypeMap<EventKind, EventRequest>(
+			EventKind.class, EventKind.values());
+	
+	/**
+	 * Initializes the event manager.
+	 * 
+	 * @since 2021/07/05
+	 */
+	public EventManager()
+	{
+		// Unconditional breakpoints
+		this._unconditional.put(EventKind.BREAKPOINT,
+			new EventRequest(0, EventKind.BREAKPOINT,
+				SuspendPolicy.EVENT_THREAD, -1, null));
+	}
 	
 	/**
 	 * Adds an event request for later event handling.
@@ -136,14 +156,17 @@ public final class EventManager
 	 * 
 	 * @param __controller The controller used.
 	 * @param __thread The context thread.
+	 * @param __unconditional Is this an unconditional event?
 	 * @param __kind The kind of event to look for.
 	 * @param __args The arguments to the event call.
-	 * @return The valid and found events.
+	 * @return The valid and found events, will be an empty list if none
+	 * were found.
 	 * @throws NullPointerException On null arguments.
 	 * @since 2021/04/17
 	 */
 	protected Iterable<EventRequest> find(JDWPController __controller,
-		Object __thread, EventKind __kind, Object... __args)
+		Object __thread, boolean __unconditional,
+		EventKind __kind, Object... __args)
 		throws NullPointerException
 	{
 		if (__controller == null || __kind == null)
@@ -152,7 +175,10 @@ public final class EventManager
 		// Go through all previously registered requests
 		List<EventRequest> requests = this._eventByKind.get(__kind);
 		if (requests == null)
-			return EmptyList.<EventRequest>empty();
+			if (__unconditional)
+				return this.__unconditional(__controller, __kind);
+			else
+				return EmptyList.<EventRequest>empty();
 		
 		// Lock since this could be used by many threads
 		List<EventRequest> rv = null;
@@ -160,7 +186,10 @@ public final class EventManager
 		{
 			// Nothing?
 			if (requests.isEmpty())
-				return EmptyList.<EventRequest>empty();
+				if (__unconditional)
+					return this.__unconditional(__controller, __kind);
+				else
+					return EmptyList.<EventRequest>empty();
 			
 			// Find matching events
 			for (Iterator<EventRequest> iterator = requests.iterator();
@@ -190,8 +219,43 @@ public final class EventManager
 			}
 		}
 		
+		// Unconditional event?
+		if (__unconditional && (rv == null || rv.isEmpty()))
+			return this.__unconditional(__controller, __kind);
+		
 		// If there are no found events, just use a single instance of the
 		// created empty list, otherwise use that given list
 		return (rv == null ? EmptyList.<EventRequest>empty() : rv);
+	}
+	
+	/**
+	 * Returns an unconditional event if one is available.
+	 * 
+	 * @param __controller The controller that is attached to the debugger.
+	 * @param __kind The kind of event to return.
+	 * @return The unconditional events.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2021/07/06
+	 */
+	private Iterable<EventRequest> __unconditional(JDWPController __controller,
+		EventKind __kind)
+		throws NullPointerException
+	{
+		if (__controller == null || __kind == null)
+			throw new NullPointerException("NARG");
+		
+		// Was this ever registered?
+		EventRequest request = this._unconditional.get(__kind);
+		if (request != null)
+		{
+			Collection<EventRequest> rv = new ArrayList<>();
+			
+			rv.add(request);
+			
+			return rv;
+		}
+		
+		// Just use this event
+		return EmptyList.<EventRequest>empty();
 	}
 }

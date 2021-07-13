@@ -11,7 +11,6 @@ package cc.squirreljme.plugin.multivm;
 
 import javax.inject.Inject;
 import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.api.tasks.testing.Test;
 
 /**

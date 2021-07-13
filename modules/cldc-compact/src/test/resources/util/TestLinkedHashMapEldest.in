@@ -150,7 +150,7 @@ secondary-eldest99key: int:39
 secondary-eldest99val: string:Value39
 secondary-eldest9key: int:0
 secondary-eldest9val: string:Value0
-secondary-ordkeys: int[10]:40,41,42,43,44,45,46,47,48,49
+secondary-ordkeys: int*[10]:40,41,42,43,44,45,46,47,48,49
 secondary-ordvals: string[10]:Value40,Value41,Value42,Value43,Value44,
  Value45,Value46,Value47,Value48,Value49
 

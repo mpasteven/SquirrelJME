@@ -458,9 +458,9 @@ workflows:
       - test_springcoat:
           requires:
             - construct_testJars
-#      - test_summercoat:
-#          requires:
-#            - construct_libTestSummerCoat
+      - test_summercoat:
+          requires:
+            - construct_libTestSummerCoat
 
       # Mac OS X runs decently however the jobs for it have a higher cost, so
       # only perform builds and tests for trunk to lower costs.
@@ -500,16 +500,16 @@ workflows:
             - build_linux
       - construct_libSummerCoat:
           requires:
-            - build_linux
+            - construct_testJars
       - construct_libTestSummerCoat:
           requires:
-            - construct_testJars
+            - construct_libSummerCoat
       - construct_romSummerCoat:
           requires:
-            - construct_libSummerCoat
+            - test_summercoat
       - construct_romTestSummerCoat:
           requires:
-            - construct_libTestSummerCoat
+            - test_summercoat
 
       ############################## RATUFACOAT ##############################
 #      - ratufacoat_build_windows:

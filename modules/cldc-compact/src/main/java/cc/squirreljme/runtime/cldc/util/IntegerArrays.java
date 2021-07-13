@@ -10,6 +10,9 @@
 
 package cc.squirreljme.runtime.cldc.util;
 
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * This class contains utilities used for {@link IntegerArray}.
  *
@@ -115,6 +118,7 @@ public final class IntegerArrays
 	 * @throws IllegalArgumentException If the from index is greater than to
 	 * index.
 	 * @throws NullPointerException If no array was specified.
+	 * @see ShellSort#sort(List, int, int, Comparator) 
 	 * @since 2018/10/28
 	 */
 	public static void sort(IntegerArray __a, int __from, int __to)
@@ -138,26 +142,12 @@ public final class IntegerArrays
 		// If only two values are being sorted, it is a simple swap check
 		if (n == 2)
 		{
-			int ia = __from,
-				ib = __from + 1;
-				
-			// Get both values
-			int a = __a.get(ia),
-				b = __a.get(ib);
-			
-			// If the second is lower than the first, we need to swap
-			if (b < a)
-			{
-				__a.set(ia, b);
-				__a.set(ib, a);
-			}
-			
-			// Nothing else needs to be done
+			IntegerArrays.__sortTwo(__a, __from);
 			return;
 		}
 		
 		// Work down from the highest gap to the lowest
-		for (int gap : ShellSort._GAPS)
+		for (int gap : ShellSort.gaps(n))
 		{
 			// Gapped insertion sort
 			for (int i = gap; i < n; i++)
@@ -174,6 +164,29 @@ public final class IntegerArrays
 				// Put in the correct position
 				__a.set(__from + j, temp);
 			}
+		}
+	}
+	
+	/**
+	 * Sorts only two items.
+	 * 
+	 * @param __a The array to sort.
+	 * @param __from The source array.
+	 * @since 2021/07/12
+	 */
+	private static void __sortTwo(IntegerArray __a, int __from)
+	{
+		int ib = __from + 1;
+		
+		// Get both values
+		int a = __a.get(__from);
+		int b = __a.get(ib);
+		
+		// If the second is lower than the first, we need to swap
+		if (b < a)
+		{
+			__a.set(__from, b);
+			__a.set(ib, a);
 		}
 	}
 }

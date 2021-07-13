@@ -24,9 +24,20 @@ public final class ClassLoadingAdjustments
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/12/15
 	 */
-	public static final boolean isDeferredLoad(String __cl)
+	public static boolean isDeferredLoad(String __cl)
 		throws NullPointerException
 	{
+		if (__cl == null)
+			throw new NullPointerException("NARG");
+		
+		// If this is an array type, check the component since some arrays
+		// we will not want to specially handle. Naturally if this is an
+		// array of an array it will be expanded accordingly.
+		if (__cl.startsWith("[L") && __cl.endsWith(";"))
+			return ClassLoadingAdjustments.isDeferredLoad(
+				__cl.substring(2, __cl.length() - 1));
+		
+		// Primitive or normal class
 		switch (__cl)
 		{
 				// Primitive types
@@ -38,6 +49,7 @@ public final class ClassLoadingAdjustments
 			case "float":
 			case "long":
 			case "double":
+				return false;
 			
 				// Primitive array types
 			case "[Z":
@@ -48,6 +60,7 @@ public final class ClassLoadingAdjustments
 			case "[F":
 			case "[J":
 			case "[D":
+				return false;
 				
 				// Common Java objects
 			case "java/io/IOException":
@@ -109,29 +122,36 @@ public final class ClassLoadingAdjustments
 			case "java/util/Queue":
 			case "java/util/Random":
 			case "java/util/Set":
+				return false;
 			
 				// SquirrelJME special classes
+			case "todo/DEBUG":
+			case "todo/OOPS":
+			case "todo/TODO":
 			case "cc/squirreljme/jvm/Assembly":
-			case "cc/squirreljme/jvm/ClassInfo":
 			case "cc/squirreljme/jvm/Constants":
+			case "cc/squirreljme/runtime/cldc/debug/Debugging":
 			case "cc/squirreljme/jvm/IPCCallback":
 			case "cc/squirreljme/jvm/IPCException":
 			case "cc/squirreljme/jvm/IPCManager":
-			case "cc/squirreljme/jvm/JVMFunction":
+			case "cc/squirreljme/runtime/cldc/Poking":
 			case "cc/squirreljme/jvm/SoftDouble":
 			case "cc/squirreljme/jvm/SoftFloat":
 			case "cc/squirreljme/jvm/SoftInteger":
 			case "cc/squirreljme/jvm/SoftLong":
 			case "cc/squirreljme/jvm/SystemCallError":
 			case "cc/squirreljme/jvm/SystemCallIndex":
-			
-				// Common array classes
-			case "[Lcc/squirreljme/jvm/ClassInfo;":
-			case "[Ljava/lang/String;":
+			case "cc/squirreljme/runtime/cldc/SquirrelJME":
 				return false;
 				
 			default:
-				return true;
+				// Certain classes within packages must be loaded in order
+				// for the VM to properly work
+				return !__cl.startsWith("java/lang/") &&
+					!__cl.startsWith("java/util/") &&
+					!__cl.startsWith("java/io/") &&   
+					!__cl.startsWith("cc/squirreljme/jvm/") &&
+					!__cl.startsWith("cc/squirreljme/runtime/cldc/");
 		}
 	}
 	
@@ -144,7 +164,7 @@ public final class ClassLoadingAdjustments
 	 * @throws NullPointerException On null arguments.
 	 * @since 2019/12/15
 	 */
-	public static final boolean isDeferredLoad(String __self, String __cl)
+	public static boolean isDeferredLoad(String __self, String __cl)
 		throws NullPointerException
 	{
 		if (__self == null || __cl == null)

@@ -9,8 +9,11 @@
 
 package dev.shadowtail.classfile.xlate;
 
+import cc.squirreljme.runtime.cldc.debug.Debugging;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import net.multiphasicapps.classfile.JavaType;
 
 /**
  * This represents the type of stack shuffle to perform. Since these
@@ -25,35 +28,35 @@ public enum JavaStackShuffleType
 	DUP("a:aa"),
 	
 	/** dup_x1. */
-	DUP_X1("ba:aba"),
+	DUP_X1("ab:bab"),
 	
 	/** dup_x2. */
-	DUP_X2("cba:acba",
-		"Ba:aBa"),
+	DUP_X2("abc:cabc",
+		"Ab:bAb"),
 	
 	/** dup2. */
-	DUP2("ba:baba",
+	DUP2("ab:abab",
 		"A:AA"),
 	
 	/** dup2_x1. */
-	DUP2_X1("cba:bacba",
-		"bA:AbA"),
+	DUP2_X1("abc:bcabc",
+		"aB:BaB"),
 	
 	/** dup2_x2. */
-	DUP2_X2("dcba:badcba",
-		"cbA:AcbA",
-		"Cba:baCba",
-		"BA:ABA"),
+	DUP2_X2("abcd:cdabcd",
+		"abC:CabC",
+		"Abc:bcAbc",
+		"AB:BAB"),
 	
 	/** pop. */
 	POP("a:"),
 	
 	/** pop2. */
-	POP2("ba:",
+	POP2("ab:",
 		"A:"),
 	
 	/** swap. */
-	SWAP("ba:ab"),
+	SWAP("ab:ba"), 
 	
 	/* End. */
 	;
@@ -78,7 +81,7 @@ public enum JavaStackShuffleType
 		int n = __fs.length;
 		Function[] functions = new Function[n];
 		for (int i = 0; i < n; i++)
-			functions[i] = Function.of(__fs[i]);
+			functions[i] = Function.__of(__fs[i]);
 		this._functions = functions;
 	}
 	
@@ -106,7 +109,7 @@ public enum JavaStackShuffleType
 		 * @throws NullPointerException On null arguments.
 		 * @since 2019/04/01
 		 */
-		public Function(Slots __in, Slots __out)
+		Function(Slots __in, Slots __out)
 			throws NullPointerException
 		{
 			if (__in == null || __out == null)
@@ -114,6 +117,43 @@ public enum JavaStackShuffleType
 			
 			this.in = __in;
 			this.out = __out;
+		}
+		
+		/**
+		 * Layers the input types to the output.
+		 * 
+		 * @param __inTypes The input types. 
+		 * @return The layered output types.
+		 * @since 2021/07/04
+		 */
+		public JavaType[] layerTypes(JavaType... __inTypes)
+		{
+			int outLen = this.out.max;
+			JavaType[] rv = new JavaType[outLen];
+			
+			// Debug
+			if (__Debug__.ENABLED)
+				Debugging.debugNote("@@layerIn: %s",
+					Arrays.asList(__inTypes));
+			
+			// Map types to the output
+			int at = 0;
+			for (int i = 0; i < outLen; i++)
+			{
+				int outVar = this.out.variable(i);
+				
+				// If this is a top type, there is no variable mapping so this
+				// just gets a bit lost here
+				if (outVar < 0)
+					continue;
+				
+				// Otherwise map the slot, note that we need to map a raw
+				// index to a logical slot for this to work properly
+				rv[at++] = __inTypes[this.in.logicalSlot(
+					this.in.findVariableSlot(outVar))];
+			}
+			
+			return (at == outLen ? rv : Arrays.copyOf(rv, at));
 		}
 		
 		/**
@@ -141,7 +181,7 @@ public enum JavaStackShuffleType
 		 * @throws NullPointerException On null arguments.
 		 * @since 2019/04/01
 		 */
-		public static Function of(String __s)
+		static Function __of(String __s)
 			throws IllegalArgumentException, NullPointerException
 		{
 			if (__s == null)
@@ -167,6 +207,12 @@ public enum JavaStackShuffleType
 		/** The maximum push/pop count. */
 		public final int max;
 		
+		/** Logical maximum push/pop count. */
+		public final int logicalMax;
+		
+		/** Mapping to turn indexes into logical slots. */
+		final byte[] _indexToLogicalSlot;
+		
 		/** The variable index, negative values mean top types. */
 		final byte[] _var;
 		
@@ -184,7 +230,7 @@ public enum JavaStackShuffleType
 		 * @throws NullPointerException On null arguments.
 		 * @since 2019/04/01
 		 */
-		public Slots(String __s)
+		Slots(String __s)
 			throws IllegalArgumentException, NullPointerException
 		{
 			if (__s == null)
@@ -193,6 +239,7 @@ public enum JavaStackShuffleType
 			// Determine the actual popping, with top types and such
 			int n = __s.length(),
 				max = 0;
+			this.logicalMax = n;
 			for (int i = 0; i < n; i++)
 				if (Character.isUpperCase(__s.charAt(i)))
 					max += 2;
@@ -223,6 +270,90 @@ public enum JavaStackShuffleType
 			this.max = max;
 			this._var = var;
 			this._wide = wide;
+			
+			// Build mapping from indexes to logical slots, so it can be
+			// determined which index belongs to which slot.
+			byte[] indexToLogicalSlot = new byte[max];
+			for (int i = 0, at = 0; i < n; i++)
+			{
+				char c = __s.charAt(i);
+				
+				// Top slots take two
+				if (c >= 'A' && c <= 'Z')
+				{
+					indexToLogicalSlot[at++] = (byte)(c - 'A');
+					indexToLogicalSlot[at++] = (byte)(c - 'A');
+				}
+				else
+					indexToLogicalSlot[at++] = (byte)(c - 'a');
+			}
+			this._indexToLogicalSlot = indexToLogicalSlot;
+		}
+		
+		/**
+		 * Finds the slot that the variable is in.
+		 * 
+		 * @param __var The variable to search for.
+		 * @return The first slot the variable belongs in.
+		 * @since 2021/07/04
+		 */
+		public final int findVariableSlot(int __var)
+		{
+			// {@squirreljme.error JC52 Cannot locate the slot of a wide
+			// value.}
+			if (__var < 0)
+				throw new IllegalArgumentException("JC52");
+			
+			for (int i = 0, n = this.max; i < n; i++)
+				if (this.variable(i) == __var)
+					return i;
+			
+			// {@squirreljme.error JC51 Could not find the slot for the given
+			// variable. (The variable)}
+			throw new IllegalArgumentException("JC51 " + __var);
+		}
+		
+		/**
+		 * Returns the logical slot for the index.
+		 * 
+		 * @param __dx The index.
+		 * @return The logical slot for the index.
+		 * @since 2021/06/20
+		 */
+		public final int logicalSlot(int __dx)
+		{
+			return this._indexToLogicalSlot[__dx];
+		}
+		
+		/**
+		 * Like {@link #variable(int)} but instead returns the index via the
+		 * logical slot.
+		 * 
+		 * @param __dx The index to obtain.
+		 * @return The variable type, this will never return a negative value
+		 * for the top type.
+		 * @see #variable(int). 
+		 * @since 2021/07/04
+		 */
+		public int logicalVariable(int __dx)
+		{
+			byte[] var = this._var;
+			
+			int at = 0;
+			for (int res : var)
+			{
+				if (res < 0)
+					continue;
+				
+				if (at == __dx)
+					return res;
+				
+				at++;
+			}
+			
+			// {@squirreljme.error JC53 Could not find the variable for
+			// the logical slot. (The logical slot)}
+			throw new IllegalArgumentException("JC53 " + __dx);
 		}
 		
 		/**

@@ -90,7 +90,9 @@ public final class MethodHandle
 	@Override
 	public boolean equals(Object __o)
 	{
-		// Check
+		if (this == __o)
+			return true;
+		
 		if (!(__o instanceof MethodHandle))
 			return false;
 		

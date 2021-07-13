@@ -10,13 +10,16 @@
 package dev.shadowtail.classfile.mini;
 
 import dev.shadowtail.classfile.pool.AccessedField;
-import dev.shadowtail.classfile.pool.ClassInfoPointer;
+import dev.shadowtail.classfile.pool.ClassNameHash;
 import dev.shadowtail.classfile.pool.ClassPool;
+import dev.shadowtail.classfile.pool.HighRuntimeValue;
+import dev.shadowtail.classfile.pool.InvokeXTable;
 import dev.shadowtail.classfile.pool.InvokedMethod;
 import dev.shadowtail.classfile.pool.NotedString;
 import dev.shadowtail.classfile.pool.NullPoolEntry;
+import dev.shadowtail.classfile.pool.QuickCastCheck;
+import dev.shadowtail.classfile.pool.TypeBracketPointer;
 import dev.shadowtail.classfile.pool.UsedString;
-import dev.shadowtail.classfile.pool.VirtualMethodIndex;
 import dev.shadowtail.classfile.summercoat.pool.InterfaceClassName;
 import net.multiphasicapps.classfile.ClassName;
 import net.multiphasicapps.classfile.ClassNames;
@@ -43,14 +46,7 @@ public enum MinimizedPoolEntryType
 	/** Class names (used for interfaces). */
 	CLASS_NAMES(false, ClassNames.class),
 	
-	/**
-	 * The constant pool for the given class.
-	 *
-	 * @deprecated This will be handled by the outer-VM layer eventually and
-	 * will mean that there will be an easier interface to access the class
-	 * pool and such.
-	 */
-	@Deprecated
+	/** The constant run-time pool for a given class. */
 	CLASS_POOL(true, ClassPool.class),
 	
 	/** Accessed Field. */
@@ -77,23 +73,26 @@ public enum MinimizedPoolEntryType
 	/** A plain string that was used. */
 	USED_STRING(true, UsedString.class),
 	
-	/** The index of a method. */
-	VIRTUAL_METHOD_INDEX(true, VirtualMethodIndex.class),
+	/** The invocation table for a given class's invocation kind. */
+	INVOKE_XTABLE(true, InvokeXTable.class),
 	
 	/** An invokable interface class, used for interface binding. */
 	INTERFACE_CLASS(true, InterfaceClassName.class),
 	
-	/**
-	 * Class information.
-	 *
-	 * @deprecated Class info pointers will be going away as it will be
-	 * managed and obtainable by the outer-VM layer.
-	 */
-	@Deprecated
-	CLASS_INFO_POINTER(true, ClassInfoPointer.class),
+	/** Class information. */
+	TYPE_BRACKET_POINTER(true, TypeBracketPointer.class),
 	
 	/** A string which has been noted for debug purposes. */
 	NOTED_STRING(true, NotedString.class),
+	
+	/** Check for quick casting, to avoid doing an involved instance check. */
+	QUICK_CAST_CHECK(true, QuickCastCheck.class),
+	
+	/** The hash code for a class. */
+	CLASS_NAME_HASH(true, ClassNameHash.class),
+	
+	/** Place holder for high long values. */
+	HIGH_RUNTIME_VALUE(true, HighRuntimeValue.class),
 	
 	/* End. */
 	;
@@ -124,6 +123,27 @@ public enum MinimizedPoolEntryType
 		
 		this.isRunTime = __isRt;
 		this._classes = __classes;
+	}
+	
+	/**
+	 * Checks if this is a compatible class.
+	 * 
+	 * @param __cl The class to check.
+	 * @return If this is a compatible class.
+	 * @throws NullPointerException On null arguments.
+	 * @since 2020/11/28
+	 */
+	public final boolean isClass(Class<?> __cl)
+		throws NullPointerException
+	{
+		if (__cl == null)
+			throw new NullPointerException("NARG");
+		
+		for (Class<?> cl : this._classes)
+			if (__cl == cl)
+				return true;
+		
+		return false;
 	}
 	
 	/**

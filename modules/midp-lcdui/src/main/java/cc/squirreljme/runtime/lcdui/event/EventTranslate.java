@@ -11,6 +11,7 @@
 package cc.squirreljme.runtime.lcdui.event;
 
 import cc.squirreljme.jvm.mle.constants.NonStandardKey;
+import com.nokia.mid.ui.FullCanvas;
 import javax.microedition.lcdui.Canvas;
 
 /**
@@ -112,6 +113,21 @@ public final class EventTranslate
 			case NonStandardKey.VGAME_B:		return Canvas.GAME_B;
 			case NonStandardKey.VGAME_C:		return Canvas.GAME_C;
 			case NonStandardKey.VGAME_D:		return Canvas.GAME_D;
+				
+				// Nokia Soft Key 1
+			case NonStandardKey.VGAME_COMMAND_LEFT:
+			case FullCanvas.KEY_SOFTKEY1:
+				return FullCanvas.KEY_SOFTKEY1;
+				
+				// Nokia Soft Key 2
+			case NonStandardKey.VGAME_COMMAND_CENTER:
+			case FullCanvas.KEY_SOFTKEY2:
+				return FullCanvas.KEY_SOFTKEY2;
+				
+				// Nokia Soft Key 3
+			case NonStandardKey.VGAME_COMMAND_RIGHT:
+			case FullCanvas.KEY_SOFTKEY3:
+				return FullCanvas.KEY_SOFTKEY3;
 			
 				// Invalid
 			default:

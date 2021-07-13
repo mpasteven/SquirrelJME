@@ -53,9 +53,9 @@ public enum ArgumentFormat
 	 * @return {@code __a}.
 	 * @since 2019/04/16
 	 */
-	public static ArgumentFormat[] of(ArgumentFormat... __a)
+	public static InstructionFormat of(ArgumentFormat... __a)
 	{
-		return (__a == null ? new ArgumentFormat[0] : __a);
+		return new InstructionFormat(__a);
 	}
 }
 

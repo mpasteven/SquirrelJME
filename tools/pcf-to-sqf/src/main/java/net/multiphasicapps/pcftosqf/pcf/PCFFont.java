@@ -10,6 +10,7 @@
 
 package net.multiphasicapps.pcftosqf.pcf;
 
+import cc.squirreljme.runtime.cldc.util.SortedTreeSet;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -17,7 +18,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import  cc.squirreljme.runtime.cldc.util.SortedTreeSet;
 import net.multiphasicapps.collections.UnmodifiableList;
 
 /**
